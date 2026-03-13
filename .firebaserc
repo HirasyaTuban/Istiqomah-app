@@ -1,0 +1,16 @@
+{
+  "projects": {
+    "default": "sakinahplaybook",
+    "ramadhan": "sakinahplaybook"
+  },
+  "targets": {
+    "sakinahplaybook": {
+      "hosting": {
+        "ramadhan": [
+          "ramadhanreseter"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
