@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ramadhan Reset</title>
+
+  <!-- PWA Meta Tags -->
+  <meta name="description"
+    content="Aplikasi untuk membantu perjalanan spiritual Anda selama Ramadhan - tracking ibadah, tantangan, dan target personal.">
+  <meta name="theme-color" content="#f59e0b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ramadhan Reset">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="msapplication-TileColor" content="#000000">
+  <meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Icons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-96x96.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-128x128.png">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            serif: ['Noto Serif', 'serif'],
+          },
+          animation: {
+            'in': 'fade-in 0.5s ease-out',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom Utilities */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    body {
+      background-color: #000000;
+      color: #e4e4e7;
+    }
+
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+
+  <!-- React & ReactDOM -->
+  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js" crossorigin></script>
+
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Noto+Serif:ital,wght@0,400;0,700;1,400&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <!-- Firebase Pre-loader (Module to Global) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot, collection, query, addDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Expose Firebase functions globally for the Babel script
+    window.FB = {
+      initializeApp,
+      getAuth,
+      signInAnonymously,
+      onAuthStateChanged,
+      signInWithCustomToken,
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      onSnapshot,
+      collection,
+      query,
+      addDoc,
+      deleteDoc,
+      serverTimestamp
+    };
+
+    // Dispatch event to signal Firebase is ready
+    window.dispatchEvent(new Event('firebase-ready'));
+  </script>
+
+  <!-- Main Application Script -->
+  <script type="text/babel">
+    // Wait for Firebase to be loaded
+    function startApp() {
+      const { useState, useEffect, useMemo } = React;
+
+      // --- INTERNAL ICON SYSTEM (No External Dependency) ---
+      // Definisi ikon lokal untuk menghindari error library eksternal
+      const IconPaths = {
+        Moon: <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />,
+        Sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41-1.41" /><path d="m19.07 4.93-1.41 1.41" /></>,
+        Sunset: <><path d="M12 10V2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /><path d="M2 17h20" /><path d="M22 22H2" /><path d="M16 17a4 4 0 0 0-8 0" /></>,
+        BookOpen: <><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></>,
+        Heart: <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />,
+        CheckCircle: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><path d="m9 11 3 3L22 4" /></>,
+        ChevronLeft: <path d="m15 18-6-6 6-6" />,
+        ChevronRight: <path d="m9 18 6-6-6-6" />,
+        Save: <><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></>,
+        Trash2: <><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></>,
+        Plus: <path d="M5 12h14M12 5v14" />,
+        Settings: <><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.47a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /><circle cx="12" cy="12" r="3" /></>,
+        TrendingUp: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></>,
+        X: <path d="M18 6 6 18M6 6l12 12" />,
+        Trophy: <><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" /></>,
+        Target: <><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></>,
+        Shield: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />,
+        Zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
+        Quote: <><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" /><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" /></>,
+        Lock: <><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></>,
+        Key: <><circle cx="7.5" cy="15.5" r="5.5" /><path d="m21 2-9.6 9.6" /><path d="m15.5 7.5 3 3L22 7l-3-3" /></>,
+        Loader2: <path d="M21 12a9 9 0 1 1-6.219-8.56" />,
+        AlertCircle: <><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></>,
+        LogOut: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></>,
+        Download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></>,
+        Share: <><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" /><polyline points="16 6 12 2 8 6" /><line x1="12" x2="12" y1="2" y2="15" /></>,
+        ListTodo: <><rect x="3" y="5" width="6" height="6" rx="1" /><path d="m3 17 2 2 4-4" /><path d="M13 6h8" /><path d="M13 12h8" /><path d="M13 18h8" /></>,
+        CheckSquare: <><polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></>,
+        Square: <rect width="18" height="18" x="3" y="3" rx="2" />,
+        PenLine: <><path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" /></>,
+        Activity: <path d="M22 12h-4l-3 9L9 3l-3 9H2" />,
+        MoreVertical: <><circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" /></>,
+        Type: <><polyline points="4 7 4 4 20 4 20 7" /><line x1="9" x2="15" y1="20" y2="20" /><line x1="12" x2="12" y1="4" y2="20" /></>,
+        Languages: <><path d="m5 8 6 6" /><path d="m4 14 6-6 2-3" /><path d="M2 5h12" /><path d="M7 2h1" /><path d="m22 22-5-10-5 10" /><path d="M14 18h6" /></>
+      };
+
+      // Generic Icon Component
+      const createIcon = (name) => (props) => {
+        const path = IconPaths[name];
+        if (!path) return null;
+        return (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            {...props}
+          >
+            {path}
+          </svg>
+        );
+      };
+
+      // Create global-like object with all icons
+      const LucideIcons = Object.keys(IconPaths).reduce((acc, key) => {
+        acc[key] = createIcon(key);
+        return acc;
+      }, {});
+
+      const {
+        Moon, BookOpen, Heart, CheckCircle, ChevronLeft, ChevronRight, Save, Trash2,
+        Plus, Settings, TrendingUp, X, Trophy, Target, Shield, Zap, Quote, Lock,
+        Key, Loader2, AlertCircle, LogOut, Download, Share, ListTodo, CheckSquare,
+        Square, PenLine, Activity, MoreVertical, Sun, Sunset, Type, Languages
+      } = LucideIcons;
+
+      // --- Destructure Firebase ---
+      const {
+        initializeApp, getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken,
+        getFirestore, doc, setDoc, getDoc, onSnapshot, collection, query, addDoc,
+        deleteDoc, serverTimestamp
+      } = window.FB;
+
+      // Firebase config for sakinahplaybook project
+      const firebaseConfig = {
+        apiKey: "AIzaSyD7MObj-nTpeVldIZfR1E3DJ6XeFXNDL7Q",
+        authDomain: "sakinahplaybook.firebaseapp.com",
+        projectId: "sakinahplaybook",
+        storageBucket: "sakinahplaybook.firebasestorage.app",
+        messagingSenderId: "326135659733",
+        appId: "1:326135659733:web:23cd01bf2f76c22745b65c"
+      };
+
+      // Initialize Firebase
+      let app, auth, db, appId;
+      try {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        appId = 'ramadhan-reset-app';
+      } catch (e) {
+        console.error("Firebase Initialization Error:", e);
+      }
+
+      // --- HELPER UNTUK PUBLIC DATA PATH ---
+      const getUserDataDoc = (collectionSuffix, docId) =>
+        doc(db, 'artifacts', appId, 'public', 'data', collectionSuffix, docId);
+
+      // --- HELPER UNTUK USER MANAGEMENT ---
+      const getUserDoc = (submissionId) =>
+        doc(db, 'artifacts', appId, 'users', submissionId);
+
+      // Fungsi untuk menyimpan/update user ke Firestore saat login
+      const saveUserToFirestore = async (submissionId, additionalData = {}) => {
+        try {
+          const userRef = getUserDoc(submissionId);
+          const userSnap = await getDoc(userRef);
+
+          const now = new Date().toISOString();
+
+          if (userSnap.exists()) {
+            // User sudah ada, update lastLoginAt dan loginCount
+            const existingData = userSnap.data();
+            await setDoc(userRef, {
+              ...existingData,
+              lastLoginAt: now,
+              loginCount: (existingData.loginCount || 0) + 1,
+              ...additionalData
+            }, { merge: true });
+            console.log('User updated:', submissionId);
+            return { isNewUser: false, data: { ...existingData, lastLoginAt: now } };
+          } else {
+            // User baru, buat dokumen baru
+            const newUserData = {
+              submissionId: submissionId,
+              createdAt: now,
+              firstLoginAt: now,
+              lastLoginAt: now,
+              loginCount: 1,
+              status: 'active',
+              ...additionalData
+            };
+            await setDoc(userRef, newUserData);
+            console.log('New user created:', submissionId);
+            return { isNewUser: true, data: newUserData };
+          }
+        } catch (error) {
+          console.error('Error saving user to Firestore:', error);
+          throw error;
+        }
+      };
+
+      // Fungsi untuk mengambil data user dari Firestore
+      const getUserFromFirestore = async (submissionId) => {
+        try {
+          const userRef = getUserDoc(submissionId);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            return userSnap.data();
+          }
+          return null;
+        } catch (error) {
+          console.error('Error getting user from Firestore:', error);
+          return null;
+        }
+      };
+
+      // --- DATA STATIC ---
+      const MATSURAT_PAGI = [
+        { id: 'taawudz', title: "Ta'awudz", target: 1, arab: "اَعُوْذُ بِاللّٰهِ السَّمِيْعِ الْعَلِيْمِ مِنَ الشَّيْطَانِ الرَّجِيْمِ", latin: "A’udzubillahissami’il aliimi minasyaithanirrajiim", terjemah: "Aku berlindung kepada Allah Yang Maha Mendengar lagi Maha Mengetahui dari godaan setan yang terkutuk." },
+        { id: 'fatihah', title: "QS. Al-Fatihah : 1-7", target: 1, arab: "بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ ۝ اَلْحَمْدُ لِلّٰهِ رَبِّ الْعٰلَمِيْنَۙ ۝ الرَّحْمٰنِ الرَّحِيْمِۙ ۝ مٰلِكِ يَوْمِ الدِّيْنِۗ ۝ اِيَّاكَ نَعْبُدُ وَاِيَّاكَ نَسْتَعِيْنُۗ ۝ اِهْدِنَا الصِّرَاطَ الْمُسْتَقِيْمَۙ ۝ صِرَاطَ الَّذِيْنَ اَنْعَمْتَ عَلَيْهِمْ ەۙ غَيْرِ الْمَغْضُوْبِ عَلَيْهِمْ وَلَا الضَّاۤلِّيْنَ ࣖ", latin: "Bismillaahirrahmaanirrahiiim...", terjemah: "Dengan menyebut nama Allah yang Maha Pemurah lagi Maha Penyayang..." },
+        { id: 'baqarah_1_5', title: "QS. Al-Baqarah : 1-5", target: 1, arab: "بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ ۝ الۤمّۤ ۚ ۝ ذٰلِكَ الْكِتٰبُ لَا رَيْبَ ۛ فِيْهِ ۛ هُدًى لِّلْمُتَّقِيْنَۙ ۝ الَّذِيْنَ يُؤْمِنُوْنَ بِالْغَيْبِ وَيُقِيْمُوْنَ الصَّلٰوةَ وَمِمَّا رَزَقْنٰهُمْ يُنْفِقُوْنَ ۙ ۝ وَالَّذِيْنَ يُؤْمِنُوْنَ بِمَآ اُنْزِلَ اِلَيْكَ وَمَآ اُنْزِلَ مِنْ قَبْلِكَ ۚ وَبِالْاٰخِرَةِ هُمْ يُوْقِنُوْنَۗ۝ اُولٰۤىِٕكَ عَلٰى هُدًى مِّنْ رَّبِّهِمْ ۙ وَاُولٰۤىِٕكَ هُمُ الْمُفْلِحُوْنَ ۝", latin: "Alif laam miim...", terjemah: "Kitab (Al Quran) ini tidak ada keraguan padanya..." },
+        { id: 'ayat_kursi', title: "Ayat Kursi (QS. Al-Baqarah : 255 - 257)", target: 1, arab: "اَللّٰهُ لَآ اِلٰهَ اِلَّا هُوَۚ اَلْحَيُّ الْقَيُّوْمُ ەۚ...", latin: "Allahu laa ilaaha illaa huwal hayyul qayyuum...", terjemah: "Allah, tidak ada Tuhan (yang berhak disembah) melainkan Dia..." },
+        { id: 'baqarah_end', title: "QS. Al-Baqarah : 284-286", target: 1, arab: "لِلّٰهِ مَا فِى السَّمٰوٰتِ وَمَا فِى الْاَرْضِ...", latin: "Lillaahi maa fis-samaawaati...", terjemah: "Kepunyaan Allah-lah segala apa yang ada di langit..." },
+        { id: 'ikhlas', title: "QS. Al-Ikhlash : 1 – 4", target: 3, arab: "بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ ۝ قُلْ هُوَ اللّٰهُ اَحَدٌۚ ۝ اَللّٰهُ الصَّمَدُۚ ۝ لَمْ يَلِدْ وَلَمْ يُوْلَدْۙ ۝ وَلَمْ يَكُنْ لَّهٗ كُفُوًا اَحَدٌ", latin: "Qul huwallaahu ahad...", terjemah: "Katakanlah: “Dialah Allah, Yang Maha Esa..." },
+        { id: 'falaq', title: "QS. Al-Falaq : 1 – 5", target: 3, arab: "بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ ۝ قُلْ اَعُوْذُ بِرَبِّ الْفَلَقِۙ...", latin: "Qul a'uudzu bi rabbil-falaq...", terjemah: "Katakanlah: \"Aku berlindung kepada Tuhan yang menguasai subuh..." },
+        { id: 'annas', title: "QS. An-Nas : 1 – 6", target: 3, arab: "بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ . قُلْ اَعُوْذُ بِرَبِّ النَّاسِۙ...", latin: "Qul a'uudzubi rabbinnaas...", terjemah: "Katakanlah: \"Aku berlidung kepada Tuhan manusia..." },
+        { id: 'dzikir_1', title: "Dzikir Pagi 1", target: 3, arab: "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلّٰهِ...", latin: "Ashbahna wa ashbaha mulku lillahi...", terjemah: "Kami masuk waktu pagi dan masuk waktu pagi pula kerajaan milik Allah..." },
+        { id: 'dzikir_2', title: "Dzikir Pagi 2", target: 3, arab: "اَصْبَحْنَا عَلَى فِطْرَةِ الْإِسْلَامِ...", latin: "Ashbahna ‘ala fithratil Islaam...", terjemah: "Kami masuk waktu pagi di atas fitrah Islam..." },
+        { id: 'dzikir_3', title: "Dzikir & Doa", target: 3, arab: "اللّٰهُـمَّ إِنِّيْ أَصْبَحْتُ مِنْكَ فِيْ نِعْمَةٍ...", latin: "Allahumma innii ashbahtu minka...", terjemah: "Yaa Allah, sesungguhnya aku memulai pagi ini dengan kenikmatan..." },
+        { id: 'dzikir_4', title: "Dzikir Syukur", target: 3, arab: "اَللّٰهُـمَّ مَا أَصْبَحَ بِيْ مِنْ نِعْمَةٍ...", latin: "Allahumma maa ashbaha bii min ni’matin...", terjemah: "Yaa Allah, segala nikmat yang pagi ini menyertaiku..." },
+        { id: 'dzikir_5', title: "Pujian Bagi Allah", target: 3, arab: "يَارَبِّيْ لَكَ الْحَمْدُ...", latin: "Yaa rabbi lakal hamdu...", terjemah: "Yaa Tuhanku, bagi-Mu segala puji..." },
+        { id: 'dzikir_6', title: "Ridho Billah", target: 3, arab: "رَضِتُ بِاللّٰهِ رَبَّا...", latin: "radhitubillahi rabbaa...", terjemah: "Aku ridho Allah SWT sebagai Tuhanku..." },
+        { id: 'dzikir_7', title: "Tasbih Malaikat", target: 3, arab: "سُبْحَانَ اللّٰهِ وَبِحَمْدِهِ...", latin: "Subhaanallahi wa bihamdihi...", terjemah: "Maha Suci Allah dan segala puji bagi-Nya..." },
+        { id: 'dzikir_8', title: "Perlindungan Nama Allah", target: 3, arab: "بِسْمِ اللّٰهِ الَّذِي لَا يَضُرُّ...", latin: "Bismillahil-ladzii laa yadhurru...", terjemah: "Dengan nama Allah, yang selama bersama nama-Nya tidak ada sesuatu pun..." },
+        { id: 'doa_1', title: "Menghindari Syirik", target: 3, arab: "اللّٰهُـمَّ إِنَّا نَعُوْذُبِكَ مِنْ...", latin: "Allahumma inna na'uudzubika...", terjemah: "Yaa Allah, sesungguhnya kami berlindung..." },
+        { id: 'doa_2', title: "Perlindungan Sempurna", target: 3, arab: "أَعُوْذُ بِكَلِمَاتِ اللّٰهِ التَّامَّاتِ...", latin: "A’uudzu bikalimaatillahittaammaati...", terjemah: "Aku berlindung dengan kalimat-kalimat Allah yang sempurna..." },
+        { id: 'doa_3', title: "Menghapus Kesedihan", target: 3, arab: "اَللّٰهُـمَّ اِنِّى اَعُوْذُ بِكَ مِنَ الْهَمِّ...", latin: "Allahumma inni a’uudzu bika minal hammi...", terjemah: "Yaa Allah, aku berlindung kepada-Mu dari rasa gelisah..." },
+        { id: 'doa_4', title: "Kesehatan Badan", target: 3, arab: "اللّٰهُـمَّ عَافِنِي فِي بَدَنِي...", latin: "Allahumma ‘aafinii fii badanii...", terjemah: "Yaa Allah, sehatkanlah badanku..." },
+        { id: 'doa_5', title: "Berlindung dari Kufur", target: 3, arab: "اللّٰهُـمَّ إِنِّي أَعُوْذُبِكَ مِنَ الْكُفْرِ...", latin: "Allahumma innii a‘uudzu bika minal kufri...", terjemah: "Yaa Allah, aku berlindung kepada-Mu dari kekufuran..." },
+        { id: 'sayyidul_istighfar', title: "Sayyidul Istighfar", target: 3, arab: "اَللّٰهُـمَّ أَنْتَ رَ بِّيْ...", latin: "Allahumma anta rabbi...", terjemah: "Yaa Allah, Engkau Tuhanku..." },
+        { id: 'istighfar', title: "Istighfar Singkat", target: 3, arab: "أَسْتَغْفِرُ اللّٰهَ الَّذِي...", latin: "Astagfirullah...", terjemah: "Aku mohon ampun kepada Allah..." },
+        { id: 'shalawat', title: "Shalawat Ibrahimiyah", target: 10, arab: "اللّٰهُـمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ...", latin: "Allaahumma shalli 'alaa sayyidinaa muhammadin...", terjemah: "Yaa Allah, limpahkanlah rahmat kepada junjungan kami Nabi Muhammad..." },
+        { id: 'tasbih_tahmid', title: "Tasbih, Tahmid, Tahlil, Takbir", target: 100, arab: "سُبْحَانَ اللّٰهِ،, وَالْحَمْدُ لِلّٰهِ،, وَلَآ إِلَهَ إِلَّا اللّٰهُ،, وَاللّٰهُ أَكْبَرُ", latin: "Subhaanallah wal hamdu lillahi...", terjemah: "Maha Suci Allah, Segala Puji bagi Allah..." },
+        { id: 'tahlil_wahdah', title: "Tahlil Wahdah", target: 10, arab: "لَآ إِلَـهَ إِلَّا اللّٰهُ وَحْدَهُ...", latin: "Laa ilaaha illallaahu wahdahu...", terjemah: "Tiada Tuhan melainkan Allah semata..." },
+        { id: 'kafaratul_majlis', title: "Kafaratul Majlis", target: 3, arab: "سُبْحَانَكَ اللّٰهُـمَّ وَبِحَمْدِكَ...", latin: "Subhaanakallaahumma wa bihamdika...", terjemah: "Maha Suci Engkau yaa Allah..." },
+        { id: 'shalawat_nabi', title: "Shalawat Nabi", target: 1, arab: "اللّٰهُـمَّ صَلِّ عَلَى سَيِّدِنَا مُحَمَّدٍ...", latin: "Allaahumma shalli 'alaa sayyidina muhammadin...", terjemah: "Yaa Allah, berilah sholawat kepada Muhammad..." },
+        { id: 'tasbih_akhir', title: "Tasbih Penutup", target: 1, arab: "سُبْحَانَ رَبِّكَ رَبِّ الْعِزَّةِ...", latin: "subhaana rabbika rabbil'izzati...", terjemah: "Maha Suci Tuhanmu..." },
+        { id: 'ali_imran', title: "QS. Ali Imran : 26-27", target: 1, arab: "قُلِ اللهم مٰلِكَ الْمُلْكِ...", latin: "Qulillahumma malikal mulki...", terjemah: "Katakanlah: “Wahai Tuhan Yang mempunyai kerajaan..." },
+        { id: 'dzikir_siang', title: "Doa Siang", target: 1, arab: "اللهم إِنَّ هَذَا إِقْبَالُ نَهَارِكَ...", latin: "allahumma inni hadzaa iqbaalu...", terjemah: "Yaa Allah, sesungguhnya inilah saat datangnya siang-Mu..." },
+        { id: 'rabithah', title: "Doa Rabithah", target: 1, arab: "اللهم إِنَّكَ تَعْلَمُ أَنَّ هَذِهِ الْقُلُوْبَ...", latin: "Allaahumma innaka ta’lamu...", terjemah: "Yaa Allah, sesungguhnya Engkau Maha Mengetahui..." }
+      ];
+
+      const CHALLENGES = [
+        { day: 1, phase: 1, phaseTitle: "DETOKS & PENGENDALIAN DIRI", title: "Bio-Hacking", focus: "Kesehatan", enemy: "Sugar Spike & Makan Berlebih", quote: "Tidak ada wadah yang dipenuhi anak Adam yang lebih buruk dari perutnya. (HR. Tirmidzi)", challenge: "The Water First Protocol. Saat berbuka, minum air putih dan makan 3 butir kurma saja. Berhenti makan selama 15 menit (Sholat Maghrib dulu) sebelum makan berat. Kunyah 20-30x.", dua: "Allahumma barik lana fima razaqtana waqina adzabannar." },
+        { day: 2, phase: 1, phaseTitle: "DETOKS & PENGENDALIAN DIRI", title: "Distraksi Digital", focus: "Produktivitas", enemy: "Mindless Scrolling", quote: "Di antara kebaikan Islam seseorang adalah meninggalkan hal yang tidak bermanfaat baginya. (HR. Tirmidzi)", challenge: "Grey Scale Mode. Ubah layar HP jadi hitam-putih seharian. Hapus 1 aplikasi yang paling menyita waktu (TikTok/IG) setidaknya selama Ramadhan.", dua: "Allahumma inni a’udzu bika minal ajzi wal kasal." },
+        { day: 3, phase: 1, phaseTitle: "DETOKS & PENGENDALIAN DIRI", title: "Prokrastinasi", focus: "Produktivitas", enemy: "Nanti Saja / Taswif", quote: "Bersegeralah kamu mencari ampunan dari Tuhanmu... (QS. Ali Imran: 133)", challenge: "Eat The Frog. Kerjakan 1 tugas pekerjaan/bisnis yang paling sulit/paling anda hindari, tepat setelah Dzikir Pagi.", dua: "La haula wa la quwwata illa billah." },
+        { day: 4, phase: 1, phaseTitle: "DETOKS & PENGENDALIAN DIRI", title: "Lisan yang Tajam", focus: "Keluarga", enemy: "Amarah & Kata Kasar", quote: "Orang kuat bukan yang jago gulat, tapi yang bisa menahan diri ketika marah. (HR. Bukhari)", challenge: "The 5-Second Pause. Jika ada pemicu amarah, hitung mundur 5-4-3-2-1 sebelum merespons. Ganti kritikan dengan diam/senyum.", dua: "Rabbana hab lana min azwajina wa dzurriyatina qurrata a'yun." },
+        { day: 5, phase: 1, phaseTitle: "DETOKS & PENGENDALIAN DIRI", title: "Kebocoran Finansial", focus: "Keuangan", enemy: "Impulsive Buying", quote: "Dan janganlah kamu menghambur-hamburkan (hartamu) secara boros... (QS. Al-Isra: 26)", challenge: "Puasa Dompet. Bawa uang tunai pas-pasan hanya untuk sedekah. Dilarang gesek kartu/QRIS untuk jajan pribadi hari ini.", dua: "Allahummakfini bihalalika 'an haramik wa aghnini bifadhlika 'amman siwak." },
+        { day: 6, phase: 1, phaseTitle: "DETOKS & PENGENDALIAN DIRI", title: "Kebodohan/Stagnasi", focus: "Ilmu", enemy: "Merasa Cukup Ilmu", quote: "Barangsiapa menempuh jalan untuk mencari ilmu, Allah mudahkan baginya jalan menuju surga. (HR. Muslim)", challenge: "Deep Dive Tafsir. Pilih Surah Al-Fatihah atau Al-Qadr, baca tafsir mendalam (Ibnu Katsir/Jalalain) minimal 15 menit.", dua: "Rabbi zidni 'ilman warzuqni fahman." },
+        { day: 7, phase: 1, phaseTitle: "DETOKS & PENGENDALIAN DIRI", title: "Tidur Berantakan", focus: "Kesehatan", enemy: "Begadang Tanpa Faedah", quote: "Dan Kami jadikan tidurmu untuk istirahat. (QS. An-Naba: 9)", challenge: "Sleep Hygiene. Masuk kamar jam 21.30. Matikan lampu total. Tidak ada gadget di kasur.", dua: "Bismika Allahumma ahya wa amut." },
+        { day: 8, phase: 2, phaseTitle: "AKSELERASI & SINERGI", title: "Kerja Dangkal", focus: "Produktivitas", enemy: "Multitasking", quote: "Sesungguhnya Allah menyukai apabila salah seorang dari kalian melakukan suatu pekerjaan, ia melakukannya dengan itqan. (HR. Thabrani)", challenge: "2 Jam Deep Work. Kunci pintu, matikan notifikasi. Kerjakan masterpiece Anda selama 2 jam non-stop.", dua: "Allahumma yassir wala tu'assir." },
+        { day: 9, phase: 2, phaseTitle: "AKSELERASI & SINERGI", title: "Ghibah/Gosip", focus: "Sosial", enemy: "Membicarakan Aib", quote: "Sukakah salah seorang di antara kamu memakan daging saudaranya yang sudah mati? (QS. Al-Hujurat: 12)", challenge: "Anti-Gossip Shield. Jika ada teman/grup WA mulai ghibah: Alihkan topik atau Tinggalkan forum (Left group/Mute).", dua: "Allahummaghfir li walil mukminina wal mukminat." },
+        { day: 10, phase: 2, phaseTitle: "AKSELERASI & SINERGI", title: "Pelit/Kikir", focus: "Keuangan", enemy: "Takut Miskin", quote: "Sedekah itu tidak akan mengurangi harta. (HR. Muslim)", challenge: "Sedekah Ekstrem Diam-diam. Transfer uang ke teman/kerabat yang sedang sulit tanpa memberi tahu itu dari Anda.", dua: "Rabbana taqabbal minna innaka antas sami'ul 'alim." },
+        { day: 11, phase: 2, phaseTitle: "AKSELERASI & SINERGI", title: "Wawasan Sempit", focus: "Tsaqafah", enemy: "Malas Baca Berat", quote: "Bacalah dengan (menyebut) nama Tuhanmu... (QS. Al-Alaq: 1)", challenge: "Knowledge Upgrade. Dengarkan 1 Podcast/Audiobook berdurasi 30 menit tentang Sirah Nabawiyah atau Sejarah Islam.", dua: "Allahumma inni as-aluka 'ilman nafi'an." },
+        { day: 12, phase: 2, phaseTitle: "AKSELERASI & SINERGI", title: "Hubungan Dingin", focus: "Keluarga", enemy: "Sibuk Sendiri", quote: "Sebaik-baik kalian adalah yang paling baik terhadap keluarganya. (HR. Tirmidzi)", challenge: "Deep Talk. Duduk dengan pasangan/orang tua tanpa TV/HP. Tanya: 'Apa yang sedang kamu khawatirkan belakangan ini?'", dua: "Rabbij'alni muqimash shalati wa min dzurriyati." },
+        { day: 13, phase: 2, phaseTitle: "AKSELERASI & SINERGI", title: "Mental Korban", focus: "Mental Health", enemy: "Mengeluh", quote: "Sesungguhnya jika kamu bersyukur, pasti Kami akan menambah (nikmat) kepadamu... (QS. Ibrahim: 7)", challenge: "Gratitude Journal. Tulis 10 hal spesifik yang Anda syukuri hari ini. Dilarang mengeluh lisan seharian.", dua: "Rabbi awzi'ni an asykura ni'matakal lati an'amta 'alayya." },
+        { day: 14, phase: 2, phaseTitle: "AKSELERASI & SINERGI", title: "Tubuh Lemah", focus: "Kesehatan", enemy: "Mager", quote: "Mukmin yang kuat lebih dicintai Allah daripada mukmin yang lemah. (HR. Muslim)", challenge: "Resistance Training. Lakukan Push-up 3 set atau Squat sebelum mandi sore.", dua: "Allahumma 'afini fi badani." },
+        { day: 15, phase: 3, phaseTitle: "TOTALITAS & PENYUCIAN", title: "Harta Syubhat", focus: "Keuangan", enemy: "Ketidakjelasan Akad", quote: "Makanlah dari makanan yang baik-baik (halal), dan kerjakanlah amal yang saleh. (QS. Al-Mu’minun: 51)", challenge: "Financial Audit. Cek akad kerja/bisnis atau simpanan. Pastikan tidak ada riba atau akad bathil.", dua: "Allahummakfini bihalalika 'an haramik." },
+        { day: 16, phase: 3, phaseTitle: "TOTALITAS & PENYUCIAN", title: "Dendam", focus: "Hati", enemy: "Sulit Memaafkan", quote: "Dan hendaklah mereka memaafkan dan berlapang dada... (QS. An-Nur: 22)", challenge: "Forgiveness Therapy. Sebut nama orang yang menyakiti Anda, ucapkan: 'Ya Allah, aku memaafkan Fulan karena-Mu'.", dua: "Allahumma innaka 'afuwwun tuhibbul 'afwa fa'fu 'anni." },
+        { day: 17, phase: 3, phaseTitle: "TOTALITAS & PENYUCIAN", title: "Hilang Arah", focus: "Produktivitas", enemy: "Tanpa Visi Akhirat", quote: "Dan carilah pada apa yang telah dianugerahkan Allah kepadamu (kebahagiaan) negeri akhirat... (QS. Al-Qasas: 77)", challenge: "Re-write Goals. Tulis ulang target hidup. Pastikan setiap target dunia punya sambungan akhirat.", dua: "Rabbana atina fid dunya hasanah wa fil akhirati hasanah." },
+        { day: 18, phase: 3, phaseTitle: "TOTALITAS & PENYUCIAN", title: "Kualitas Ibadah", focus: "Spiritual", enemy: "Sholat Terburu-buru", quote: "Sholatlah sebagaimana kalian melihat aku sholat. (HR. Bukhari)", challenge: "Tumakninah Training. Panjangkan durasi Ruku' dan Sujud 2x lipat dari biasanya.", dua: "Allahumma a'inni 'ala dzikrika wa syukrika wa husni 'ibadatik." },
+        { day: 19, phase: 3, phaseTitle: "TOTALITAS & PENYUCIAN", title: "Lupa Orang Tua", focus: "Keluarga", enemy: "Durhaka Halus", quote: "Ridho Allah tergantung pada ridho orang tua. (HR. Tirmidzi)", challenge: "Khidmah Spesial. Kirim makanan kesukaan orang tua, atau pijat kaki, atau video call minta cerita masa lalu.", dua: "Rabbighfirli wa li walidayya warhamhuma kama rabbayani shaghira." },
+        { day: 20, phase: 3, phaseTitle: "TOTALITAS & PENYUCIAN", title: "Kikir Ilmu", focus: "Ilmu", enemy: "Menyimpan Ilmu", quote: "Sampaikanlah dariku walau satu ayat. (HR. Bukhari)", challenge: "Share The Insight. Tulis status Medsos tentang 1 hikmah yang dipelajari hari ini. Niatkan dakwah.", dua: "Allahumma faqqihni fid din." },
+        { day: 21, phase: 3, phaseTitle: "TOTALITAS & PENYUCIAN", title: "Persiapan Lailatul Qadar", focus: "Strategi", enemy: "Kurang Rencana", quote: "Carilah Lailatul Qadar pada sepuluh malam yang akhir... (HR. Bukhari)", challenge: "Logistics Prep. Siapkan kopi, camilan sehat, wewangian khusus untuk 10 malam terakhir. Atur cuti kerja.", dua: "Allahumma ballighna Lailatul Qadar." },
+        { day: 22, phase: 4, phaseTitle: "SPRINT FINAL & LEGACY", title: "Gangguan Manusia", focus: "Fokus", enemy: "Basa-basi Sosial", quote: "(Nabi mengencangkan ikat pinggangnya, membangunkan keluarganya, dan menghidupkan malamnya).", challenge: "Social Hermit (Uzlah). Kurangi interaksi sosial. Tolak ajakan bukber hura-hura. Fokus berduaan dengan Allah.", dua: "La ilaha illa anta subhanaka inni kuntu minaz zhalimin." },
+        { day: 23, phase: 4, phaseTitle: "SPRINT FINAL & LEGACY", title: "Cita-cita Rendah", focus: "Doa", enemy: "Berdoa Standar", quote: "Jika kamu meminta kepada Allah, mintalah Surga Firdaus. (HR. Bukhari)", challenge: "The Proposal. Buat daftar 'Mustahil' (Impian besar). Bacakan di sepertiga malam sambil menangis.", dua: "Allahumma inni as-alukal jannah wa a'udzu bika minan nar." },
+        { day: 24, phase: 4, phaseTitle: "SPRINT FINAL & LEGACY", title: "Penumpukan Harta", focus: "Keuangan", enemy: "Cinta Dunia", quote: "Harta itu hijau dan manis. (HR. Bukhari)", challenge: "Cleansing. Cek barang tidak dipakai 6 bulan terakhir. Jual atau Sumbangkan hari ini juga.", dua: "Rabbana la tuzigh qulubana ba'da idz hadaitana." },
+        { day: 25, phase: 4, phaseTitle: "SPRINT FINAL & LEGACY", title: "Inkonsistensi", focus: "Habits", enemy: "Semangat Luntur", quote: "Amalan yang paling dicintai Allah adalah yang terus menerus meskipun sedikit. (HR. Bukhari)", challenge: "Minimum Viable Habit. Tentukan 1 kebiasaan ibadah yang HARAM ditinggalkan seumur hidup. Kunci komitmen.", dua: "Ya Muqallibal qulub tsabbit qalbi 'ala dinik." },
+        { day: 26, phase: 4, phaseTitle: "SPRINT FINAL & LEGACY", title: "Lupa Diri", focus: "Muhasabah", enemy: "Merasa Aman", quote: "Hitunglah dirimu sebelum kamu dihitung. (Umar bin Khattab)", challenge: "Cermin Dosa. Duduk sendiri dalam gelap. Ingat dosa besar yang pernah dilakukan. Minta ampun.", dua: "Rabbana zhalamna anfusana wa illam taghfir lana..." },
+        { day: 27, phase: 4, phaseTitle: "SPRINT FINAL & LEGACY", title: "Keangkuhan Prestasi", focus: "Hati", enemy: "Ujub", quote: "Janganlah kamu menganggap dirimu suci... (QS. An-Najm: 32)", challenge: "Zero Ego. Lakukan satu pekerjaan kasar di rumah/masjid (bersihkan WC/nyapu) untuk melatih kerendahan hati.", dua: "Allahumma ij'alni min at-tawwabin..." },
+        { day: 28, phase: 4, phaseTitle: "SPRINT FINAL & LEGACY", title: "Kehilangan Momentum", focus: "Strategi", enemy: "Bingung Pasca Lebaran", quote: "Maka apabila kamu telah selesai, kerjakanlah dengan sungguh-sungguh (urusan) yang lain. (QS. Al-Insyirah: 7)", challenge: "Syawal Blueprint. Tulis jadwal harian baru untuk bulan Syawal. Jangan biarkan kosong.", dua: "Allahumma inni as-aluka husnal khatimah." },
+        { day: 29, phase: 4, phaseTitle: "SPRINT FINAL & LEGACY", title: "Perpisahan", focus: "Emosi & Syukur", enemy: "Euforia Berlebih", quote: "Bagi orang yang berpuasa ada dua kebahagiaan: saat berbuka dan saat bertemu Tuhannya. (HR. Muslim)", challenge: "The Grand Closing. Bayar Zakat Fitrah pagi hari. Maafkan semua orang. Tutup dengan doa syukur panjang.", dua: "Taqabbalallahu minna wa minkum." },
+      ];
+
+      // --- App Component ---
+      function App() {
+        const [user, setUser] = useState(null);
+        const [loading, setLoading] = useState(true);
+        const [accessCode, setAccessCode] = useState('');
+        const [activeTab, setActiveTab] = useState('challenge');
+        const [showInstall, setShowInstall] = useState(false);
+
+        useEffect(() => {
+          const savedCode = localStorage.getItem('ramadhan_access_code');
+          if (savedCode) {
+            setAccessCode(savedCode);
+          }
+
+          const initAuth = async (retryCount = 0) => {
+            try {
+              if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+                console.log('[Auth] Signed in with custom token');
+              } else {
+                await signInAnonymously(auth);
+                console.log('[Auth] Signed in anonymously');
+              }
+            } catch (error) {
+              console.error(`[Auth] Error (attempt ${retryCount + 1}):`, error.code, error.message);
+              // Retry up to 3 times with exponential backoff
+              if (retryCount < 3) {
+                const delay = Math.pow(2, retryCount) * 1000;
+                console.log(`[Auth] Retrying in ${delay}ms...`);
+                setTimeout(() => initAuth(retryCount + 1), delay);
+              } else {
+                console.error('[Auth] All retry attempts failed. Data will NOT be saved.');
+                setLoading(false);
+              }
+            }
+          };
+          initAuth();
+
+          const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            if (currentUser) {
+              console.log('[Auth] User authenticated, UID:', currentUser.uid);
+            } else {
+              console.warn('[Auth] No user - data operations will fail!');
+            }
+            setUser(currentUser);
+            setLoading(false);
+          });
+          return () => unsubscribe();
+        }, []);
+
+        const handleLoginSuccess = async (code, userData = {}) => {
+          try {
+            // Simpan user ke Firestore
+            await saveUserToFirestore(code, userData);
+
+            // Simpan ke localStorage
+            localStorage.setItem('ramadhan_access_code', code);
+            setAccessCode(code);
+          } catch (error) {
+            console.error('Error during login:', error);
+            // Tetap lanjutkan login meskipun gagal simpan ke Firestore
+            localStorage.setItem('ramadhan_access_code', code);
+            setAccessCode(code);
+          }
+        };
+
+        const handleLogout = () => {
+          localStorage.removeItem('ramadhan_access_code');
+          setAccessCode('');
+        };
+
+        if (loading || !user) {
+          return (
+            <div className="min-h-screen flex items-center justify-center bg-black text-amber-500">
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="w-12 h-12 border-2 border-amber-500 rounded-full mb-4 animate-spin border-t-transparent" />
+                <p className="font-medium tracking-widest text-xs uppercase text-amber-500">
+                  {loading ? "Memuat Aplikasi..." : "Menghubungkan..."}
+                </p>
+                {!loading && !user && (
+                  <div className="mt-4 flex flex-col items-center">
+                    <p className="text-zinc-500 text-[10px] mb-2">Gagal terhubung ke database. Pastikan koneksi internet aktif.</p>
+                    <p className="text-zinc-600 text-[9px] mb-3">Jika masalah berlanjut, coba bersihkan cache browser.</p>
+                    <button onClick={() => window.location.reload()} className="px-4 py-2 bg-zinc-800 rounded-lg text-xs font-bold text-white hover:bg-zinc-700 transition-colors">
+                      Coba Lagi
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        }
+
+        if (!accessCode) {
+          return <Gatekeeper user={user} onSuccess={handleLoginSuccess} />;
+        }
+
+        return (
+          <div className="min-h-screen bg-black font-sans text-zinc-100 pb-24 md:pb-0 selection:bg-amber-500 selection:text-black animate-in fade-in duration-700">
+            {showInstall && <InstallModal onClose={() => setShowInstall(false)} />}
+
+            <header className="bg-black/80 backdrop-blur-md border-b border-zinc-800 sticky top-0 z-20">
+              <div className="max-w-md mx-auto p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-zinc-900 overflow-hidden flex items-center justify-center border border-zinc-800">
+                    <img
+                      src="https://setunggal.dripform.id/d23abffa-a63c-4b22-a35c-e0a7150a70fc.png"
+                      alt="Logo"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentNode.classList.add('bg-zinc-800');
+                      }}
+                    />
+                  </div>
+                  <h1 className="text-lg font-bold tracking-tight text-white">Ramadhan Reset</h1>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => setShowInstall(true)} className="p-2 text-zinc-400 hover:text-amber-500 transition-colors" title="Install App">
+                    <Download className="w-5 h-5" />
+                  </button>
+                  <div className="text-[10px] font-mono bg-zinc-900 border border-zinc-800 px-3 py-1 rounded-full text-amber-500 hidden sm:block">
+                    {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }).toUpperCase()}
+                  </div>
+                  <button onClick={handleLogout} className="p-2 text-zinc-600 hover:text-red-500 transition-colors" title="Keluar">
+                    <LogOut className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            <main className="max-w-md mx-auto p-4 space-y-6">
+              {activeTab === 'challenge' && (() => {
+                const unlockDate = new Date('2026-02-18T00:00:00');
+                const now = new Date();
+                const isLocked = now < unlockDate;
+
+                if (isLocked) {
+                  const diffTime = unlockDate - now;
+                  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                  return (
+                    <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6 animate-in fade-in duration-500">
+                      <div className="w-20 h-20 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center mb-6 shadow-2xl">
+                        <Lock className="w-10 h-10 text-amber-500" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-white mb-3">Tantangan Belum Dimulai</h2>
+                      <p className="text-zinc-400 text-sm mb-6 max-w-xs">
+                        Menu <span className="text-amber-500 font-semibold">Tantangan</span> akan dibuka pada tanggal <span className="text-amber-500 font-semibold">18 Februari 2026</span>
+                      </p>
+                      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 w-full max-w-xs">
+                        <p className="text-[10px] text-zinc-500 font-bold tracking-widest uppercase mb-2">Menunggu</p>
+                        <div className="flex items-baseline justify-center gap-2">
+                          <span className="text-5xl font-bold text-amber-500">{diffDays}</span>
+                          <span className="text-zinc-400 font-medium">hari lagi</span>
+                        </div>
+                        <p className="text-xs text-zinc-600 mt-4">Bersiaplah untuk memulai perjalanan Ramadhan Reset Anda!</p>
+                      </div>
+                      <p className="text-zinc-600 text-xs mt-8">Gunakan waktu ini untuk menyiapkan niat dan target Anda.</p>
+                    </div>
+                  );
+                }
+
+                return <ChallengeTracker userId={accessCode} />;
+              })()}
+              {activeTab === 'daily' && <DailyTracker userId={accessCode} />}
+              {activeTab === 'goal' && <GoalTracker userId={accessCode} />}
+              {activeTab === 'quran' && <QuranTracker userId={accessCode} />}
+              {activeTab === 'doa' && <PrayerBox userId={accessCode} />}
+            </main>
+
+            <nav className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-zinc-800 z-20 md:relative md:border-t-0 md:bg-transparent md:mt-8 md:flex md:justify-center">
+              <div className="max-w-md mx-auto flex justify-around p-2 md:bg-zinc-900 md:rounded-full md:border md:border-zinc-800 md:px-2 md:gap-1">
+                <NavButton active={activeTab === 'challenge'} onClick={() => setActiveTab('challenge')} icon={<Trophy className="w-5 h-5" />} label="Tantangan" />
+                <NavButton active={activeTab === 'daily'} onClick={() => setActiveTab('daily')} icon={<CheckCircle className="w-5 h-5" />} label="Ibadah" />
+                <NavButton active={activeTab === 'goal'} onClick={() => setActiveTab('goal')} icon={<Target className="w-5 h-5" />} label="Goal" />
+                <NavButton active={activeTab === 'quran'} onClick={() => setActiveTab('quran')} icon={<BookOpen className="w-5 h-5" />} label="Quran" />
+                <NavButton active={activeTab === 'doa'} onClick={() => setActiveTab('doa')} icon={<Heart className="w-5 h-5" />} label="Doa" />
+              </div>
+            </nav>
+          </div>
+        );
+      }
+
+      // --- Sub Components ---
+      function InstallModal({ onClose }) {
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-sm w-full relative shadow-2xl">
+              <button onClick={onClose} className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+              <div className="flex items-center gap-3 mb-4 text-amber-500"><Download className="w-6 h-6" /><h3 className="text-lg font-bold text-white">Pasang Aplikasi</h3></div>
+              <p className="text-zinc-400 text-sm mb-6 leading-relaxed">Agar lebih mudah diakses, tambahkan aplikasi ini ke layar utama (Home Screen) HP Anda.</p>
+              <div className="bg-black/50 rounded-xl p-4 border border-zinc-800 text-sm text-zinc-300 space-y-3">
+                {isIOS ? (
+                  <>
+                    <div className="flex items-start gap-3"><span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-500 text-black flex items-center justify-center font-bold text-xs mt-0.5">1</span><p>Tekan tombol <strong>Share</strong> <Share className="w-3 h-3 inline mx-1" /> di browser Safari bawah.</p></div>
+                    <div className="flex items-start gap-3"><span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-500 text-black flex items-center justify-center font-bold text-xs mt-0.5">2</span><p>Gulir ke bawah dan pilih menu <strong>Add to Home Screen</strong> (Tambah ke Layar Utama).</p></div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-start gap-3"><span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-500 text-black flex items-center justify-center font-bold text-xs mt-0.5">1</span><p>Tekan menu <strong>Titik Tiga</strong> di pojok kanan atas browser Chrome.</p></div>
+                    <div className="flex items-start gap-3"><span className="flex-shrink-0 w-5 h-5 rounded-full bg-amber-500 text-black flex items-center justify-center font-bold text-xs mt-0.5">2</span><p>Pilih menu <strong>Install App</strong> atau <strong>Tambahkan ke Layar Utama</strong>.</p></div>
+                  </>
+                )}
+              </div>
+              <button onClick={onClose} className="w-full mt-6 bg-amber-500 text-black font-bold py-3 rounded-xl hover:bg-amber-400 transition-colors">Saya Mengerti</button>
+            </div>
+          </div>
+        );
+      }
+
+      function Gatekeeper({ user, onSuccess }) {
+        const [submissionId, setSubmissionId] = useState('');
+        const [isVerifying, setIsVerifying] = useState(false);
+        const [errorMsg, setErrorMsg] = useState('');
+
+        const handleVerify = async (e) => {
+          e.preventDefault();
+          if (!submissionId.trim()) return;
+
+          const trimmedId = submissionId.trim();
+
+          // Bypass untuk admin/testing
+          if (trimmedId === 'pompy') {
+            onSuccess(trimmedId, { role: 'admin' });
+            return;
+          }
+
+          setIsVerifying(true);
+          setErrorMsg('');
+
+          try {
+            const apiSources = [
+              'https://resetramadhanmu.dripform.id',
+              'https://tarbiyahramadhan.dripform.id',
+              'https://ramadhan-reset.dripform.id',
+              'https://ramadhanreset.dripform.id',
+              'https://boost.dripform.id',
+              'https://ramadhansahabat.dripform.id',
+              'https://madrasahkeluarga.id/ramadhan',
+              'https://riayahdigital.dripform.id',
+              'https://giatramadhan.dripform.id',
+              'https://klikdi.dripform.id',
+              'https://ramadhanterbaikmu.dripform.id',
+              'https://resetramadhan.dripform.id',
+              'https://autoreset.dripform.id',
+              'https://ramadhanpro.dripform.id',
+              'https://spirit.dripform.id',
+              'https://resetramadhannew.dripform.id',
+              'https://ramadhan1447h.dripform.id',
+              'https://pengusahamuslim.id',
+              'https://ramadhandaily.dripform.id',
+              'https://ramadhankoo.dripform.id',
+              'https://romadhonmubarok.dripform.id',
+              'https://themazdha.dripform.id'
+
+            ];
+
+            // Helper: fetch with timeout (8 detik per request)
+            const fetchWithTimeout = async (url, timeoutMs = 8000) => {
+              const controller = new AbortController();
+              const timer = setTimeout(() => controller.abort(), timeoutMs);
+              try {
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timer);
+                return response;
+              } catch (err) {
+                clearTimeout(timer);
+                throw err;
+              }
+            };
+
+            // Check satu source dan return hasilnya
+            const checkSource = async (source) => {
+              try {
+                const url = `${source}/api/check-submission?id=${encodeURIComponent(trimmedId)}`;
+                const response = await fetchWithTimeout(url);
+                const data = await response.json();
+                return { source, data, error: null };
+              } catch (err) {
+                console.warn(`Gagal cek di ${source}:`, err.name === 'AbortError' ? 'Timeout' : err.message);
+                return { source, data: null, error: err };
+              }
+            };
+
+            // Jalankan SEMUA API calls secara PARALLEL
+            const results = await Promise.allSettled(apiSources.map(s => checkSource(s)));
+
+            let verifiedData = null;
+            let failureStatus = null;
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const result of results) {
+              if (result.status === 'rejected' || !result.value) continue;
+              const { data, error } = result.value;
+
+              if (error || !data) {
+                errorCount++;
+                continue;
+              }
+
+              successCount++;
+
+              if (!data.error && data.status === 'Purchase') {
+                verifiedData = data;
+                break; // Ditemukan, tidak perlu cek lainnya
+              } else if (data.status && !failureStatus) {
+                failureStatus = data.status;
+              }
+            }
+
+            console.log(`API Check: ${successCount} berhasil, ${errorCount} gagal dari ${apiSources.length} sumber`);
+
+            if (verifiedData) {
+              const userData = {
+                paymentStatus: verifiedData.status,
+                verifiedAt: new Date().toISOString(),
+                ...(verifiedData.email && { email: verifiedData.email }),
+                ...(verifiedData.name && { name: verifiedData.name }),
+                ...(verifiedData.phone && { phone: verifiedData.phone })
+              };
+              onSuccess(trimmedId, userData);
+            } else {
+              if (successCount === 0 && errorCount > 0) {
+                setErrorMsg('Tidak dapat terhubung ke server. Periksa koneksi internet Anda dan coba lagi.');
+              } else if (failureStatus) {
+                setErrorMsg(`Status pembayaran: ${failureStatus}. Harap selesaikan pembayaran.`);
+              } else {
+                setErrorMsg('Kode Akses tidak valid atau tidak ditemukan.');
+              }
+              setIsVerifying(false);
+            }
+          } catch (err) {
+            console.error("Verification Error:", err);
+            setErrorMsg('Terjadi kesalahan koneksi. Silakan coba lagi.');
+            setIsVerifying(false);
+          }
+        };
+
+        return (
+          <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in-95 duration-500">
+            <div className="w-full max-w-sm">
+              <div className="w-24 h-24 bg-zinc-900 border border-zinc-800 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-amber-900/20 overflow-hidden p-1">
+                <img src="https://setunggal.dripform.id/d23abffa-a63c-4b22-a35c-e0a7150a70fc.png" alt="Logo Ramadhan Reset" className="w-full h-full object-cover rounded-full" />
+              </div>
+              <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Ramadhan Reset</h1>
+              <p className="text-zinc-500 text-sm mb-8">Masukkan Kode Akses Anda untuk memulai perjalanan.</p>
+              <form onSubmit={handleVerify} className="space-y-4">
+                <div className="relative">
+                  <Key className="absolute left-4 top-3.5 w-5 h-5 text-zinc-500" />
+                  <input type="text" value={submissionId} onChange={(e) => setSubmissionId(e.target.value)} placeholder="Kode Akses" className="w-full bg-zinc-900 border border-zinc-800 text-white pl-12 pr-4 py-3 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-none placeholder:text-zinc-600 transition-all" />
+                </div>
+                {errorMsg && (<div className="flex items-center gap-2 text-red-500 text-xs text-left bg-red-950/20 p-3 rounded-lg border border-red-900/30"><AlertCircle className="w-4 h-4 flex-shrink-0" /><p>{errorMsg}</p></div>)}
+                <button type="submit" disabled={isVerifying || !submissionId} className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                  {isVerifying ? <><Loader2 className="w-5 h-5 animate-spin" /> Memverifikasi...</> : "Login"}
+                </button>
+              </form>
+              <p className="text-zinc-700 text-xs mt-8">Belum punya akses? Silakan lakukan pembelian terlebih dahulu.</p>
+            </div>
+          </div>
+        );
+      }
+
+      function NavButton({ active, onClick, icon, label }) {
+        return (
+          <button onClick={onClick} className={`flex flex-col items-center justify-center w-full p-2 transition-all duration-300 ${active ? 'text-amber-500' : 'text-zinc-600 hover:text-zinc-400'}`}>
+            <div className={`mb-1 transition-transform duration-300 ${active ? 'scale-110 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]' : ''}`}>
+              {React.cloneElement(icon, { fill: active ? "currentColor" : "none", strokeWidth: active ? 0 : 2 })}
+            </div>
+            <span className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-widest ${active ? 'opacity-100' : 'opacity-50'}`}>{label}</span>
+          </button>
+        );
+      }
+
+      function ChallengeTracker({ userId }) {
+        const [selectedDay, setSelectedDay] = useState(1);
+        const [completedDays, setCompletedDays] = useState({});
+        const [showCelebration, setShowCelebration] = useState(false);
+
+        useEffect(() => {
+          if (!userId) return;
+          const docRef = getUserDataDoc('ramadhan_challenges', userId);
+          const unsub = onSnapshot(docRef, (docSnap) => { if (docSnap.exists()) { setCompletedDays(docSnap.data().completed || {}); } });
+          return () => unsub();
+        }, [userId]);
+
+        const activeChallenge = CHALLENGES.find(c => c.day === selectedDay) || CHALLENGES[0];
+        const isCompleted = !!completedDays[selectedDay];
+        const totalChallenges = CHALLENGES.length;
+        const totalCompleted = Object.values(completedDays).filter(Boolean).length;
+        const progressPercent = Math.round((totalCompleted / totalChallenges) * 100);
+
+        const toggleComplete = async () => {
+          if (!userId) return;
+          const newStatus = !isCompleted;
+          setCompletedDays(prev => ({ ...prev, [selectedDay]: newStatus }));
+          if (newStatus) { setShowCelebration(true); setTimeout(() => setShowCelebration(false), 3000); }
+          try {
+            const docRef = getUserDataDoc('ramadhan_challenges', userId);
+            console.log('[Save] Saving challenge day', selectedDay, 'status:', newStatus);
+            await setDoc(docRef, { completed: { ...completedDays, [selectedDay]: newStatus } }, { merge: true });
+            console.log('[Save] Challenge saved successfully');
+          } catch (err) {
+            console.error('[Save] Failed to save challenge:', err.code, err.message);
+            setCompletedDays(prev => ({ ...prev, [selectedDay]: !newStatus }));
+            alert('Gagal menyimpan data. Periksa koneksi internet Anda.');
+          }
+        };
+
+        const getPhaseColor = (phase) => {
+          switch (phase) { case 1: return "text-emerald-400 border-emerald-500/30"; case 2: return "text-blue-400 border-blue-500/30"; case 3: return "text-purple-400 border-purple-500/30"; case 4: return "text-amber-400 border-amber-500/30"; default: return "text-zinc-400 border-zinc-500/30"; }
+        };
+
+        return (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
+            {showCelebration && (<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"><div className="text-center animate-in zoom-in-50 duration-500"><Trophy className="w-24 h-24 text-amber-500 mx-auto mb-4 drop-shadow-[0_0_20px_rgba(245,158,11,0.8)]" /><h2 className="text-3xl font-bold text-white uppercase tracking-widest mb-2">TARGET TERLAKSANA!</h2><p className="text-amber-500 font-mono">HARI {selectedDay} SELESAI</p></div></div>)}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex items-center justify-between shadow-lg">
+              <div><p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-1">Total Progress</p><div className="flex items-baseline gap-2"><span className="text-3xl font-black text-white">{progressPercent}%</span><span className="text-xs text-amber-500 font-medium">{totalCompleted}/{totalChallenges} Misi</span></div></div>
+              <div className="relative w-16 h-16 flex items-center justify-center">
+                <svg className="w-full h-full transform -rotate-90"><circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-zinc-800" /><circle cx="32" cy="32" r="28" stroke="currentColor" strokeWidth="4" fill="transparent" strokeDasharray={175} strokeDashoffset={175 - (175 * progressPercent) / 100} className="text-amber-500 transition-all duration-1000 ease-out" /></svg>
+                <Trophy className="w-6 h-6 text-amber-500 absolute" />
+              </div>
+            </div>
+            <div className="bg-zinc-900 border-y border-zinc-800 -mx-4 px-4 py-3 flex gap-3 overflow-x-auto no-scrollbar scroll-smooth">
+              {CHALLENGES.map((c) => (<button key={c.day} onClick={() => setSelectedDay(c.day)} className={`flex-shrink-0 w-12 h-16 rounded-xl flex flex-col items-center justify-center border transition-all duration-300 ${selectedDay === c.day ? 'bg-amber-500 border-amber-500 text-black shadow-[0_0_15px_rgba(245,158,11,0.4)] scale-105' : completedDays[c.day] ? 'bg-zinc-800 border-amber-500/50 text-amber-500' : 'bg-zinc-950 border-zinc-800 text-zinc-500 hover:border-zinc-600'}`}><span className="text-[10px] font-bold uppercase tracking-wide">Hari</span><span className="text-xl font-black">{c.day}</span>{completedDays[c.day] && <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1"></div>}</button>))}
+            </div>
+            <div className="relative">
+              <div className={`absolute -top-3 left-4 right-4 z-10 text-center`}><span className={`inline-block px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-black border ${getPhaseColor(activeChallenge.phase)} shadow-lg`}>Fase {activeChallenge.phase}: {activeChallenge.phaseTitle}</span></div>
+              <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 pt-10 overflow-hidden relative shadow-2xl">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+                <div className="text-center mb-8"><h2 className="text-2xl font-black text-white uppercase tracking-tight mb-1">{activeChallenge.title}</h2><div className="inline-flex items-center gap-2 text-zinc-500 text-xs font-mono uppercase tracking-widest border border-zinc-800 px-3 py-1 rounded-full"><Target className="w-3 h-3" /> Fokus: {activeChallenge.focus}</div></div>
+                <div className="space-y-6">
+                  <div className="bg-red-950/20 border border-red-900/30 rounded-2xl p-4 flex items-start gap-4"><div className="p-2 bg-red-900/20 rounded-lg text-red-500"><Shield className="w-5 h-5" /></div><div><h3 className="text-xs font-bold text-red-500 uppercase tracking-widest mb-1">Musuh Hari Ini</h3><p className="text-red-200 text-sm font-medium">{activeChallenge.enemy}</p></div></div>
+                  <div className="relative pl-4 border-l-2 border-amber-500/30 italic text-zinc-400 text-sm leading-relaxed"><Quote className="w-4 h-4 text-amber-500 absolute -left-2.5 -top-2 bg-zinc-900" />"{activeChallenge.quote}"</div>
+                  <div className="bg-gradient-to-br from-zinc-800 to-zinc-900 border border-amber-500/20 rounded-2xl p-5 shadow-inner">
+                    <div className="flex items-center gap-2 mb-3"><Zap className="w-5 h-5 text-amber-400 fill-amber-400" /><h3 className="text-sm font-black text-amber-400 uppercase tracking-widest">Misi Utama</h3></div>
+                    <p className="text-white text-base leading-relaxed font-medium mb-4">{activeChallenge.challenge}</p>
+                    <button onClick={toggleComplete} className={`w-full py-4 rounded-xl font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-3 ${isCompleted ? 'bg-amber-500 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:bg-amber-400' : 'bg-zinc-800 text-zinc-500 border border-zinc-700 hover:bg-zinc-700 hover:text-white'}`}>{isCompleted ? <><CheckCircle className="w-6 h-6" /> Tantangan Selesai</> : "Telah Dikerjakan"}</button>
+                  </div>
+                  <div className="text-center pt-2"><p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Doa Senjata Hari Ini</p><p className="text-amber-500 font-serif italic text-lg">"{activeChallenge.dua}"</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function DailyTracker({ userId }) {
+        const [selectedDate, setSelectedDate] = useState(new Date());
+        const dateStr = useMemo(() => selectedDate.toISOString().split('T')[0], [selectedDate]);
+        const [data, setData] = useState({ subuh: false, zuhur: false, ashar: false, maghrib: false, isya: false, tarawih: false, duha: false, tahajjud: false, gratitude: '' });
+        const [isSaving, setIsSaving] = useState(false);
+
+        useEffect(() => {
+          if (!userId) return;
+          const docRef = getUserDataDoc('ramadhan_daily_logs', `${userId}_${dateStr}`);
+          const unsubscribe = onSnapshot(docRef, (docSnap) => { if (docSnap.exists()) { const { quranStartPage, ...rest } = docSnap.data(); setData(prev => ({ ...prev, ...rest })); } else { setData({ subuh: false, zuhur: false, ashar: false, maghrib: false, isya: false, tarawih: false, duha: false, tahajjud: false, gratitude: '' }); } }, (error) => { console.error("Error reading daily logs:", error); });
+          return () => unsubscribe();
+        }, [userId, dateStr]);
+
+        const togglePrayer = async (key) => {
+          if (!userId) return;
+          const newVal = !data[key];
+          setData(prev => ({ ...prev, [key]: newVal }));
+          try {
+            const docRef = getUserDataDoc('ramadhan_daily_logs', `${userId}_${dateStr}`);
+            console.log('[Save] Saving daily prayer:', key, '=', newVal);
+            await setDoc(docRef, { [key]: newVal }, { merge: true });
+            console.log('[Save] Daily prayer saved successfully');
+          } catch (err) {
+            console.error('[Save] Failed to save daily prayer:', err.code, err.message);
+            setData(prev => ({ ...prev, [key]: !newVal }));
+            alert('Gagal menyimpan data. Periksa koneksi internet Anda.');
+          }
+        };
+
+        const saveGratitude = async () => {
+          if (!userId) return;
+          setIsSaving(true);
+          try {
+            const docRef = getUserDataDoc('ramadhan_daily_logs', `${userId}_${dateStr}`);
+            console.log('[Save] Saving gratitude journal');
+            await setDoc(docRef, { gratitude: data.gratitude }, { merge: true });
+            console.log('[Save] Gratitude saved successfully');
+          } catch (err) {
+            console.error('[Save] Failed to save gratitude:', err.code, err.message);
+            alert('Gagal menyimpan jurnal syukur. Periksa koneksi internet.');
+          } finally { setIsSaving(false); }
+        };
+
+        const changeDate = (days) => { const newDate = new Date(selectedDate); newDate.setDate(selectedDate.getDate() + days); setSelectedDate(newDate); };
+
+        // All prayers for progress calculation (wajib + rawatib)
+        const allPrayers = [
+          'subuh_qabliyah', 'subuh',
+          'zuhur_qabliyah', 'zuhur', 'zuhur_badiyah',
+          'ashar',
+          'maghrib', 'maghrib_badiyah',
+          'isya', 'isya_badiyah',
+          'tarawih', 'witir', 'duha', 'tahajjud'
+        ];
+        const completedCount = allPrayers.filter(p => data[p]).length;
+        const progressPercent = Math.round((completedCount / allPrayers.length) * 100);
+
+        return (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+              <button onClick={() => changeDate(-1)} className="p-2 hover:bg-zinc-800 rounded-full text-zinc-500 hover:text-amber-500 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+              <div className="text-center"><p className="text-[10px] text-zinc-500 font-bold tracking-widest uppercase mb-1">Jurnal Harian</p><p className="text-md font-bold text-white">{selectedDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}</p></div>
+              <button onClick={() => changeDate(1)} className="p-2 hover:bg-zinc-800 rounded-full text-zinc-500 hover:text-amber-500 transition-colors"><ChevronRight className="w-5 h-5" /></button>
+            </div>
+            <div className="bg-zinc-900 rounded-2xl p-6 text-white border border-zinc-800 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -mr-16 -mt-16 opacity-20 group-hover:opacity-40 transition-opacity"></div>
+              <h2 className="text-sm font-medium text-zinc-400 mb-4 relative z-10 uppercase tracking-wider">Progress Ibadah</h2>
+              <div className="flex items-end gap-2 mb-4 relative z-10"><span className="text-5xl font-bold tracking-tighter text-white">{progressPercent}%</span><span className="text-amber-500 mb-2 text-sm font-bold uppercase">terlaksana</span></div>
+              <div className="w-full bg-zinc-800 rounded-full h-1.5 relative z-10 overflow-hidden"><div className="bg-amber-500 h-full transition-all duration-700 ease-out shadow-[0_0_10px_rgba(245,158,11,0.5)]" style={{ width: `${progressPercent}%` }} /></div>
+            </div>
+            <div className="bg-zinc-900 rounded-2xl border border-zinc-800 overflow-hidden">
+              <div className="p-4 border-b border-zinc-800 bg-zinc-900/50"><h3 className="text-sm font-bold text-zinc-300 uppercase tracking-wider">Checklist Sholat</h3></div>
+              <div className="divide-y divide-zinc-800">
+                {/* Sholat Subuh */}
+                <div className="p-3 bg-zinc-800/30">
+                  <p className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-2"><Sunset className="w-3.5 h-3.5" /> Subuh</p>
+                </div>
+                {[
+                  { key: 'subuh_qabliyah', label: 'Sunnah Qabliyah', desc: '2 Rakaat', w: false },
+                  { key: 'subuh', label: 'Subuh', desc: '2 Rakaat', w: true }
+                ].map((item) => (
+                  <div key={item.key} onClick={() => togglePrayer(item.key)} className="flex items-center justify-between p-4 cursor-pointer hover:bg-zinc-800/50 transition-all group pl-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${data[item.key] ? 'bg-amber-500 text-black scale-110 shadow-[0_0_8px_rgba(245,158,11,0.4)]' : 'bg-zinc-800 text-zinc-600 border border-zinc-700'}`}>{data[item.key] && <CheckCircle className="w-4 h-4" />}</div>
+                      <div>
+                        <p className={`font-medium text-sm ${data[item.key] ? 'text-white' : 'text-zinc-400'} transition-colors`}>{item.label}</p>
+                        <p className={`text-[10px] ${item.w ? 'text-zinc-600' : 'text-amber-500/60'}`}>{item.w ? 'Wajib' : 'Sunnah'} • {item.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Sholat Zuhur */}
+                <div className="p-3 bg-zinc-800/30">
+                  <p className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-2"><Sun className="w-3.5 h-3.5" /> Zuhur</p>
+                </div>
+                {[
+                  { key: 'zuhur_qabliyah', label: 'Sunnah Qabliyah', desc: '2 Rakaat', w: false },
+                  { key: 'zuhur', label: 'Zuhur', desc: '4 Rakaat', w: true },
+                  { key: 'zuhur_badiyah', label: 'Sunnah Ba\'diyah', desc: '2 Rakaat', w: false }
+                ].map((item) => (
+                  <div key={item.key} onClick={() => togglePrayer(item.key)} className="flex items-center justify-between p-4 cursor-pointer hover:bg-zinc-800/50 transition-all group pl-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${data[item.key] ? 'bg-amber-500 text-black scale-110 shadow-[0_0_8px_rgba(245,158,11,0.4)]' : 'bg-zinc-800 text-zinc-600 border border-zinc-700'}`}>{data[item.key] && <CheckCircle className="w-4 h-4" />}</div>
+                      <div>
+                        <p className={`font-medium text-sm ${data[item.key] ? 'text-white' : 'text-zinc-400'} transition-colors`}>{item.label}</p>
+                        <p className={`text-[10px] ${item.w ? 'text-zinc-600' : 'text-amber-500/60'}`}>{item.w ? 'Wajib' : 'Sunnah'} • {item.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Sholat Ashar */}
+                <div className="p-3 bg-zinc-800/30">
+                  <p className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-2"><Sun className="w-3.5 h-3.5" /> Ashar</p>
+                </div>
+                {[
+                  { key: 'ashar', label: 'Ashar', desc: '4 Rakaat', w: true }
+                ].map((item) => (
+                  <div key={item.key} onClick={() => togglePrayer(item.key)} className="flex items-center justify-between p-4 cursor-pointer hover:bg-zinc-800/50 transition-all group pl-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${data[item.key] ? 'bg-amber-500 text-black scale-110 shadow-[0_0_8px_rgba(245,158,11,0.4)]' : 'bg-zinc-800 text-zinc-600 border border-zinc-700'}`}>{data[item.key] && <CheckCircle className="w-4 h-4" />}</div>
+                      <div>
+                        <p className={`font-medium text-sm ${data[item.key] ? 'text-white' : 'text-zinc-400'} transition-colors`}>{item.label}</p>
+                        <p className={`text-[10px] ${item.w ? 'text-zinc-600' : 'text-amber-500/60'}`}>{item.w ? 'Wajib' : 'Sunnah'} • {item.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Sholat Maghrib */}
+                <div className="p-3 bg-zinc-800/30">
+                  <p className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-2"><Sunset className="w-3.5 h-3.5" /> Maghrib</p>
+                </div>
+                {[
+                  { key: 'maghrib', label: 'Maghrib', desc: '3 Rakaat', w: true },
+                  { key: 'maghrib_badiyah', label: 'Sunnah Ba\'diyah', desc: '2 Rakaat', w: false }
+                ].map((item) => (
+                  <div key={item.key} onClick={() => togglePrayer(item.key)} className="flex items-center justify-between p-4 cursor-pointer hover:bg-zinc-800/50 transition-all group pl-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${data[item.key] ? 'bg-amber-500 text-black scale-110 shadow-[0_0_8px_rgba(245,158,11,0.4)]' : 'bg-zinc-800 text-zinc-600 border border-zinc-700'}`}>{data[item.key] && <CheckCircle className="w-4 h-4" />}</div>
+                      <div>
+                        <p className={`font-medium text-sm ${data[item.key] ? 'text-white' : 'text-zinc-400'} transition-colors`}>{item.label}</p>
+                        <p className={`text-[10px] ${item.w ? 'text-zinc-600' : 'text-amber-500/60'}`}>{item.w ? 'Wajib' : 'Sunnah'} • {item.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Sholat Isya */}
+                <div className="p-3 bg-zinc-800/30">
+                  <p className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-2"><Moon className="w-3.5 h-3.5" /> Isya</p>
+                </div>
+                {[
+                  { key: 'isya', label: 'Isya', desc: '4 Rakaat', w: true },
+                  { key: 'isya_badiyah', label: 'Sunnah Ba\'diyah', desc: '2 Rakaat', w: false }
+                ].map((item) => (
+                  <div key={item.key} onClick={() => togglePrayer(item.key)} className="flex items-center justify-between p-4 cursor-pointer hover:bg-zinc-800/50 transition-all group pl-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${data[item.key] ? 'bg-amber-500 text-black scale-110 shadow-[0_0_8px_rgba(245,158,11,0.4)]' : 'bg-zinc-800 text-zinc-600 border border-zinc-700'}`}>{data[item.key] && <CheckCircle className="w-4 h-4" />}</div>
+                      <div>
+                        <p className={`font-medium text-sm ${data[item.key] ? 'text-white' : 'text-zinc-400'} transition-colors`}>{item.label}</p>
+                        <p className={`text-[10px] ${item.w ? 'text-zinc-600' : 'text-amber-500/60'}`}>{item.w ? 'Wajib' : 'Sunnah'} • {item.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Sholat Sunnah Lainnya */}
+                <div className="p-3 bg-zinc-800/30">
+                  <p className="text-xs font-bold text-amber-500 uppercase tracking-wider flex items-center gap-2"><Zap className="w-3.5 h-3.5" /> Sunnah Lainnya</p>
+                </div>
+                {[
+                  { key: 'tarawih', label: 'Tarawih', desc: '8-20 Rakaat', w: false },
+                  { key: 'witir', label: 'Witir', desc: '1-11 Rakaat', w: false },
+                  { key: 'duha', label: 'Duha', desc: '2-12 Rakaat', w: false },
+                  { key: 'tahajjud', label: 'Tahajjud', desc: '2-12 Rakaat', w: false }
+                ].map((item) => (
+                  <div key={item.key} onClick={() => togglePrayer(item.key)} className="flex items-center justify-between p-4 cursor-pointer hover:bg-zinc-800/50 transition-all group pl-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all duration-300 ${data[item.key] ? 'bg-amber-500 text-black scale-110 shadow-[0_0_8px_rgba(245,158,11,0.4)]' : 'bg-zinc-800 text-zinc-600 border border-zinc-700'}`}>{data[item.key] && <CheckCircle className="w-4 h-4" />}</div>
+                      <div>
+                        <p className={`font-medium text-sm ${data[item.key] ? 'text-white' : 'text-zinc-400'} transition-colors`}>{item.label}</p>
+                        <p className="text-[10px] text-amber-500/60">Sunnah • {item.desc}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-zinc-900 rounded-2xl border border-zinc-800 p-5">
+              <div className="flex items-center gap-2 mb-4"><Heart className="w-4 h-4 text-amber-500" /><h3 className="text-sm font-bold text-zinc-300 uppercase tracking-wider">Jurnal Syukur</h3></div>
+              <textarea className="w-full p-4 bg-black rounded-xl text-zinc-300 text-sm border border-zinc-800 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 min-h-[100px] resize-none mb-4 placeholder:text-zinc-700 transition-all" placeholder="Tulis satu hal yang kamu syukuri..." value={data.gratitude} onChange={(e) => setData(prev => ({ ...prev, gratitude: e.target.value }))} />
+              <div className="flex justify-end"><button onClick={saveGratitude} disabled={isSaving} className="flex items-center gap-2 px-6 py-2 bg-amber-500 text-black rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-amber-400 active:scale-95 disabled:opacity-50 transition-all shadow-lg shadow-amber-900/20">{isSaving ? 'Menyimpan...' : <><Save className="w-3 h-3" /> Simpan</>}</button></div>
+            </div>
+          </div>
+        );
+      }
+
+      function GoalTracker({ userId }) {
+        const [selectedDate, setSelectedDate] = useState(new Date());
+        const dateStr = useMemo(() => selectedDate.toISOString().split('T')[0], [selectedDate]);
+        const [goals, setGoals] = useState([]);
+        const [tasks, setTasks] = useState([]);
+        const [newGoalTitle, setNewGoalTitle] = useState('');
+        const [newGoalDeadline, setNewGoalDeadline] = useState('');
+        const [isAddingGoal, setIsAddingGoal] = useState(false);
+        const [newTaskValues, setNewTaskValues] = useState({});
+
+        useEffect(() => { if (!userId) return; const docRef = getUserDataDoc('ramadhan_goals', userId); const unsubscribe = onSnapshot(docRef, (docSnap) => { if (docSnap.exists()) { setGoals(docSnap.data().list || []); } else { setGoals([]); } }); return () => unsubscribe(); }, [userId]);
+        useEffect(() => { if (!userId) return; const docRef = getUserDataDoc('ramadhan_goal_tasks', `${userId}_${dateStr}`); const unsubscribe = onSnapshot(docRef, (docSnap) => { if (docSnap.exists()) { setTasks(docSnap.data().tasks || []); } else { setTasks([]); } }); return () => unsubscribe(); }, [userId, dateStr]);
+
+        const addGoal = async (e) => {
+          e.preventDefault();
+          if (!newGoalTitle.trim() || !newGoalDeadline) return;
+          const newGoal = {
+            id: Date.now().toString(),
+            title: newGoalTitle.trim(),
+            deadline: newGoalDeadline,
+            createdAt: new Date().toISOString()
+          };
+          try {
+            const docRef = getUserDataDoc('ramadhan_goals', userId);
+            const updatedGoals = [...goals, newGoal];
+            await setDoc(docRef, { list: updatedGoals }, { merge: true });
+            setNewGoalTitle('');
+            setNewGoalDeadline('');
+            setIsAddingGoal(false);
+          } catch (err) { console.error("Error adding goal:", err); }
+        };
+        const deleteGoal = async (goalId) => { const updatedGoals = goals.filter(g => g.id !== goalId); try { const docRef = getUserDataDoc('ramadhan_goals', userId); await setDoc(docRef, { list: updatedGoals }, { merge: true }); } catch (err) { console.error("Error deleting goal:", err); } };
+        const addTaskToGoal = async (e, goalId) => { e.preventDefault(); const text = newTaskValues[goalId]; if (!text || !text.trim()) return; const taskItem = { id: Date.now().toString(), text: text.trim(), completed: false, goalId: goalId }; try { const docRef = getUserDataDoc('ramadhan_goal_tasks', `${userId}_${dateStr}`); const updatedTasks = [...tasks, taskItem]; await setDoc(docRef, { tasks: updatedTasks }, { merge: true }); setNewTaskValues(prev => ({ ...prev, [goalId]: '' })); } catch (err) { console.error("Error adding task:", err); } };
+        const toggleTask = async (taskId) => { const updatedTasks = tasks.map(t => t.id === taskId ? { ...t, completed: !t.completed } : t); setTasks(updatedTasks); try { const docRef = getUserDataDoc('ramadhan_goal_tasks', `${userId}_${dateStr}`); await setDoc(docRef, { tasks: updatedTasks }, { merge: true }); } catch (err) { console.error("Error updating task:", err); } };
+        const deleteTask = async (taskId) => { const updatedTasks = tasks.filter(t => t.id !== taskId); setTasks(updatedTasks); try { const docRef = getUserDataDoc('ramadhan_goal_tasks', `${userId}_${dateStr}`); await setDoc(docRef, { tasks: updatedTasks }, { merge: true }); } catch (err) { console.error("Error deleting task:", err); } };
+        const changeDate = (days) => { const newDate = new Date(selectedDate); newDate.setDate(selectedDate.getDate() + days); setSelectedDate(newDate); };
+        const handleTaskInputChange = (goalId, value) => { setNewTaskValues(prev => ({ ...prev, [goalId]: value })); };
+
+        // Helper untuk menghitung sisa hari
+        const getDaysRemaining = (deadline) => {
+          if (!deadline) return null;
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const targetDate = new Date(deadline);
+          targetDate.setHours(0, 0, 0, 0);
+          const diffTime = targetDate - today;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return diffDays;
+        };
+
+        // Helper untuk menghitung progress berdasarkan waktu
+        const getTimeProgress = (createdAt, deadline) => {
+          if (!deadline || !createdAt) return 0;
+          const start = new Date(createdAt);
+          const end = new Date(deadline);
+          const now = new Date();
+          const totalDuration = end - start;
+          const elapsed = now - start;
+          if (totalDuration <= 0) return 100;
+          const progress = Math.round((elapsed / totalDuration) * 100);
+          return Math.min(100, Math.max(0, progress));
+        };
+
+        // Format tanggal untuk display
+        const formatDeadline = (deadline) => {
+          if (!deadline) return '';
+          return new Date(deadline).toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          });
+        };
+
+        // Get status badge color based on days remaining
+        const getDeadlineStatus = (daysRemaining) => {
+          if (daysRemaining === null) return { color: 'text-zinc-500 bg-zinc-800 border-zinc-700', label: 'Tanpa Deadline' };
+          if (daysRemaining < 0) return { color: 'text-red-400 bg-red-950/30 border-red-500/30', label: 'Terlewat' };
+          if (daysRemaining === 0) return { color: 'text-orange-400 bg-orange-950/30 border-orange-500/30', label: 'Hari Ini!' };
+          if (daysRemaining <= 3) return { color: 'text-yellow-400 bg-yellow-950/30 border-yellow-500/30', label: `${daysRemaining} Hari Lagi` };
+          if (daysRemaining <= 7) return { color: 'text-blue-400 bg-blue-950/30 border-blue-500/30', label: `${daysRemaining} Hari Lagi` };
+          return { color: 'text-emerald-400 bg-emerald-950/30 border-emerald-500/30', label: `${daysRemaining} Hari Lagi` };
+        };
+
+        return (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+            <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-2xl border border-zinc-800">
+              <button onClick={() => changeDate(-1)} className="p-2 hover:bg-zinc-800 rounded-full text-zinc-500 hover:text-amber-500 transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+              <div className="text-center"><p className="text-[10px] text-zinc-500 font-bold tracking-widest uppercase mb-1">Jurnal Perubahan</p><p className="text-md font-bold text-white">{selectedDate.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}</p></div>
+              <button onClick={() => changeDate(1)} className="p-2 hover:bg-zinc-800 rounded-full text-zinc-500 hover:text-amber-500 transition-colors"><ChevronRight className="w-5 h-5" /></button>
+            </div>
+            <div className="flex items-center justify-between px-2"><div className="flex items-center gap-2"><Target className="w-5 h-5 text-amber-500" /><h2 className="text-lg font-bold text-white">GOALS Anda</h2></div><button onClick={() => setIsAddingGoal(!isAddingGoal)} className="flex items-center gap-1 text-xs font-bold bg-zinc-800 text-zinc-300 px-3 py-1.5 rounded-lg border border-zinc-700 hover:border-amber-500 hover:text-amber-500 transition-all"><Plus className="w-3 h-3" /> Tambah Goal</button></div>
+
+            {isAddingGoal && (
+              <form onSubmit={addGoal} className="bg-zinc-900 p-5 rounded-xl border border-amber-500/50 animate-in slide-in-from-top-2 space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-400 uppercase mb-2">🎯 Goal Baru (Apa yang ingin dicapai?)</label>
+                  <input
+                    type="text"
+                    value={newGoalTitle}
+                    onChange={(e) => setNewGoalTitle(e.target.value)}
+                    placeholder="Misal: Turun Berat Badan 10kg, Hafal Juz 30..."
+                    className="w-full bg-black border border-zinc-700 rounded-lg px-4 py-3 text-sm text-white focus:ring-1 focus:ring-amber-500 focus:border-amber-500 focus:outline-none"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-zinc-400 uppercase mb-2">📅 Target Tanggal Achieve</label>
+                  <input
+                    type="date"
+                    value={newGoalDeadline}
+                    onChange={(e) => setNewGoalDeadline(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full bg-black border border-zinc-700 rounded-lg px-4 py-3 text-sm text-white focus:ring-1 focus:ring-amber-500 focus:border-amber-500 focus:outline-none [color-scheme:dark]"
+                  />
+                  <p className="text-xs text-zinc-600 mt-2">Kapan goal ini harus tercapai?</p>
+                </div>
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => { setIsAddingGoal(false); setNewGoalTitle(''); setNewGoalDeadline(''); }}
+                    className="flex-1 bg-zinc-800 text-zinc-400 px-4 py-3 rounded-lg text-sm font-bold hover:bg-zinc-700 transition-colors"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={!newGoalTitle.trim() || !newGoalDeadline}
+                    className="flex-1 bg-amber-500 text-black px-4 py-3 rounded-lg text-sm font-bold hover:bg-amber-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Simpan Goal
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {goals.length === 0 && !isAddingGoal && (<div className="text-center py-10 border border-dashed border-zinc-800 rounded-2xl bg-zinc-900/30"><Target className="w-10 h-10 text-zinc-700 mx-auto mb-3" /><p className="text-zinc-500 text-sm font-medium">Belum ada Goal yang diset.</p><p className="text-xs text-zinc-600 mt-1">Tentukan tujuan besarmu sekarang.</p></div>)}
+
+            <div className="space-y-6">
+              {goals.map((goal) => {
+                const goalTasks = tasks.filter(t => t.goalId === goal.id);
+                const completedCount = goalTasks.filter(t => t.completed).length;
+                const totalCount = goalTasks.length;
+                const taskProgress = totalCount === 0 ? 0 : Math.round((completedCount / totalCount) * 100);
+                const daysRemaining = getDaysRemaining(goal.deadline);
+                const timeProgress = getTimeProgress(goal.createdAt, goal.deadline);
+                const deadlineStatus = getDeadlineStatus(daysRemaining);
+
+                return (
+                  <div key={goal.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-lg relative">
+                    {/* Header dengan Deadline Info */}
+                    <div className="p-5 border-b border-zinc-800 bg-gradient-to-r from-zinc-900 to-zinc-900 relative">
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-xl font-bold text-white leading-tight flex-1 pr-2">{goal.title}</h3>
+                        <button onClick={() => { if (window.confirm('Hapus goal ini beserta riwayatnya?')) deleteGoal(goal.id); }} className="text-zinc-600 hover:text-red-500 transition-colors p-1"><X className="w-4 h-4" /></button>
+                      </div>
+
+                      {/* Deadline Badge & Countdown */}
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold ${deadlineStatus.color}`}>
+                          {daysRemaining !== null && daysRemaining >= 0 ? (
+                            <>
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                              {deadlineStatus.label}
+                            </>
+                          ) : daysRemaining < 0 ? (
+                            <>
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                              {deadlineStatus.label}
+                            </>
+                          ) : deadlineStatus.label}
+                        </span>
+                        {goal.deadline && (
+                          <span className="text-xs text-zinc-500 font-mono">
+                            Target: {formatDeadline(goal.deadline)}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Progress Bars */}
+                      <div className="space-y-2">
+                        {/* Time Progress */}
+                        {goal.deadline && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-zinc-500 uppercase w-16">Waktu</span>
+                            <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full transition-all duration-500 ${timeProgress >= 100 ? 'bg-red-500' : timeProgress >= 75 ? 'bg-orange-500' : 'bg-blue-500'}`}
+                                style={{ width: `${timeProgress}%` }}
+                              />
+                            </div>
+                            <span className="text-[10px] font-mono text-zinc-500 w-10 text-right">{timeProgress}%</span>
+                          </div>
+                        )}
+                        {/* Task Progress */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-zinc-500 uppercase w-16">Hari Ini</span>
+                          <div className="flex-1 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                            <div className="h-full bg-amber-500 transition-all duration-500" style={{ width: `${taskProgress}%` }} />
+                          </div>
+                          <span className="text-[10px] font-mono text-amber-500 w-10 text-right">{taskProgress}%</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Tasks Section */}
+                    <div className="p-4 bg-black/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <ListTodo className="w-4 h-4 text-zinc-500" />
+                        <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Langkah Hari Ini</span>
+                        {totalCount > 0 && (
+                          <span className="text-xs text-zinc-600 font-mono">({completedCount}/{totalCount})</span>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        {goalTasks.length === 0 && (
+                          <p className="text-xs text-zinc-600 italic py-2">Belum ada langkah untuk hari ini. Tambahkan di bawah!</p>
+                        )}
+                        {goalTasks.map(task => (
+                          <div key={task.id} className="group flex items-center gap-3 p-3 rounded-xl hover:bg-zinc-800/50 transition-colors border border-transparent hover:border-zinc-800">
+                            <button onClick={() => toggleTask(task.id)} className={`flex-shrink-0 w-5 h-5 rounded border flex items-center justify-center transition-all ${task.completed ? 'bg-emerald-500 border-emerald-500 text-black' : 'bg-transparent border-zinc-600 text-transparent hover:border-zinc-400'}`}>
+                              <CheckSquare className="w-3.5 h-3.5" />
+                            </button>
+                            <span className={`flex-1 text-sm font-medium transition-all ${task.completed ? 'text-zinc-600 line-through' : 'text-zinc-300'}`}>{task.text}</span>
+                            <button onClick={() => deleteTask(task.id)} className="text-zinc-700 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+
+                      <form onSubmit={(e) => addTaskToGoal(e, goal.id)} className="mt-4 flex gap-2">
+                        <input
+                          type="text"
+                          value={newTaskValues[goal.id] || ''}
+                          onChange={(e) => handleTaskInputChange(goal.id, e.target.value)}
+                          placeholder="Tambah langkah kecil hari ini..."
+                          className="flex-1 bg-zinc-800/50 border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white focus:ring-1 focus:ring-amber-500 focus:border-amber-500 focus:outline-none placeholder:text-zinc-600"
+                        />
+                        <button
+                          type="submit"
+                          disabled={!newTaskValues[goal.id]?.trim()}
+                          className="bg-zinc-800 text-zinc-400 p-2 rounded-lg hover:bg-zinc-700 hover:text-white disabled:opacity-50 transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+
+      function QuranTracker({ userId }) {
+        const [globalStats, setGlobalStats] = useState({ currentPage: 0, totalPages: 604, khatamCount: 0 });
+        const [dailySettings, setDailySettings] = useState({ targetPages: 20 });
+        const [todayStartPage, setTodayStartPage] = useState(null);
+        const [isEditingTarget, setIsEditingTarget] = useState(false);
+        const [loading, setLoading] = useState(false);
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        useEffect(() => { if (!userId) return; const unsubGlobal = onSnapshot(getUserDataDoc('ramadhan_quran_progress', userId), (s) => { if (s.exists()) setGlobalStats(prev => ({ ...prev, ...s.data() })); }); const unsubSettings = onSnapshot(getUserDataDoc('ramadhan_quran_settings', userId), (s) => { if (s.exists()) setDailySettings(prev => ({ ...prev, ...s.data() })); }); return () => { unsubGlobal(); unsubSettings(); }; }, [userId]);
+        useEffect(() => { if (!userId) return; const todayLogRef = getUserDataDoc('ramadhan_daily_logs', `${userId}_${todayStr}`); const unsubToday = onSnapshot(todayLogRef, async (s) => { if (s.exists() && s.data().quranStartPage !== undefined) { setTodayStartPage(s.data().quranStartPage); } else if (globalStats.currentPage !== undefined) { await setDoc(todayLogRef, { quranStartPage: globalStats.currentPage }, { merge: true }); } }); return () => unsubToday(); }, [userId, todayStr, globalStats.currentPage]);
+
+        const updatePage = async (newPage) => { if (!userId) return; const validPage = Math.max(0, Math.min(newPage, globalStats.totalPages)); setLoading(true); try { await setDoc(getUserDataDoc('ramadhan_quran_progress', userId), { currentPage: validPage }, { merge: true }); } finally { setLoading(false); } };
+        const saveTarget = async (newTarget) => { if (!userId) return; await setDoc(getUserDataDoc('ramadhan_quran_settings', userId), { targetPages: parseInt(newTarget) || 20 }, { merge: true }); setIsEditingTarget(false); };
+        const startPage = todayStartPage ?? globalStats.currentPage;
+        const pagesReadToday = Math.max(0, globalStats.currentPage - startPage);
+        const dailyPercent = Math.min(100, Math.round((pagesReadToday / dailySettings.targetPages) * 100));
+        const globalPercent = Math.round((globalStats.currentPage / globalStats.totalPages) * 100);
+
+        return (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center gap-4"><div className="inline-flex items-center justify-center w-10 h-10 bg-zinc-900 border border-zinc-800 rounded-full text-amber-500"><BookOpen className="w-5 h-5" /></div><div><h2 className="text-lg font-bold text-white">Target Harian</h2><p className="text-xs text-zinc-500 font-mono uppercase">{dailySettings.targetPages} HALAMAN / HARI</p></div></div>
+              <button onClick={() => setIsEditingTarget(!isEditingTarget)} className="p-2 bg-zinc-900 border border-zinc-800 text-zinc-400 rounded-full hover:bg-zinc-800 hover:text-amber-500 transition-colors">{isEditingTarget ? <X className="w-5 h-5" /> : <Settings className="w-5 h-5" />}</button>
+            </div>
+            {isEditingTarget && (<div className="bg-zinc-900 p-4 rounded-xl border border-zinc-800 animate-in slide-in-from-top-2"><label className="block text-xs font-bold text-zinc-400 uppercase mb-3">Set Target (Halaman)</label><div className="flex gap-2"><input type="number" defaultValue={dailySettings.targetPages} className="flex-1 bg-black border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-1 focus:ring-amber-500 focus:outline-none" id="targetInput" /><button onClick={() => saveTarget(document.getElementById('targetInput').value)} className="bg-amber-500 text-black px-4 py-2 rounded-lg text-sm font-bold hover:bg-amber-400">SIMPAN</button></div></div>)}
+            <div className="bg-zinc-900 p-8 rounded-3xl border border-zinc-800 text-center relative overflow-hidden">
+              <div className="flex justify-center mb-6"><div className="relative w-52 h-52"><div className="w-full h-full rounded-full flex items-center justify-center bg-black shadow-2xl" style={{ background: `conic-gradient(#f59e0b ${dailyPercent}%, #09090b 0)` }}><div className="w-48 h-48 bg-zinc-900 rounded-full flex flex-col items-center justify-center border border-zinc-800 shadow-inner"><span className="text-6xl font-bold text-white tracking-tighter">{dailyPercent}%</span><div className="flex flex-col items-center mt-2 space-y-1"><span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Hari Ini</span><span className="text-sm font-medium text-amber-500">{pagesReadToday} <span className="text-zinc-600">/ {dailySettings.targetPages}</span></span></div></div></div></div></div>
+              <div className="inline-flex items-center gap-2 bg-black border border-zinc-800 px-4 py-2 rounded-full"><div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div><span className="text-xs text-zinc-400 font-mono uppercase">MULAI DARI HAL {startPage}</span></div>
+            </div>
+            <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800">
+              <label className="flex justify-between items-center mb-6 border-b border-zinc-800 pb-4"><span className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Posisi Bacaan</span><span className="text-white font-mono text-lg text-amber-500">HAL. {globalStats.currentPage}</span></label>
+              <div className="flex gap-4 mb-4"><button disabled={loading || globalStats.currentPage <= 0} onClick={() => updatePage(globalStats.currentPage - 1)} className="w-14 h-14 flex items-center justify-center rounded-2xl bg-black border border-zinc-800 hover:border-amber-500/50 text-zinc-400 hover:text-amber-500 transition-all"><ChevronLeft className="w-6 h-6" /></button><div className="flex-1 relative"><input type="number" value={globalStats.currentPage} onChange={(e) => updatePage(parseInt(e.target.value) || 0)} className="w-full h-14 text-center text-2xl font-bold bg-black border border-zinc-800 rounded-2xl text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none" /></div><button disabled={loading || globalStats.currentPage >= globalStats.totalPages} onClick={() => updatePage(globalStats.currentPage + 1)} className="w-14 h-14 flex items-center justify-center rounded-2xl bg-amber-500 text-black hover:bg-amber-400 transition-colors shadow-lg shadow-amber-500/20"><ChevronRight className="w-6 h-6" /></button></div>
+              <div className="grid grid-cols-2 gap-3"><button onClick={() => updatePage(globalStats.currentPage + 10)} className="py-4 text-xs font-bold text-zinc-400 bg-black border border-zinc-800 rounded-xl hover:border-amber-500/50 hover:text-amber-500 transition-all uppercase tracking-wider">+10 Halaman</button><button onClick={() => updatePage(globalStats.currentPage + 20)} className="py-4 text-xs font-bold text-zinc-400 bg-black border border-zinc-800 rounded-xl hover:border-amber-500/50 hover:text-amber-500 transition-all uppercase tracking-wider">+1 Juz (20 Hal)</button></div>
+            </div>
+            <div className="bg-black border border-zinc-800 p-5 rounded-2xl flex items-center justify-between"><div className="flex items-center gap-3"><TrendingUp className="w-4 h-4 text-amber-500" /><span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Total Khatam</span></div><div className="flex items-center gap-4"><div className="w-24 h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div className="bg-amber-500 h-full shadow-[0_0_8px_rgba(245,158,11,0.5)]" style={{ width: `${globalPercent}%` }}></div></div><span className="font-mono text-sm text-white">{globalPercent}%</span></div></div>
+          </div>
+        );
+      }
+
+      function PrayerBox({ userId }) {
+        const [activeTab, setActiveTab] = useState('matsurat');
+        const [matsuratTime, setMatsuratTime] = useState('pagi');
+        const [showLatin, setShowLatin] = useState(true);
+        const [showTerjemah, setShowTerjemah] = useState(true);
+        const [newPrayer, setNewPrayer] = useState('');
+        const [myPrayers, setMyPrayers] = useState([]);
+
+        useEffect(() => { if (!userId) return; const docRef = getUserDataDoc('ramadhan_prayers', userId); return onSnapshot(docRef, (docSnap) => { if (docSnap.exists()) { setMyPrayers(docSnap.data().list || []); } else { setMyPrayers([]); } }); }, [userId]);
+        const addPrayer = async (e) => { e.preventDefault(); if (!newPrayer.trim()) return; try { const docRef = getUserDataDoc('ramadhan_prayers', userId); const docSnap = await getDoc(docRef); let currentList = docSnap.exists() ? docSnap.data().list || [] : []; const newEntry = { id: Date.now().toString(), content: newPrayer, createdAt: new Date().toISOString() }; currentList.push(newEntry); await setDoc(docRef, { list: currentList }, { merge: true }); setNewPrayer(''); } catch (err) { console.error(err); } };
+        const deletePrayer = async (id) => { try { const docRef = getUserDataDoc('ramadhan_prayers', userId); const docSnap = await getDoc(docRef); if (docSnap.exists()) { let currentList = docSnap.data().list || []; const newList = currentList.filter(p => p.id !== id); await setDoc(docRef, { list: newList }); } } catch (err) { console.error(err); } };
+        const currentMatsurat = MATSURAT_PAGI;
+
+        return (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
+            <div className="flex bg-zinc-900 p-1 rounded-xl border border-zinc-800"><button onClick={() => setActiveTab('matsurat')} className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${activeTab === 'matsurat' ? 'bg-amber-500 text-black shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}>Doa Ma'tsurat</button><button onClick={() => setActiveTab('pribadi')} className={`flex-1 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${activeTab === 'pribadi' ? 'bg-amber-500 text-black shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}>Doa Pribadi</button></div>
+            {activeTab === 'matsurat' ? (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center gap-2 mb-2">
+                  <div className="flex gap-2"><button onClick={() => setMatsuratTime('pagi')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${matsuratTime === 'pagi' ? 'bg-amber-500/10 border-amber-500 text-amber-500' : 'bg-zinc-900 border-zinc-800 text-zinc-500'}`}><Sun className="w-3 h-3" /> Pagi</button><button onClick={() => setMatsuratTime('sore')} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${matsuratTime === 'sore' ? 'bg-indigo-500/10 border-indigo-500 text-indigo-400' : 'bg-zinc-900 border-zinc-800 text-zinc-500'}`}><Sunset className="w-3 h-3" /> Sore</button></div>
+                  <div className="flex gap-2"><button onClick={() => setShowLatin(!showLatin)} className={`p-1.5 rounded-lg border transition-all ${showLatin ? 'bg-zinc-800 border-zinc-600 text-white' : 'bg-transparent border-zinc-800 text-zinc-600'}`} title="Toggle Latin"><Type className="w-4 h-4" /></button><button onClick={() => setShowTerjemah(!showTerjemah)} className={`p-1.5 rounded-lg border transition-all ${showTerjemah ? 'bg-zinc-800 border-zinc-600 text-white' : 'bg-transparent border-zinc-800 text-zinc-600'}`} title="Toggle Terjemahan"><Languages className="w-4 h-4" /></button></div>
+                </div>
+                <div className="space-y-4">
+                  {matsuratTime === 'sore' && (<div className="bg-indigo-900/20 border border-indigo-500/30 p-3 rounded-xl text-center"><p className="text-xs text-indigo-300">Tampilan berikut menggunakan teks Ma'tsurat Pagi sebagai referensi. (Konten Sore belum tersedia spesifik)</p></div>)}
+                  {currentMatsurat.map((item, idx) => (<MatsuratCard key={idx} item={item} showLatin={showLatin} showTerjemah={showTerjemah} />))}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <form onSubmit={addPrayer} className="bg-zinc-900 p-5 rounded-2xl border border-zinc-800"><label className="block text-[10px] font-bold uppercase text-zinc-500 mb-3 tracking-widest">Tambah Doa / Harapan</label><div className="flex gap-2"><input type="text" value={newPrayer} onChange={(e) => setNewPrayer(e.target.value)} placeholder="Tulis harapanmu disini..." className="flex-1 bg-black border border-zinc-700 rounded-lg px-4 py-2 text-sm text-white focus:ring-1 focus:ring-amber-500 focus:outline-none placeholder:text-zinc-700" /><button type="submit" disabled={!newPrayer.trim()} className="bg-amber-500 text-black p-2 rounded-lg hover:bg-amber-400 disabled:opacity-50 transition-colors"><Plus className="w-5 h-5" /></button></div></form>
+                <div className="space-y-3">{myPrayers.length === 0 && (<div className="text-center py-12 border border-dashed border-zinc-800 rounded-2xl"><p className="text-zinc-500 font-medium text-sm">Belum ada doa pribadi.</p><p className="text-xs text-zinc-600 mt-1">Langitkan doamu sekarang.</p></div>)}{myPrayers.map((item) => (<div key={item.id} className="bg-black p-4 rounded-xl border border-zinc-800 flex justify-between items-start group hover:border-amber-500/30 transition-all"><p className="text-zinc-300 text-sm font-medium leading-relaxed">{item.content}</p><button onClick={() => deletePrayer(item.id)} className="text-zinc-600 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all ml-3"><Trash2 className="w-4 h-4" /></button></div>))}</div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      function MatsuratCard({ item, showLatin, showTerjemah }) {
+        const [count, setCount] = useState(0);
+        const isDone = count >= item.target;
+        return (
+          <div onClick={() => setCount(prev => (prev < item.target ? prev + 1 : prev))} className={`relative p-5 rounded-2xl border transition-all duration-300 cursor-pointer overflow-hidden group select-none ${isDone ? 'bg-emerald-900/20 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-zinc-900 border-zinc-800 hover:border-zinc-700'}`}>
+            <div className={`absolute bottom-0 left-0 h-1 transition-all duration-300 ${isDone ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${(count / item.target) * 100}%` }} />
+            <div className="flex justify-between items-start mb-3"><span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md border ${isDone ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-zinc-800 text-zinc-500 border-zinc-700'}`}>{item.target}x Bacaan</span><div className={`flex items-center gap-1 text-sm font-mono font-bold ${isDone ? 'text-emerald-400' : 'text-zinc-400'}`}><span>{count}</span><span className="text-zinc-600">/</span><span>{item.target}</span></div></div>
+            <h4 className="text-sm font-bold text-white mb-4">{item.title}</h4>
+            <p className="text-right font-serif text-2xl leading-loose text-zinc-200 mb-4" dir="rtl">{item.arab}</p>
+            {showLatin && (<p className="text-xs text-amber-500/80 mb-2 italic font-medium animate-in fade-in slide-in-from-top-1">{item.latin}</p>)}
+            {showTerjemah && (<p className="text-xs text-zinc-500 leading-relaxed border-t border-zinc-800 pt-2 mt-2 animate-in fade-in slide-in-from-top-1">{item.terjemah}</p>)}
+            {!isDone && (<div className="absolute inset-0 flex items-center justify-center opacity-0 group-active:opacity-100 transition-opacity bg-black/10"><div className="bg-black/80 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">+1</div></div>)}
+          </div>
+        );
+      }
+
+      // --- Mount App ---
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    }
+
+    // Prevent double initialization
+    let appStarted = false;
+    function safeStartApp() {
+      if (appStarted) return;
+      appStarted = true;
+      console.log('[App] Initializing Ramadhan Reset application...');
+      startApp();
+    }
+
+    // Initialize when firebase is ready
+    window.addEventListener('firebase-ready', safeStartApp);
+    // Fallback for strict environments where event might fire before listener
+    if (window.FB) safeStartApp();
+  </script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('Service Worker registered successfully:', registration.scope);
+
+            // Check for updates
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              console.log('Service Worker update found');
+
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  // New content available, prompt user to refresh
+                  console.log('New content available, please refresh');
+                }
+              });
+            });
+          })
+          .catch((error) => {
+            console.error('Service Worker registration failed:', error);
+          });
+      });
+    }
+  </script>
+</body>
+
+</html>
