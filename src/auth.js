@@ -7,7 +7,7 @@ import {
   signOut,
   sendPasswordResetEmail,
   updatePassword,
-  updateProfile   
+  updateProfile
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
@@ -21,7 +21,8 @@ import {
   where,
   getDocs,
   updateDoc,
-  increment
+  increment,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // REGISTER OWNER
@@ -37,24 +38,25 @@ export async function registerOwner(fullName, email, password, groupName) {
     if (!cleanGroupName) throw new Error("Nama group wajib diisi.");
 
     const userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, password);
-const user = userCredential.user;
+    const user = userCredential.user;
 
-await updateProfile(user, {
-  displayName: cleanFullName
-});
+    await updateProfile(user, {
+      displayName: cleanFullName
+    });
 
-await sendEmailVerification(user);
+    const groupRef = doc(collection(db, "groups"));
+    const batch = writeBatch(db);
 
-await setDoc(doc(db, "users", user.uid), {
-  fullName: cleanFullName,
-  email: cleanEmail,
-  status: "pending",
-  role: "owner",
-  ownerId: user.uid,
-  createdAt: serverTimestamp()
-});
+    batch.set(doc(db, "users", user.uid), {
+      fullName: cleanFullName,
+      email: cleanEmail,
+      status: "pending",
+      role: "owner",
+      ownerId: user.uid,
+      createdAt: serverTimestamp()
+    });
 
-    const groupRef = await addDoc(collection(db, "groups"), {
+    batch.set(groupRef, {
       name: cleanGroupName,
       type: "private",
       ownerUid: user.uid,
@@ -62,7 +64,7 @@ await setDoc(doc(db, "users", user.uid), {
       createdAt: serverTimestamp()
     });
 
-    await setDoc(doc(db, "groups", groupRef.id, "members", user.uid), {
+    batch.set(doc(db, "groups", groupRef.id, "members", user.uid), {
       uid: user.uid,
       userId: user.uid,
       fullName: cleanFullName,
@@ -72,21 +74,41 @@ await setDoc(doc(db, "users", user.uid), {
       joinedAt: serverTimestamp()
     });
 
-await setDoc(doc(db, "users", user.uid, "memberships", groupRef.id), {
-  groupId: groupRef.id,
-  groupName: cleanGroupName,
-  ownerId: user.uid,
-  roleInGroup: "owner",
-  joinedAt: serverTimestamp(),
-  isPrimary: true
-});
+    batch.set(doc(db, "users", user.uid, "memberships", groupRef.id), {
+      groupId: groupRef.id,
+      groupName: cleanGroupName,
+      ownerId: user.uid,
+      roleInGroup: "owner",
+      joinedAt: serverTimestamp(),
+      isPrimary: true
+    });
+
+    await batch.commit();
+
+    await sendEmailVerification(user);
+    await signOut(auth);
 
     return {
       uid: user.uid,
-      groupId: groupRef.id
+      groupId: groupRef.id,
+      needsEmailVerification: true,
+      message: "Registrasi berhasil. Silakan cek email untuk verifikasi sebelum login."
     };
   } catch (err) {
     console.error("REGISTER OWNER ERROR:", err);
+
+    if (err.code === "auth/email-already-in-use") {
+      throw new Error("Email sudah terdaftar. Silakan login atau gunakan fitur lupa password.");
+    }
+
+    if (err.code === "auth/invalid-email") {
+      throw new Error("Format email tidak valid.");
+    }
+
+    if (err.code === "auth/weak-password") {
+      throw new Error("Password terlalu lemah. Gunakan minimal 6 karakter.");
+    }
+
     throw err;
   }
 }
@@ -96,19 +118,40 @@ export async function loginUser(email, password) {
   try {
     const cleanEmail = (email || "").trim().toLowerCase();
 
+    if (!cleanEmail) throw new Error("Email wajib diisi.");
+    if (!password) throw new Error("Password wajib diisi.");
+
     const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, password);
     const user = userCredential.user;
 
     await user.reload();
 
     if (!user.emailVerified) {
+      try {
+        await sendEmailVerification(user);
+      } catch (e) {
+        console.warn("Gagal kirim ulang email verifikasi:", e);
+      }
+
       await signOut(auth);
-      throw new Error("Email belum diverifikasi. Silakan cek inbox Anda.");
+
+      const err = new Error("Email belum diverifikasi. Kami sudah kirim ulang link verifikasi ke inbox Anda.");
+      err.code = "auth/email-not-verified";
+      throw err;
     }
 
     return user;
   } catch (err) {
     console.error("LOGIN ERROR:", err);
+
+    if (err.code === "auth/invalid-credential") {
+      throw new Error("Email atau password salah.");
+    }
+
+    if (err.code === "auth/user-disabled") {
+      throw new Error("Akun ini dinonaktifkan.");
+    }
+
     throw err;
   }
 }
@@ -193,6 +236,14 @@ await sendEmailVerification(user);
 // PROFILE USER1
 export async function getUserProfile(uid) {
   try {
+    if (!auth.currentUser) {
+      throw new Error("Session login tidak tersedia.");
+    }
+
+    if (auth.currentUser.uid !== uid) {
+      throw new Error("Akses profil ditolak karena session tidak sesuai.");
+    }
+
     const userRef = doc(db, "users", uid);
     const userSnap = await getDoc(userRef);
 
@@ -211,6 +262,14 @@ export async function getUserProfile(uid) {
 // PRIMARY MEMBERSHIP
 export async function getPrimaryMembership(uid) {
   try {
+    if (!auth.currentUser) {
+      throw new Error("Session login tidak tersedia.");
+    }
+
+    if (auth.currentUser.uid !== uid) {
+      throw new Error("Akses membership ditolak.");
+    }
+
     const membershipRef = collection(db, "users", uid, "memberships");
     const membershipSnap = await getDocs(membershipRef);
 

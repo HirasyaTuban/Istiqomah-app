@@ -5199,13 +5199,16 @@ groupSwitcherSelect?.addEventListener("change", async () => {
 authForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  if (authMessage) authMessage.textContent = "Memproses...";
-  setButtonLoading(submitBtn, true, "Submit", "Memproses...");
-
-  const cleanEmail = email.value.trim().toLowerCase();
-  const cleanPassword = password.value;
-
   try {
+    if (authMessage) authMessage.textContent = "";
+    setButtonLoading(submitBtn, true, "Submit", "Memproses...");
+
+    const cleanEmail = email?.value?.trim()?.toLowerCase() || "";
+    const cleanPassword = password?.value || "";
+    const cleanFullName = fullName?.value?.trim() || "";
+    const cleanGroupName = groupName?.value?.trim() || "";
+    const cleanInviteCode = inviteCode?.value?.trim()?.toUpperCase() || "";
+
     if (currentMode === "login") {
       await loginUser(cleanEmail, cleanPassword);
 
@@ -5218,273 +5221,160 @@ authForm?.addEventListener("submit", async (e) => {
     }
 
     if (currentMode === "register") {
-      const cleanFullName = fullName.value.trim();
-      const cleanGroupName = groupName.value.trim();
-
-      if (!cleanFullName) throw new Error("Nama lengkap wajib diisi.");
-      if (!cleanGroupName) throw new Error("Nama group wajib diisi.");
-
-      if (auth.currentUser) {
-        await applyAsOwnerWithCurrentUser(
-          auth.currentUser.uid,
-          cleanFullName || auth.currentUser.displayName || currentSession.fullName || "User",
-          cleanEmail || auth.currentUser.email || currentSession.email || "",
-          cleanGroupName
-        );
-
-        await logoutUser();
-
-        if (authMessage) {
-          authMessage.textContent =
-            "Pengajuan owner berhasil dikirim. Tunggu approval admin sebelum login kembali.";
-        }
-
-        authForm?.reset();
-        currentMode = "login";
-
-        if (authTitle) authTitle.textContent = "Masuk ke Akun";
-        if (submitBtn) submitBtn.textContent = "Login";
-        if (fullName) fullName.classList.add("hidden");
-        if (groupName) groupName.classList.add("hidden");
-        if (inviteCode) inviteCode.classList.add("hidden");
-
-        showToast("Pengajuan owner berhasil dikirim. Tunggu approval admin.", "success");
-        return;
-      }
-
-      const methods = await fetchSignInMethodsForEmail(auth, cleanEmail);
-
-      if (methods.length > 0) {
-        await loginUser(cleanEmail, cleanPassword);
-
-        if (!auth.currentUser) {
-          throw new Error("Login gagal. Silakan coba lagi.");
-        }
-
-        await applyAsOwnerWithCurrentUser(
-          auth.currentUser.uid,
-          cleanFullName || auth.currentUser.displayName || currentSession.fullName || "User",
-          cleanEmail || auth.currentUser.email || currentSession.email || "",
-          cleanGroupName
-        );
-
-        await logoutUser();
-
-        if (authMessage) {
-          authMessage.textContent =
-            "Pengajuan owner berhasil dikirim. Tunggu approval admin sebelum login kembali.";
-        }
-
-        authForm?.reset();
-        currentMode = "login";
-
-        if (authTitle) authTitle.textContent = "Masuk ke Akun";
-        if (submitBtn) submitBtn.textContent = "Login";
-        if (fullName) fullName.classList.add("hidden");
-        if (groupName) groupName.classList.add("hidden");
-        if (inviteCode) inviteCode.classList.add("hidden");
-
-        showToast("Pengajuan owner berhasil dikirim. Tunggu approval admin.", "success");
-        return;
-      }
-
-      await registerOwner(cleanFullName, cleanEmail, cleanPassword, cleanGroupName);
-      await logoutUser();
+      const result = await registerOwner(
+        cleanFullName,
+        cleanEmail,
+        cleanPassword,
+        cleanGroupName
+      );
 
       if (authMessage) {
         authMessage.textContent =
-          "Register owner berhasil. Silakan verifikasi email Anda dan tunggu persetujuan admin sebelum login.";
+          result?.message || "Registrasi berhasil. Silakan cek email verifikasi.";
       }
 
-      authForm?.reset();
-      currentMode = "login";
+      showToast(
+        result?.message || "Registrasi berhasil. Silakan cek email verifikasi.",
+        "success"
+      );
 
-      if (authTitle) authTitle.textContent = "Masuk ke Akun";
-      if (submitBtn) submitBtn.textContent = "Login";
-      if (fullName) fullName.classList.add("hidden");
-      if (groupName) groupName.classList.add("hidden");
-      if (inviteCode) inviteCode.classList.add("hidden");
-
-      showToast("Register owner berhasil. Tunggu approval admin.", "success");
+      resetMode();
+      window.setMode?.("login");
       return;
     }
 
-if (currentMode === "join") {
-  const cleanFullName = fullName.value.trim();
-  const cleanInviteCode = inviteCode.value.trim().toUpperCase();
+    if (currentMode === "join") {
+      await joinGroup(
+        cleanFullName,
+        cleanEmail,
+        cleanPassword,
+        cleanInviteCode
+      );
 
-  if (!cleanFullName) {
-    throw new Error("Nama lengkap wajib diisi.");
-  }
+      if (authMessage) {
+        authMessage.textContent =
+          "Akun berhasil dibuat. Silakan cek email verifikasi sebelum login.";
+      }
 
-  if (!cleanInviteCode) {
-    throw new Error("Kode invite wajib diisi.");
-  }
+      showToast(
+        "Akun berhasil dibuat. Cek email untuk verifikasi sebelum login.",
+        "success"
+      );
 
-  await joinGroup(
-    cleanFullName,
-    cleanEmail,
-    cleanPassword,
-    cleanInviteCode
-  );
-
-  await logoutUser();
-
-  if (authForm) authForm.reset();
-
-  currentMode = "login";
-
-  if (authTitle) authTitle.textContent = "Masuk ke Akun";
-  if (submitBtn) submitBtn.textContent = "Login";
-  if (fullName) fullName.classList.add("hidden");
-  if (groupName) groupName.classList.add("hidden");
-  if (inviteCode) inviteCode.classList.add("hidden");
-
-  if (authMessage) {
-    authMessage.textContent =
-      "Akun berhasil dibuat dan berhasil bergabung ke group. Silakan cek email Anda untuk verifikasi, lalu login menggunakan email dan password Anda sendiri.";
-  }
-
-  showToast(
-    "Registrasi berhasil. Cek email untuk verifikasi, lalu login dengan akun Anda.",
-    "success"
-  );
-  return;
-}
+      resetMode();
+      window.setMode?.("login");
+      return;
+    }
 
     throw new Error("Mode auth tidak dikenali.");
   } catch (error) {
     console.error("AUTH ERROR:", error);
 
-    if (error.code === "auth/email-already-in-use") {
-      if (authMessage) authMessage.textContent = "Email ini sudah terdaftar. Silakan login terlebih dahulu.";
-    } else if (error.code === "auth/invalid-credential") {
-      if (authMessage) authMessage.textContent = "Email atau password salah.";
-    } else if (error.code === "auth/user-not-found") {
-      if (authMessage) authMessage.textContent = "Akun tidak ditemukan.";
-    } else if (error.code === "auth/wrong-password") {
-      if (authMessage) authMessage.textContent = "Password salah.";
-    } else if (error.code === "auth/weak-password") {
-      if (authMessage) authMessage.textContent = "Password terlalu lemah. Minimal 6 karakter.";
-    } else {
-      if (authMessage) authMessage.textContent = `Error: ${error.code || error.message}`;
+    if (authMessage) {
+      authMessage.textContent = error.message || "Terjadi kesalahan.";
     }
 
-    showToast(authMessage?.textContent || "Terjadi kesalahan.", "error");
+    showToast(error.message || "Terjadi kesalahan.", "error");
   } finally {
     setButtonLoading(submitBtn, false, "Submit");
   }
 });
 
+
+let isRestoringSession = false;
+
+function showLandingState() {
+  resetCurrentSession();
+
+  bootLoading?.classList.add("hidden");
+  dashboardBox?.classList.add("hidden");
+  authBox?.classList.add("hidden");
+  mainActions?.classList.remove("hidden");
+
+  if (groupSwitcherBox) groupSwitcherBox.classList.add("hidden");
+}
+
 async function restoreDashboardSession(user) {
+  if (!user) return false;
+  if (isRestoringSession) return false;
+
   try {
-    if (!user) return false;
+    isRestoringSession = true;
+
+    if (bootLoading) {
+      bootLoading.classList.remove("hidden");
+    }
 
     const profile = await getUserProfile(user.uid);
 
-    const membershipRef = collection(db, "users", user.uid, "memberships");
-    const membershipSnap = await getDocs(membershipRef);
-
-    const allGroups = membershipSnap.docs.map((docItem) => ({
-      id: docItem.id,
-      ...docItem.data()
-    }));
-
-    const userStatus = profile?.status || "active";
-    const userRole = (profile?.role || "").toLowerCase();
-
-    if (userRole === "owner" && userStatus !== "active") {
-      showToast(
-        "Akun owner Anda masih menunggu approval admin. Fitur owner bisa dibatasi sementara.",
-        "warning"
-      );
+    if (!profile) {
+      throw new Error("Profil user tidak ditemukan.");
     }
 
-    const savedGroupId = getSavedActiveGroup(user.uid);
-    const selectedGroup =
-      allGroups.find((g) => g.groupId === savedGroupId) ||
-      allGroups.find((g) => g.isPrimary) ||
-      allGroups[0] ||
-      null;
+    const primaryMembership = await getPrimaryMembership(user.uid);
 
-    showDashboard({
+    currentSession = {
       uid: user.uid,
-      fullName: profile?.fullName || user.displayName || "User",
-      email: profile?.email || user.email,
-      role: userRole || selectedGroup?.roleInGroup || "member",
-      globalRole: userRole || null,
-      activeGroupRole: (selectedGroup?.roleInGroup || "member").toLowerCase(),
-      ownerId: selectedGroup?.ownerId || profile?.ownerId || null,
-      groupName: selectedGroup?.groupName || "-",
-      groupId: selectedGroup?.groupId || null,
-      allGroups
-    });
+      fullName: profile.fullName || user.displayName || "-",
+      email: profile.email || user.email || "-",
+      role: profile.role || "member",
+      globalRole: profile.role || "member",
+      activeGroupRole: primaryMembership?.roleInGroup || "member",
+      ownerId: primaryMembership?.ownerId || null,
+      groupName: primaryMembership?.groupName || "-",
+      groupId: primaryMembership?.groupId || null,
+      allGroups: primaryMembership ? [primaryMembership] : []
+    };
 
-    if (userRole === "superadmin") {
-      ensureAllowedActiveTab();
-      await reloadAdminDashboard();
+    mainActions?.classList.add("hidden");
+    authBox?.classList.add("hidden");
+    dashboardBox?.classList.remove("hidden");
+    bootLoading?.classList.add("hidden");
 
-      if (authMessage) {
-        authMessage.textContent = "Login berhasil.";
-      }
-      return true;
+    if (dashboardTitle) dashboardTitle.textContent = "Istiqomah App Dashboard";
+    if (userInfoName) userInfoName.textContent = currentSession.fullName;
+    if (userInfoEmail) userInfoEmail.textContent = currentSession.email;
+    if (userInfoRole) {
+      userInfoRole.textContent =
+        `Global: ${currentSession.globalRole} • Group: ${currentSession.activeGroupRole}`;
+    }
+    if (userInfoGroup) {
+      userInfoGroup.textContent = `Group: ${currentSession.groupName}`;
     }
 
-    if (selectedGroup?.groupId) {
-      saveActiveGroup(selectedGroup.groupId);
-    }
-
+    applyRoleBasedMenu();
     ensureAllowedActiveTab();
-    await reloadDataByGroup();
 
-    if (authMessage) {
-      authMessage.textContent = "Login berhasil.";
-    }
+    await reloadDataByGroup();
 
     return true;
   } catch (error) {
     console.error("RESTORE DASHBOARD SESSION ERROR:", error);
-    showToast("Gagal memulihkan sesi dashboard.", "error");
-    resetCurrentSession();
+    showToast(error.message || "Gagal memulihkan session dashboard.", "error");
+
+    try {
+      await logoutUser();
+    } catch (logoutError) {
+      console.warn("LOGOUT AFTER RESTORE FAILED:", logoutError);
+    }
+
+    showLandingState();
     return false;
+  } finally {
+    isRestoringSession = false;
+    bootLoading?.classList.add("hidden");
   }
 }
 
 onAuthStateChanged(auth, async (user) => {
   console.log("AUTH STATE CHANGED:", user ? user.email : "NO USER");
 
-  if (bootLoading) {
-    bootLoading.classList.remove("hidden");
+  if (!user) {
+    showLandingState();
+    return;
   }
 
-  if (user) {
-    const restored = await restoreDashboardSession(user);
-
-    if (bootLoading) {
-      bootLoading.classList.add("hidden");
-    }
-
-    if (restored) {
-      if (mainActions) mainActions.classList.add("hidden");
-      if (authBox) authBox.classList.add("hidden");
-      if (dashboardBox) dashboardBox.classList.remove("hidden");
-    } else {
-      resetCurrentSession();
-      if (mainActions) mainActions.classList.remove("hidden");
-      if (authBox) authBox.classList.add("hidden");
-      if (dashboardBox) dashboardBox.classList.add("hidden");
-    }
-  } else {
-    resetCurrentSession();
-
-    if (bootLoading) {
-      bootLoading.classList.add("hidden");
-    }
-
-    if (mainActions) mainActions.classList.remove("hidden");
-    if (authBox) authBox.classList.add("hidden");
-    if (dashboardBox) dashboardBox.classList.add("hidden");
-  }
+  await restoreDashboardSession(user);
 });
 
 </script>
