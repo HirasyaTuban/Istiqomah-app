@@ -406,6 +406,16 @@ svg path {
       </button>
     </div>
 
+<div class="flex justify-end mt-1">
+  <button
+    id="resendVerificationBtn"
+    type="button"
+    class="text-sm text-emerald-400 hover:text-emerald-300 transition hidden"
+  >
+    Kirim ulang verifikasi
+  </button>
+</div>
+
     <input
       id="inviteCode"
       type="text"
@@ -1773,10 +1783,12 @@ import {
   registerOwner,
   applyAsOwnerWithCurrentUser,
   loginUser,
+  resendEmailVerificationManually,
   joinGroup,
   logoutUser,
   getUserProfile,
   getPrimaryMembership,
+  getUserMemberships,
   createInviteCode,
   getGroupMembers,
   getPendingOwners,
@@ -2272,6 +2284,7 @@ const reminderTilawahEnabled = document.getElementById("reminderTilawahEnabled")
 const reminderTilawahTime1 = document.getElementById("reminderTilawahTime1");
 const reminderTilawahTime2 = document.getElementById("reminderTilawahTime2");
 const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+const resendVerificationBtn = document.getElementById("resendVerificationBtn");
 
 const createGroupModal = document.getElementById("createGroupModal");
 const closeCreateGroupModalBtn = document.getElementById("closeCreateGroupModalBtn");
@@ -2313,6 +2326,36 @@ cancelApplyOwnerBtn?.addEventListener("click", () => {
   }
 });
 
+resendVerificationBtn?.addEventListener("click", async () => {
+  try {
+    const cleanEmail = email?.value?.trim()?.toLowerCase() || "";
+    const cleanPassword = password?.value || "";
+
+    setButtonLoading(resendVerificationBtn, true, "Kirim ulang verifikasi", "Mengirim...");
+
+    const result = await resendEmailVerificationManually(cleanEmail, cleanPassword);
+
+    if (authMessage) {
+      authMessage.textContent = result.message;
+    }
+
+    showToast(result.message, result.alreadyVerified ? "info" : "success");
+  } catch (error) {
+    console.error("RESEND VERIFICATION BUTTON ERROR:", error);
+
+    if (authMessage) {
+      authMessage.textContent = error.message || "Gagal mengirim ulang verifikasi.";
+    }
+
+    showToast(error.message || "Gagal mengirim ulang verifikasi.", "error");
+  } finally {
+    setButtonLoading(
+      resendVerificationBtn,
+      false,
+      "Kirim ulang verifikasi"
+    );
+  }
+});
 
 submitApplyOwnerBtn?.addEventListener("click", async () => {
   try {
@@ -5196,6 +5239,23 @@ groupSwitcherSelect?.addEventListener("change", async () => {
   await syncSessionAfterGroupChange(selectedGroup);
 });
 
+function showAuthNotice(message, type = "info") {
+  if (typeof window.setMode === "function") {
+    window.setMode("login");
+  } else {
+    if (mainActions) mainActions.classList.add("hidden");
+    if (authBox) authBox.classList.remove("hidden");
+  }
+
+  if (authMessage) {
+    authMessage.textContent = message || "";
+  }
+
+  if (message) {
+    showToast(message, type);
+  }
+}
+
 authForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -5267,15 +5327,22 @@ authForm?.addEventListener("submit", async (e) => {
     }
 
     throw new Error("Mode auth tidak dikenali.");
-  } catch (error) {
-    console.error("AUTH ERROR:", error);
+} catch (error) {
+  console.error("AUTH ERROR:", error);
 
+  if (error.code === "auth/email-not-verified") {
+    showAuthNotice(
+      error.message || "Email belum diverifikasi. Silakan cek inbox Anda.",
+      "warning"
+    );
+  } else {
     if (authMessage) {
       authMessage.textContent = error.message || "Terjadi kesalahan.";
     }
 
     showToast(error.message || "Terjadi kesalahan.", "error");
-  } finally {
+  }
+} finally {
     setButtonLoading(submitBtn, false, "Submit");
   }
 });
@@ -5311,7 +5378,13 @@ async function restoreDashboardSession(user) {
       throw new Error("Profil user tidak ditemukan.");
     }
 
-    const primaryMembership = await getPrimaryMembership(user.uid);
+    const memberships = await getUserMemberships(user.uid);
+    const primaryMembership = memberships.find((item) => item.isPrimary) || memberships[0] || null;
+    const savedGroupId = getSavedActiveGroup(user.uid);
+
+    const selectedMembership =
+      memberships.find((item) => item.groupId === savedGroupId) ||
+      primaryMembership;
 
     currentSession = {
       uid: user.uid,
@@ -5319,12 +5392,26 @@ async function restoreDashboardSession(user) {
       email: profile.email || user.email || "-",
       role: profile.role || "member",
       globalRole: profile.role || "member",
-      activeGroupRole: primaryMembership?.roleInGroup || "member",
-      ownerId: primaryMembership?.ownerId || null,
-      groupName: primaryMembership?.groupName || "-",
-      groupId: primaryMembership?.groupId || null,
-      allGroups: primaryMembership ? [primaryMembership] : []
+      activeGroupRole: selectedMembership?.roleInGroup || "member",
+      ownerId: selectedMembership?.ownerId || null,
+      groupName: selectedMembership?.groupName || "-",
+      groupId: selectedMembership?.groupId || null,
+      allGroups: memberships || []
     };
+
+    const isSuperadmin = ((currentSession.globalRole || "") + "").toLowerCase() === "superadmin";
+
+    if (groupSwitcherBox) {
+      if (isSuperadmin) {
+        groupSwitcherBox.classList.add("hidden");
+      } else {
+        groupSwitcherBox.classList.remove("hidden");
+      }
+    }
+
+    if (!isSuperadmin) {
+      renderGroupSwitcherOptions(currentSession.allGroups || [], currentSession.groupId);
+    }
 
     mainActions?.classList.add("hidden");
     authBox?.classList.add("hidden");

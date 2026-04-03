@@ -156,6 +156,56 @@ export async function loginUser(email, password) {
   }
 }
 
+
+export async function resendEmailVerificationManually(email, password) {
+  try {
+    const cleanEmail = (email || "").trim().toLowerCase();
+
+    if (!cleanEmail) {
+      throw new Error("Email wajib diisi.");
+    }
+
+    if (!password) {
+      throw new Error("Password wajib diisi untuk kirim ulang verifikasi.");
+    }
+
+    const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, password);
+    const user = userCredential.user;
+
+    await user.reload();
+
+    if (user.emailVerified) {
+      await signOut(auth);
+      return {
+        success: true,
+        alreadyVerified: true,
+        message: "Email ini sudah terverifikasi. Silakan langsung login."
+      };
+    }
+
+    await sendEmailVerification(user);
+    await signOut(auth);
+
+    return {
+      success: true,
+      alreadyVerified: false,
+      message: "Link verifikasi berhasil dikirim ulang. Silakan cek inbox atau folder spam."
+    };
+  } catch (err) {
+    console.error("RESEND VERIFICATION ERROR:", err);
+
+    if (err.code === "auth/invalid-credential") {
+      throw new Error("Email atau password salah.");
+    }
+
+    if (err.code === "auth/user-disabled") {
+      throw new Error("Akun ini dinonaktifkan.");
+    }
+
+    throw err;
+  }
+}
+
 // JOIN GROUP DENGAN BUAT AKUN BARU
 export async function joinGroup(fullName, email, password, inviteCode) {
   try {
@@ -339,6 +389,14 @@ return {
 // MEMBERSHIP USER
 export async function getUserMemberships(uid) {
   try {
+    if (!auth.currentUser) {
+      throw new Error("Session login tidak tersedia.");
+    }
+
+    if (auth.currentUser.uid !== uid) {
+      throw new Error("Akses membership ditolak.");
+    }
+
     const membershipRef = collection(db, "users", uid, "memberships");
     const membershipSnap = await getDocs(membershipRef);
 
