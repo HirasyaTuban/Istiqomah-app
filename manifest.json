@@ -1,0 +1,26 @@
+{
+  "name": "Istiqomah App",
+  "short_name": "Istiqomah App",
+  "description": "Istiqomah App - Menjaga Amal, Merawat Iman.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "./icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "./icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
+}

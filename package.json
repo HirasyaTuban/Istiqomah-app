@@ -1,0 +1,19 @@
+{
+  "name": "firebase-host",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "firebase emulators:start --only hosting",
+    "deploy": "firebase deploy --only hosting:ramadhan"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "firebase": "^12.9.0"
+  },
+  "devDependencies": {
+    "firebase-tools": "^15.6.0"
+  }
+}

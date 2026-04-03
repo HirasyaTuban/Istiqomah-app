@@ -1,0 +1,12 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Aturan untuk koleksi artifacts (menyimpan semua data aplikasi)
+    match /artifacts/{appId}/{document=**} {
+      // Izinkan baca dan tulis untuk semua pengguna (termasuk yang belum login)
+      // Ini diperlukan karena anonymous auth kadang gagal
+      allow read, write: if true;
+    }
+  }
+}

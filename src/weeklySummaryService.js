@@ -1,0 +1,66 @@
+import { db } from "./firebase.js";
+import {
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+function getLast7DaysKeys() {
+  const today = new Date();
+  const keys = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+
+    keys.push(`${y}-${m}-${day}`);
+  }
+
+  return keys;
+}
+
+export async function getWeeklySummary(groupId) {
+  const membersRef = collection(db, "groups", groupId, "members");
+  const membersSnap = await getDocs(membersRef);
+
+  const members = membersSnap.docs.map((d) => d.data());
+
+  const keys = getLast7DaysKeys();
+
+  const result = [];
+
+  for (const m of members) {
+    const progressRef = collection(db, "users", m.uid, "dailyProgress");
+    const snap = await getDocs(progressRef);
+
+    let activeDays = 0;
+    let totalTilawah = 0;
+
+    const docs = {};
+    snap.docs.forEach((d) => {
+      docs[d.id] = d.data();
+    });
+
+    keys.forEach((k) => {
+      if (docs[k]) {
+        activeDays += 1;
+        totalTilawah += Number(docs[k]?.tilawahPages || 0);
+      }
+    });
+
+    const score = activeDays * 10 + totalTilawah;
+
+    result.push({
+      uid: m.uid,
+      name: m.fullName,
+      activeDays,
+      totalTilawah,
+      score
+    });
+  }
+
+  return result;
+}
