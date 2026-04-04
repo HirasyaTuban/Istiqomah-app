@@ -25,6 +25,11 @@ import {
   writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+const actionCodeSettings = {
+  url: "https://hirasyatuban.github.io/Istiqomah-app/",
+  handleCodeInApp: false
+};
+
 // REGISTER OWNER
 export async function registerOwner(fullName, email, password, groupName) {
   try {
@@ -85,14 +90,14 @@ export async function registerOwner(fullName, email, password, groupName) {
 
     await batch.commit();
 
-    await sendEmailVerification(user);
+    await sendEmailVerification(user, actionCodeSettings);
     await signOut(auth);
 
     return {
       uid: user.uid,
       groupId: groupRef.id,
       needsEmailVerification: true,
-      message: "Registrasi berhasil. Silakan cek email untuk verifikasi sebelum login."
+      message: "Registrasi berhasil. Silakan cek email terbaru untuk verifikasi sebelum login."
     };
   } catch (err) {
     console.error("REGISTER OWNER ERROR:", err);
@@ -114,7 +119,6 @@ export async function registerOwner(fullName, email, password, groupName) {
 }
 
 // LOGIN
-// LOGIN
 export async function loginUser(email, password) {
   try {
     const cleanEmail = (email || "").trim().toLowerCase();
@@ -131,7 +135,7 @@ export async function loginUser(email, password) {
       await signOut(auth);
 
       const err = new Error(
-        "Email belum diverifikasi. Silakan cek inbox Anda atau klik tombol 'Kirim ulang verifikasi'."
+        "Email belum diverifikasi atau link verifikasi belum valid. Klik 'Kirim ulang verifikasi', lalu buka email terbaru."
       );
       err.code = "auth/email-not-verified";
       throw err;
@@ -179,13 +183,13 @@ export async function resendEmailVerificationManually(email, password) {
       };
     }
 
-    await sendEmailVerification(user);
+    await sendEmailVerification(user, actionCodeSettings);
     await signOut(auth);
 
     return {
       success: true,
       alreadyVerified: false,
-      message: "Link verifikasi berhasil dikirim ulang. Silakan cek inbox atau folder spam."
+      message: "Link verifikasi terbaru berhasil dikirim. Buka email yang paling baru, jangan gunakan link lama."
     };
   } catch (err) {
     console.error("RESEND VERIFICATION ERROR:", err);
@@ -233,13 +237,13 @@ export async function joinGroup(fullName, email, password, inviteCode) {
     const groupOwnerUid = inviteData.ownerUid || null;
 
     const userCredential = await createUserWithEmailAndPassword(auth, cleanEmail, password);
-const user = userCredential.user;
+    const user = userCredential.user;
 
-await updateProfile(user, {
-  displayName: cleanFullName
-});
+    await updateProfile(user, {
+      displayName: cleanFullName
+    });
 
-await sendEmailVerification(user);
+    await sendEmailVerification(user, actionCodeSettings);
 
     await setDoc(doc(db, "users", user.uid), {
       fullName: cleanFullName,
@@ -279,7 +283,7 @@ await sendEmailVerification(user);
   }
 }
 
-// PROFILE USER1
+// PROFILE USER
 export async function getUserProfile(uid) {
   try {
     if (!auth.currentUser) {
@@ -361,21 +365,20 @@ export async function createAdditionalGroup(ownerUid, ownerName, ownerEmail, gro
       joinedAt: serverTimestamp()
     });
 
-await setDoc(doc(db, "users", ownerUid, "memberships", groupRef.id), {
-  groupId: groupRef.id,
-  groupName: cleanName,
-  ownerId: ownerUid,
-  roleInGroup: "owner",
-  joinedAt: serverTimestamp(),
-  isPrimary: false
-});
+    await setDoc(doc(db, "users", ownerUid, "memberships", groupRef.id), {
+      groupId: groupRef.id,
+      groupName: cleanName,
+      ownerId: ownerUid,
+      roleInGroup: "owner",
+      joinedAt: serverTimestamp(),
+      isPrimary: false
+    });
 
-return {
-  groupId: groupRef.id,
-  groupName: cleanName,
-  ownerId: ownerUid
-};
-
+    return {
+      groupId: groupRef.id,
+      groupName: cleanName,
+      ownerId: ownerUid
+    };
   } catch (err) {
     console.error("CREATE GROUP ERROR:", err);
     throw err;
@@ -664,6 +667,10 @@ export async function joinGroupWithCurrentUser(uid, fullName, email, inviteCode)
       joinedAt: serverTimestamp()
     });
 
+    await updateDoc(doc(db, "groups", groupId), {
+      memberCount: increment(1)
+    });
+
     return {
       groupId,
       groupName,
@@ -774,7 +781,6 @@ export async function getUserProfileByEmail(email) {
       id: docItem.id,
       ...docItem.data()
     };
-
   } catch (err) {
     console.error("GET USER PROFILE BY EMAIL ERROR:", err);
     throw err;
