@@ -5477,24 +5477,6 @@ onAuthStateChanged(auth, async (user) => {
 
 </script>
 
-<script>
-  (async function () {
-    if (!("serviceWorker" in navigator)) return;
-
-    const regs = await navigator.serviceWorker.getRegistrations();
-    for (const reg of regs) {
-      await reg.unregister();
-    }
-
-    const keys = await caches.keys();
-    for (const key of keys) {
-      await caches.delete(key);
-    }
-
-    console.log("All service workers and caches cleared");
-  })();
-</script>
-
 <div class="text-center text-xs text-zinc-500 mt-10 pb-6">
   Built with ❤️ for istiqomah<br/>
   © 2026 Sugiharto

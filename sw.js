@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'istiqomah-static-v1i';
-const DYNAMIC_CACHE = 'istiqomah-dynamic-v1i';
+const STATIC_CACHE = 'istiqomah-static-v2i';
+const DYNAMIC_CACHE = 'istiqomah-dynamic-v2i';
 
 // Assets to cache on install
 const STATIC_ASSETS = [
@@ -44,7 +44,6 @@ self.addEventListener('fetch', (event) => {
 
   if (request.method !== 'GET') return;
 
-  // Skip Firebase and other API/network-only requests
   if (
     url.hostname.includes('firebaseio.com') ||
     url.hostname.includes('googleapis.com') ||
@@ -54,63 +53,45 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // HTML/navigation: network first
-  if (request.mode === 'navigate') {
+  const isAppShellFile =
+    request.destination === 'script' ||
+    request.destination === 'style' ||
+    request.mode === 'navigate' ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.html');
+
+  if (isAppShellFile) {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const responseClone = response.clone();
-          caches.open(DYNAMIC_CACHE).then((cache) => {
-            cache.put(request, responseClone);
-          });
+          if (response && response.ok) {
+            const clone = response.clone();
+            caches.open(DYNAMIC_CACHE).then((cache) => cache.put(request, clone));
+          }
           return response;
         })
-        .catch(() => {
-          return caches.match(request).then((cachedResponse) => {
+        .catch(() =>
+          caches.match(request).then((cachedResponse) => {
             return cachedResponse || caches.match('./index.html');
-          });
-        })
+          })
+        )
     );
     return;
   }
 
-  // Other files: cache first
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) {
-        fetch(request)
-          .then((response) => {
-            if (response && response.ok) {
-              caches.open(DYNAMIC_CACHE).then((cache) => {
-                cache.put(request, response.clone());
-              });
-            }
-          })
-          .catch(() => {});
-        return cachedResponse;
-      }
+      if (cachedResponse) return cachedResponse;
 
-      return fetch(request)
-        .then((response) => {
-          if (response && response.ok) {
-            caches.open(DYNAMIC_CACHE).then((cache) => {
-              cache.put(request, response.clone());
-            });
-          }
-          return response;
-        })
-        .catch((error) => {
-          console.error('[Service Worker] Fetch error:', error);
-
-          if (request.destination === 'image') {
-            return new Response(
-              '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect fill="#111" width="200" height="200"/><text fill="#888" x="50%" y="50%" text-anchor="middle" dy=".3em">Offline</text></svg>',
-              { headers: { 'Content-Type': 'image/svg+xml' } }
-            );
-          }
-
-          throw error;
-        });
+      return fetch(request).then((response) => {
+        if (response && response.ok) {
+          caches.open(DYNAMIC_CACHE).then((cache) => {
+            cache.put(request, response.clone());
+          });
+        }
+        return response;
+      });
     })
   );
 });
