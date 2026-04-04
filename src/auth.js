@@ -114,6 +114,7 @@ export async function registerOwner(fullName, email, password, groupName) {
 }
 
 // LOGIN
+// LOGIN
 export async function loginUser(email, password) {
   try {
     const cleanEmail = (email || "").trim().toLowerCase();
@@ -127,15 +128,11 @@ export async function loginUser(email, password) {
     await user.reload();
 
     if (!user.emailVerified) {
-      try {
-        await sendEmailVerification(user);
-      } catch (e) {
-        console.warn("Gagal kirim ulang email verifikasi:", e);
-      }
-
       await signOut(auth);
 
-      const err = new Error("Email belum diverifikasi. Kami sudah kirim ulang link verifikasi ke inbox Anda.");
+      const err = new Error(
+        "Email belum diverifikasi. Silakan cek inbox Anda atau klik tombol 'Kirim ulang verifikasi'."
+      );
       err.code = "auth/email-not-verified";
       throw err;
     }
@@ -155,7 +152,6 @@ export async function loginUser(email, password) {
     throw err;
   }
 }
-
 
 export async function resendEmailVerificationManually(email, password) {
   try {

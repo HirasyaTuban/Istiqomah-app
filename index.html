@@ -5331,10 +5331,15 @@ authForm?.addEventListener("submit", async (e) => {
   console.error("AUTH ERROR:", error);
 
   if (error.code === "auth/email-not-verified") {
-    showAuthNotice(
-      error.message || "Email belum diverifikasi. Silakan cek inbox Anda.",
-      "warning"
-    );
+    if (typeof window.setMode === "function") {
+      window.setMode("login");
+    }
+
+    if (authMessage) {
+      authMessage.textContent = error.message;
+    }
+
+    showToast(error.message, "warning");
   } else {
     if (authMessage) {
       authMessage.textContent = error.message || "Terjadi kesalahan.";
