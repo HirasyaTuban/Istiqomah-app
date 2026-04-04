@@ -4601,6 +4601,8 @@ window.resetMode = function () {
   if (inviteCode) inviteCode.classList.add("hidden");
 
   if (forgotPasswordBtn) forgotPasswordBtn.classList.add("hidden");
+  if (resendVerificationBtn) resendVerificationBtn.classList.add("hidden");
+
   if (submitBtn) submitBtn.textContent = "Submit";
 };
 
@@ -4655,16 +4657,32 @@ window.setMode = function(mode) {
   if (groupName) groupName.classList.add("hidden");
   if (inviteCode) inviteCode.classList.add("hidden");
 
-  if (mode === "login") {
-    if (authTitle) authTitle.textContent = "Masuk ke Akun";
-    if (submitBtn) submitBtn.textContent = "Login";
+  if (forgotPasswordBtn) forgotPasswordBtn.classList.add("hidden");
+  if (typeof resendVerificationBtn !== "undefined" && resendVerificationBtn) {
+    resendVerificationBtn.classList.add("hidden");
   }
+
+if (mode === "login") {
+  if (authTitle) authTitle.textContent = "Masuk ke Akun";
+  if (submitBtn) submitBtn.textContent = "Login";
+
+  if (forgotPasswordBtn) {
+    forgotPasswordBtn.classList.remove("hidden");
+  }
+
+  if (resendVerificationBtn) {
+    resendVerificationBtn.classList.remove("hidden");
+  }
+
+  return;
+}
 
   if (mode === "register") {
     if (authTitle) authTitle.textContent = "Daftar sebagai Owner";
     if (fullName) fullName.classList.remove("hidden");
     if (groupName) groupName.classList.remove("hidden");
     if (submitBtn) submitBtn.textContent = "Register Owner";
+    return;
   }
 
   if (mode === "join") {
@@ -4672,19 +4690,7 @@ window.setMode = function(mode) {
     if (fullName) fullName.classList.remove("hidden");
     if (inviteCode) inviteCode.classList.remove("hidden");
     if (submitBtn) submitBtn.textContent = "Join Group";
-  }
-
-  if (forgotPasswordBtn) {
-    forgotPasswordBtn.classList.add("hidden");
-  }
-
-  if (mode === "login") {
-    if (authTitle) authTitle.textContent = "Masuk ke Akun";
-    if (submitBtn) submitBtn.textContent = "Login";
-
-    if (forgotPasswordBtn) {
-      forgotPasswordBtn.classList.remove("hidden");
-    }
+    return;
   }
 };
 
