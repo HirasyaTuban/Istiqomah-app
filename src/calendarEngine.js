@@ -72,11 +72,18 @@ export function getTodayInfo() {
 
   const hijri = gregorianToHijri(today);
 
-  const hijriDay = Number(hijri.day);
-  const hijriMonth = Number(hijri.month);
-  const hijriYear = Number(hijri.year);
+  let hijriDay = Number(hijri.day);
+  let hijriMonth = Number(hijri.month);
+  let hijriYear = Number(hijri.year);
 
-  const hijriDate = `${hijriDay} ${hijriMonths[hijriMonth - 1]} ${hijriYear} H`;
+  // Guard biar tidak keluar range
+  if (!Number.isFinite(hijriDay) || hijriDay < 1) hijriDay = 1;
+  if (!Number.isFinite(hijriMonth) || hijriMonth < 1) hijriMonth = 1;
+  if (hijriMonth > 12) hijriMonth = 12;
+  if (!Number.isFinite(hijriYear)) hijriYear = today.getFullYear() - 579;
+
+  const monthName = hijriMonths[hijriMonth - 1] || "Hijriyah";
+  const hijriDate = `${hijriDay} ${monthName} ${hijriYear} H`;
 
   return {
     gregorianDate,
