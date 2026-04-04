@@ -5371,7 +5371,6 @@ function showLandingState() {
 
   if (groupSwitcherBox) groupSwitcherBox.classList.add("hidden");
 }
-
 async function restoreDashboardSession(user) {
   if (!user) return false;
   if (isRestoringSession) return false;
@@ -5390,12 +5389,18 @@ async function restoreDashboardSession(user) {
     }
 
     const memberships = await getUserMemberships(user.uid);
-    const primaryMembership = memberships.find((item) => item.isPrimary) || memberships[0] || null;
-    const savedGroupId = getSavedActiveGroup(user.uid);
+    const primaryMembership =
+      memberships.find((item) => item.isPrimary) || memberships[0] || null;
 
-    const selectedMembership =
-      memberships.find((item) => item.groupId === savedGroupId) ||
-      primaryMembership;
+    if (!primaryMembership) {
+      throw new Error("Membership user tidak ditemukan.");
+    }
+
+    const selectedMembership = primaryMembership;
+
+    if (selectedMembership.groupId) {
+      saveActiveGroup(selectedMembership.groupId);
+    }
 
     currentSession = {
       uid: user.uid,
@@ -5410,7 +5415,8 @@ async function restoreDashboardSession(user) {
       allGroups: memberships || []
     };
 
-    const isSuperadmin = ((currentSession.globalRole || "") + "").toLowerCase() === "superadmin";
+    const isSuperadmin =
+      ((currentSession.globalRole || "") + "").toLowerCase() === "superadmin";
 
     if (groupSwitcherBox) {
       if (isSuperadmin) {
@@ -5463,6 +5469,17 @@ async function restoreDashboardSession(user) {
     bootLoading?.classList.add("hidden");
   }
 }
+
+onAuthStateChanged(auth, async (user) => {
+  console.log("AUTH STATE CHANGED:", user ? user.email : "NO USER");
+
+  if (!user) {
+    showLandingState();
+    return;
+  }
+
+  await restoreDashboardSession(user);
+});
 
 onAuthStateChanged(auth, async (user) => {
   console.log("AUTH STATE CHANGED:", user ? user.email : "NO USER");
