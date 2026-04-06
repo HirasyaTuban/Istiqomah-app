@@ -18,12 +18,18 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-console.log("FIREBASE PROJECT ID:", firebaseConfig.projectId);
-console.log("FIREBASE AUTH DOMAIN:", firebaseConfig.authDomain);
+const DEBUG = false;
+
+if (DEBUG) {
+  console.log("FIREBASE PROJECT ID:", firebaseConfig.projectId);
+  console.log("FIREBASE AUTH DOMAIN:", firebaseConfig.authDomain);
+}
 
 export const auth = getAuth(app);
 await setPersistence(auth, browserLocalPersistence);
 
-console.log("FIREBASE AUTH OBJECT:", auth);
+if (DEBUG) {
+  console.log("FIREBASE AUTH OBJECT:", auth);
+}
 
 export const db = getFirestore(app);

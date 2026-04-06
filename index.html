@@ -5473,8 +5473,13 @@ if (currentSession.uid && currentSession.groupId) {
   }
 }
 
+const DEBUG = false;
+
 onAuthStateChanged(auth, async (user) => {
-  console.log("AUTH STATE CHANGED:", user ? user.email : "NO USER");
+
+  if (DEBUG) {
+    console.log("AUTH STATE CHANGED:", user ? user.email : "NO USER");
+  }
 
   if (!user) {
     showLandingState();
