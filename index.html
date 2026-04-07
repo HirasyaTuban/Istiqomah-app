@@ -1526,6 +1526,8 @@ svg path {
     </div>
   </div>
 </div>
+</div>
+
   
 <div id="createGroupModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 px-4">
   <div class="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 p-5 shadow-2xl">
@@ -1925,6 +1927,7 @@ function applyRoleBasedMenu() {
     if (homeTabBtn) homeTabBtn.classList.add("hidden");
     if (amalTabBtn) amalTabBtn.classList.add("hidden");
     if (communityTabBtn) communityTabBtn.classList.add("hidden");
+    if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
 
     updateDashboardTabLayout();
     return;
@@ -2255,7 +2258,7 @@ const communityNotFilled = document.getElementById("communityNotFilled");
 const communityAverageAmal = document.getElementById("communityAverageAmal");
 
 const adminTabBtn = document.getElementById("adminTabBtn");
-const adminPanel = document.getElementById("adminPanel");
+const adminPanel = document.getElementById("tab-admin");
 const refreshPendingOwnersBtn = document.getElementById("refreshPendingOwnersBtn");
 const pendingOwnersStatus = document.getElementById("pendingOwnersStatus");
 const pendingOwnersList = document.getElementById("pendingOwnersList");
@@ -5505,44 +5508,50 @@ const sessionService = createSessionService({
     showToast(message, type);
   },
   bootLoading,
+
   onAfterSetActiveGroup: async ({ session }) => {
-    const isSuperadmin =
-      ((session?.globalRole || "") + "").toLowerCase() === "superadmin";
+  const isSuperadmin =
+    ((session?.globalRole || "") + "").toLowerCase() === "superadmin";
 
-    if (groupSwitcherBox) {
-      if (isSuperadmin) {
-        groupSwitcherBox.classList.add("hidden");
-      } else {
-        groupSwitcherBox.classList.remove("hidden");
-      }
-    }
-
-    if (!isSuperadmin) {
-      renderGroupSwitcherOptions(session?.allGroups || [], session?.groupId || "");
-    }
-
-    if (userInfoGroup) {
-      userInfoGroup.textContent = `Group: ${session?.groupName || "-"}`;
-    }
-
-    if (userInfoRole) {
-      userInfoRole.textContent =
-        `Global: ${((session?.globalRole || "-") + "").toLowerCase()} • Group: ${((session?.activeGroupRole || "-") + "").toLowerCase()}`;
-    }
-
-    applyRoleBasedMenu();
-    ensureAllowedActiveTab();
-
-    if (!isSuperadmin && groupSwitcherStatus) {
-      groupSwitcherStatus.textContent = "Memuat data group...";
-    }
-
-    await reloadDataByGroup();
-
-    if (!isSuperadmin && groupSwitcherStatus) {
-      groupSwitcherStatus.textContent = `Group aktif: ${session?.groupName || "-"}`;
+  if (groupSwitcherBox) {
+    if (isSuperadmin) {
+      groupSwitcherBox.classList.add("hidden");
+    } else {
+      groupSwitcherBox.classList.remove("hidden");
     }
   }
+
+  if (!isSuperadmin) {
+    renderGroupSwitcherOptions(session?.allGroups || [], session?.groupId || "");
+  }
+
+  if (userInfoGroup) {
+    userInfoGroup.textContent = `Group: ${session?.groupName || "-"}`;
+  }
+
+  if (userInfoRole) {
+    userInfoRole.textContent =
+      `Global: ${((session?.globalRole || "-") + "").toLowerCase()} • Group: ${((session?.activeGroupRole || "-") + "").toLowerCase()}`;
+  }
+
+  applyRoleBasedMenu();
+  ensureAllowedActiveTab();
+
+  if (isSuperadmin) {
+    await reloadAdminDashboard();
+    return;
+  }
+
+  if (groupSwitcherStatus) {
+    groupSwitcherStatus.textContent = "Memuat data group...";
+  }
+
+  await reloadDataByGroup();
+
+  if (groupSwitcherStatus) {
+    groupSwitcherStatus.textContent = `Group aktif: ${session?.groupName || "-"}`;
+  }
+}
 });
 
 const membershipService = createMembershipService({
