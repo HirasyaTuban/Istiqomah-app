@@ -23,20 +23,30 @@ function getLast7DaysKeys() {
 }
 
 export async function getWeeklySummary(groupId) {
-  console.log("DEBUG groupId (summary):", groupId);
   if (!groupId) return [];
+
+  console.log("DEBUG groupId (summary):", groupId);
 
   const membersRef = collection(db, "groups", groupId, "members");
   const membersSnap = await getDocs(membersRef);
 
-  const members = membersSnap.docs.map((d) => d.data());
+  const members = membersSnap.docs.map((d) => ({
+    id: d.id,
+    ...d.data()
+  }));
 
   const keys = getLast7DaysKeys();
-
   const result = [];
 
   for (const m of members) {
-    const progressRef = collection(db, "users", m.uid, "dailyProgress");
+    const memberUid = (m.uid || m.userId || m.id || "").trim();
+
+    if (!memberUid) {
+      console.warn("SKIP member tanpa uid/userId:", m);
+      continue;
+    }
+
+    const progressRef = collection(db, "users", memberUid, "dailyProgress");
     const snap = await getDocs(progressRef);
 
     let activeDays = 0;
@@ -57,8 +67,8 @@ export async function getWeeklySummary(groupId) {
     const score = activeDays * 10 + totalTilawah;
 
     result.push({
-      uid: m.uid,
-      name: m.fullName,
+      uid: memberUid,
+      name: m.fullName || m.email || "Tanpa Nama",
       activeDays,
       totalTilawah,
       score
