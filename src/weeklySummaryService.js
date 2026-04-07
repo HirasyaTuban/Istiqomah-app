@@ -35,11 +35,15 @@ export async function getWeeklySummary(groupId) {
     ...d.data()
   }));
 
+  console.log("DEBUG weekly members:", members);
+
   const keys = getLast7DaysKeys();
   const result = [];
 
   for (const m of members) {
-    const memberUid = (m.uid || m.userId || m.id || "").trim();
+    const memberUid = String(m.uid || m.userId || m.id || "").trim();
+
+    console.log("DEBUG member weekly summary:", m, "=>", memberUid);
 
     if (!memberUid) {
       console.warn("SKIP member tanpa uid/userId:", m);

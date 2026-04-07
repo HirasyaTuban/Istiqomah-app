@@ -30,17 +30,21 @@ export async function saveGroupMessage(groupId, message, createdBy) {
 }
 
 export async function getGroupMessage(groupId) {
-  console.log("DEBUG groupId (message):", groupId);
   try {
     const cleanGroupId = (groupId || "").trim();
+    console.log("DEBUG groupId (message):", cleanGroupId);
+
     if (!cleanGroupId) return null;
 
     const snap = await getDoc(doc(db, "groups", cleanGroupId, "message", "today"));
+    console.log("DEBUG message exists?:", snap.exists());
+
     if (!snap.exists()) return null;
 
     const data = snap.data() || {};
-    if (!data.message || !data.createdAt) return null;
+    console.log("DEBUG message data:", data);
 
+    if (!data.message || !data.createdAt) return null;
     const createdAtDate =
       typeof data.createdAt?.toDate === "function"
         ? data.createdAt.toDate()

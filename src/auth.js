@@ -499,12 +499,17 @@ export async function getGroupMembers(groupId) {
     const membersRef = collection(db, "groups", groupId, "members");
     const membersSnap = await getDocs(membersRef);
 
-    if (membersSnap.empty) return [];
+    console.log("DEBUG members empty?:", membersSnap.empty);
+    console.log("DEBUG members size:", membersSnap.size);
 
-    return membersSnap.docs.map((docItem) => ({
+    const members = membersSnap.docs.map((docItem) => ({
       id: docItem.id,
       ...docItem.data()
     }));
+
+    console.log("DEBUG members data:", members);
+
+    return members;
   } catch (err) {
     console.error("GET GROUP MEMBERS ERROR:", err);
     throw err;

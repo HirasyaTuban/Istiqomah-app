@@ -106,15 +106,20 @@ export async function saveGroupTarget(groupId, rawTarget, createdBy) {
 }
 
 export async function getGroupTarget(groupId) {
-  console.log("DEBUG groupId (target):", groupId);
   try {
     const cleanGroupId = (groupId || "").trim();
+    console.log("DEBUG groupId (target):", cleanGroupId);
+
     if (!cleanGroupId) return null;
 
     const snap = await getDoc(doc(db, "groups", cleanGroupId, "target", "weekly"));
+    console.log("DEBUG target exists?:", snap.exists());
+
     if (!snap.exists()) return null;
 
     const data = snap.data() || {};
+    console.log("DEBUG target data:", data);
+
     if (!data.text || !data.createdAt) return null;
 
     const createdAtDate =
