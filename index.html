@@ -742,16 +742,41 @@ svg path {
 </div>
 
     <div class="mt-5">
-      <label for="tilawahPages" class="block text-sm text-zinc-300 mb-2">Tilawah (berapa halaman)</label>
-      <input
-        id="tilawahPages"
-        type="number"
-        min="0"
-        value="0"
-        class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white"
-        placeholder="Contoh: 3"
-      />
-    </div>
+<label for="tilawahPages" class="block text-sm text-zinc-300 mb-2">Tilawah (berapa halaman)</label>
+<input
+  id="tilawahPages"
+  type="number"
+  min="0"
+  value="0"
+  class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white"
+  placeholder="Contoh: 3"
+/>
+<p id="tilawahAccumulationText" class="text-xs text-zinc-500 mt-2">
+  0 halaman • 0x Khatam
+</p>
+
+<div class="mt-2">
+  <div class="flex items-center justify-between gap-3 mb-1">
+    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.18em]">
+      Progress Khatam
+    </p>
+    <p id="tilawahKhatamPercentText" class="text-[11px] text-amber-400 font-medium">
+      0%
+    </p>
+  </div>
+
+  <div class="w-full h-2.5 bg-black/50 rounded-full overflow-hidden border border-zinc-800">
+    <div
+      id="tilawahKhatamProgressBar"
+      class="h-full bg-amber-500 rounded-full transition-all duration-500"
+      style="width: 0%"
+    ></div>
+  </div>
+
+  <p id="tilawahKhatamProgressLabel" class="text-[11px] text-zinc-500 mt-2">
+    0 / 604 halaman menuju khatam berikutnya
+  </p>
+</div>
 
     <div class="mt-5">
       <label for="syukurText" class="block text-sm text-zinc-300 mb-2">Catatan Syukur Hari Ini</label>
@@ -797,17 +822,17 @@ svg path {
     </div>
 
     <div class="rounded-2xl bg-black/30 border border-zinc-800 p-4">
-      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.18em] mb-2">
-        Tilawah Hari Ini
-      </p>
-      <div class="flex items-end justify-between gap-3">
-        <p id="statTilawah" class="text-white font-black text-3xl leading-none tracking-tight tabular-nums">0</p>
-        <span class="text-zinc-500 text-xs">halaman</span>
-      </div>
-      <p class="text-xs text-zinc-500 mt-4">
-        Jaga ritme walau sedikit.
-      </p>
-    </div>
+  <p class="text-[11px] text-zinc-500 uppercase tracking-[0.18em] mb-2">
+    Akumulasi Tilawah
+  </p>
+  <div class="flex items-end justify-between gap-3">
+    <p id="statTilawah" class="text-white font-black text-3xl leading-none tracking-tight tabular-nums">0</p>
+    <span class="text-zinc-500 text-xs">halaman</span>
+  </div>
+  <p id="statTilawahKhatam" class="text-xs text-zinc-500 mt-4">
+    0x Khatam
+  </p>
+</div>
 
     <div class="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4">
       <p class="text-[11px] text-amber-400 uppercase tracking-[0.18em] mb-2">
@@ -1651,7 +1676,19 @@ svg path {
     </div>
   </main>
 
+<div class="text-center text-xs text-zinc-500 mt-10 pb-6">
+  Built with ❤️ for istiqomah<br/>
+  © 2026 Sugiharto
+</div>
+
+<div
+  id="toastContainer"
+  class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none"
+></div>
+
 <script>
+ const toastContainer = document.getElementById("toastContainer");
+
 function showInfo(mode) {
   const box = document.getElementById("infoBox");
   const text = document.getElementById("infoText");
@@ -1667,7 +1704,6 @@ function showInfo(mode) {
   box.classList.remove("hidden");
 }
 
-const toastContainer = document.getElementById("toastContainer");
 
   function removeToast(toast) {
     if (!toast) return;
@@ -2014,6 +2050,12 @@ function getActiveGroupStorageKey(uid) {
   return `istiqomah_active_group_${uid || "guest"}`;
 }
 
+const KHATAM_PAGES = 604;
+
+function getTilawahKhatamStorageKey(uid) {
+  return `tilawah_last_khatam_${uid}`;
+}
+
 function getSavedActiveGroup(uid) {
   if (!uid) return null;
   return localStorage.getItem(getActiveGroupStorageKey(uid));
@@ -2035,7 +2077,8 @@ async function hydrateMonthlyAmalUI(uid) {
     loadStats(uid),
     loadWeeklyHistory(uid),
     loadGamification(uid),
-    loadStreak(uid)
+    loadStreak(uid),
+    loadTilawahAccumulation(uid)
   ]);
 }
 
@@ -2156,11 +2199,16 @@ const userPoints = document.getElementById("userPoints");
 const levelProgressBar = document.getElementById("levelProgressBar");
 const levelProgressText = document.getElementById("levelProgressText");
 
-  const progressChecklist = document.getElementById("progressChecklist");
-  const tilawahPagesInput = document.getElementById("tilawahPages");
-  const syukurText = document.getElementById("syukurText");
-  const saveProgressBtn = document.getElementById("saveProgressBtn");
-  const progressMessage = document.getElementById("progressMessage");
+const statTilawahKhatam = document.getElementById("statTilawahKhatam");
+const tilawahAccumulationText = document.getElementById("tilawahAccumulationText");
+const tilawahKhatamPercentText = document.getElementById("tilawahKhatamPercentText");
+const tilawahKhatamProgressBar = document.getElementById("tilawahKhatamProgressBar");
+const tilawahKhatamProgressLabel = document.getElementById("tilawahKhatamProgressLabel");
+const progressChecklist = document.getElementById("progressChecklist");
+const tilawahPagesInput = document.getElementById("tilawahPages");
+const syukurText = document.getElementById("syukurText");
+const saveProgressBtn = document.getElementById("saveProgressBtn");
+const progressMessage = document.getElementById("progressMessage");
 
 const weeklyHistoryList = document.getElementById("weeklyHistoryList");
 const hijriEventBox = document.getElementById("hijriEventBox");
@@ -3960,19 +4008,142 @@ async function loadLeaderboard(groupId) {
   }
 }
 
+async function loadTilawahAccumulation(uid) {
+  if (!uid) return;
+
+  try {
+    const data = await getTilawahAccumulation(uid);
+
+    // =============================
+    // TEXT
+    // =============================
+    if (tilawahAccumulationText) {
+      tilawahAccumulationText.textContent =
+        `${data.remainingPages} halaman • ${data.khatamCount}x Khatam`;
+    }
+
+    // =============================
+    // PROGRESS %
+    // =============================
+    if (tilawahKhatamPercentText) {
+      tilawahKhatamPercentText.textContent = `${data.progressPercent}%`;
+    }
+
+    if (tilawahKhatamProgressBar) {
+      tilawahKhatamProgressBar.style.width = `${data.progressPercent}%`;
+
+      // =============================
+      // COLOR LOGIC
+      // =============================
+      tilawahKhatamProgressBar.classList.remove("bg-amber-500", "bg-emerald-500");
+
+      if (data.progressPercent >= 90) {
+        tilawahKhatamProgressBar.classList.add("bg-emerald-500");
+      } else {
+        tilawahKhatamProgressBar.classList.add("bg-amber-500");
+      }
+    }
+
+    if (tilawahKhatamProgressLabel) {
+      tilawahKhatamProgressLabel.textContent =
+        `${data.remainingPages} / ${KHATAM_PAGES} halaman menuju khatam berikutnya`;
+    }
+
+    // =============================
+    // KHATAM DETECTION
+    // =============================
+    const storageKey = getTilawahKhatamStorageKey(uid);
+    const lastKhatam = Number(localStorage.getItem(storageKey) || 0);
+
+    if (data.khatamCount > lastKhatam) {
+      // 🎉 trigger toast
+      showToast(`MasyaAllah, ${data.khatamCount}x khatam tercapai!`, "success");
+
+      // simpan state baru
+      localStorage.setItem(storageKey, String(data.khatamCount));
+    } else {
+      // sync kalau belum ada
+      localStorage.setItem(storageKey, String(data.khatamCount));
+    }
+
+  } catch (error) {
+    console.error("LOAD TILAWAH ACCUMULATION ERROR:", error);
+
+    if (tilawahAccumulationText) {
+      tilawahAccumulationText.textContent = "0 halaman • 0x Khatam";
+    }
+
+    if (tilawahKhatamPercentText) {
+      tilawahKhatamPercentText.textContent = "0%";
+    }
+
+    if (tilawahKhatamProgressBar) {
+      tilawahKhatamProgressBar.style.width = "0%";
+      tilawahKhatamProgressBar.classList.remove("bg-emerald-500");
+      tilawahKhatamProgressBar.classList.add("bg-amber-500");
+    }
+
+    if (tilawahKhatamProgressLabel) {
+      tilawahKhatamProgressLabel.textContent =
+        `0 / ${KHATAM_PAGES} halaman menuju khatam berikutnya`;
+    }
+  }
+}
+
+async function getTilawahAccumulation(uid) {
+  if (!uid) {
+    return {
+      totalPages: 0,
+      khatamCount: 0,
+      remainingPages: 0,
+      progressPercent: 0
+    };
+  }
+
+  const progressRef = collection(db, "users", uid, "dailyProgress");
+  const progressQuery = query(progressRef, orderBy("date", "asc"));
+  const snapshot = await getDocs(progressQuery);
+
+  let totalPages = 0;
+
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data() || {};
+    totalPages += Number(data.tilawahPages || 0);
+  });
+
+  const khatamCount = Math.floor(totalPages / KHATAM_PAGES);
+  const remainingPages = totalPages % KHATAM_PAGES;
+  const progressPercent = Math.min(
+    100,
+    Math.round((remainingPages / KHATAM_PAGES) * 100)
+  );
+
+  return {
+    totalPages,
+    khatamCount,
+    remainingPages,
+    progressPercent
+  };
+}
+
 async function loadStats(uid) {
   if (!uid) return;
 
   try {
     const todayStats = await getTodayStats(uid);
     const streak = await getStreak(uid);
+    const tilawahData = await getTilawahAccumulation(uid);
 
     if (statTotalAmal) {
       statTotalAmal.textContent = String(todayStats.totalAmal || 0);
     }
 
     if (statTilawah) {
-      statTilawah.textContent = String(todayStats.tilawahPages || 0);
+      statTilawah.textContent = String(tilawahData.remainingPages || 0);
+    }
+
+    if (statTilawahKhatam) {
+      statTilawahKhatam.textContent = `${tilawahData.khatamCount || 0}x Khatam`;
     }
 
     if (statStreak) {
@@ -3983,6 +4154,7 @@ async function loadStats(uid) {
 
     if (statTotalAmal) statTotalAmal.textContent = "0";
     if (statTilawah) statTilawah.textContent = "0";
+    if (statTilawahKhatam) statTilawahKhatam.textContent = "0x Khatam";
     if (statStreak) statStreak.textContent = "0";
   }
 }
@@ -5147,6 +5319,7 @@ saveProgressBtn?.addEventListener("click", async () => {
     await loadTodayStatus(currentSession.uid);
     await loadDailyProgressVisual(currentSession.uid);
     await loadStats(currentSession.uid);
+    await loadTilawahAccumulation(currentSession.uid);
     await loadStreak(currentSession.uid);
 
     // sisanya nyusul
@@ -5407,12 +5580,6 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 </script>
-
-<div class="text-center text-xs text-zinc-500 mt-10 pb-6">
-  Built with ❤️ for istiqomah<br/>
-  © 2026 Sugiharto
-</div>
-<div id="toastContainer" class="fixed top-4 right-4 z-[9999] space-y-3 pointer-events-none"></div>
 
 </body>
 </html>
