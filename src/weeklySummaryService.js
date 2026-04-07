@@ -23,6 +23,9 @@ function getLast7DaysKeys() {
 }
 
 export async function getWeeklySummary(groupId) {
+  console.log("DEBUG groupId (summary):", groupId);
+  if (!groupId) return [];
+
   const membersRef = collection(db, "groups", groupId, "members");
   const membersSnap = await getDocs(membersRef);
 

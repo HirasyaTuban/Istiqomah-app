@@ -106,6 +106,7 @@ export async function saveGroupTarget(groupId, rawTarget, createdBy) {
 }
 
 export async function getGroupTarget(groupId) {
+  console.log("DEBUG groupId (target):", groupId);
   try {
     const cleanGroupId = (groupId || "").trim();
     if (!cleanGroupId) return null;

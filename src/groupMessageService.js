@@ -30,6 +30,7 @@ export async function saveGroupMessage(groupId, message, createdBy) {
 }
 
 export async function getGroupMessage(groupId) {
+  console.log("DEBUG groupId (message):", groupId);
   try {
     const cleanGroupId = (groupId || "").trim();
     if (!cleanGroupId) return null;

@@ -493,6 +493,8 @@ export async function createInviteCode(groupId, ownerUid, groupName) {
 
 // GET GROUP MEMBERS
 export async function getGroupMembers(groupId) {
+  console.log("DEBUG groupId (members):", groupId);
+
   try {
     const membersRef = collection(db, "groups", groupId, "members");
     const membersSnap = await getDocs(membersRef);
