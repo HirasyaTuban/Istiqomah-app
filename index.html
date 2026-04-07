@@ -1860,14 +1860,16 @@ import {
   saveGroupMessage,
   getGroupMessage,
   clearGroupMessage
-} from "./src/groupMessageService.js";
+} from "./src/groupMessageService.js?v=2";
 
-import { getGroupTargetProgress } from "./src/groupTargetProgressService.js";
+import { getGroupTargetProgress } from "./src/groupTargetProgressService.js?v=2";
 import {
   saveGroupTarget,
   getGroupTarget,
   clearGroupTarget
-} from "./src/groupTargetService.js";
+} from "./src/groupTargetService.js?v=2";
+
+import { getWeeklySummary } from "./src/weeklySummaryService.js?v=2";
 
 import { getMemberDailyActivity } from "./src/memberActivityService.js";
 import { getGroupLeaderboard } from "./src/leaderboardService.js";
@@ -1878,7 +1880,6 @@ import {
   updateHijriBadge
 } from "./src/gamification.js";
 import { getChallengeProgress, saveChallengeProgress } from "./src/challengeService.js";
-import { getWeeklySummary } from "./src/weeklySummaryService.js";
 import { getChallengeLeaderboard } from "./src/challengeLeaderboardService.js";
 import { getIstiqomahStreak, getStreakLabel } from "./src/streakService.js";
 import { getWeeklyHistory } from "./src/historyService.js";
