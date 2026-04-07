@@ -1802,6 +1802,9 @@ import {
   rejectOwner
 } from "./src/auth.js";
 
+import { createSessionService } from "./src/sessionService.js";
+import { createMembershipService } from "./src/membershipService.js";
+
 import {
   getTodayInfo,
   getHijriChallenge,
@@ -2011,24 +2014,9 @@ function getActiveGroupStorageKey(uid) {
   return `istiqomah_active_group_${uid || "guest"}`;
 }
 
-function saveActiveGroup(groupId) {
-  if (!currentSession?.uid || !groupId) return;
-  localStorage.setItem(getActiveGroupStorageKey(currentSession.uid), groupId);
-}
-
 function getSavedActiveGroup(uid) {
   if (!uid) return null;
   return localStorage.getItem(getActiveGroupStorageKey(uid));
-}
-
-function buildSessionFromSelectedGroup(baseSession, selectedGroup) {
-  return {
-    ...baseSession,
-    groupId: selectedGroup?.groupId || null,
-    groupName: selectedGroup?.groupName || "-",
-    activeGroupRole: (selectedGroup?.roleInGroup || "member").toLowerCase(),
-    ownerId: selectedGroup?.ownerId || null
-  };
 }
 
 function ensureAllowedActiveTab() {
@@ -2049,50 +2037,6 @@ async function hydrateMonthlyAmalUI(uid) {
     loadGamification(uid),
     loadStreak(uid)
   ]);
-}
-
-async function syncSessionAfterGroupChange(selectedGroup) {
-  if (!selectedGroup) return;
-
-  currentSession = buildSessionFromSelectedGroup(currentSession, selectedGroup);
-
-  const isSuperadmin = ((currentSession.globalRole || "") + "").toLowerCase() === "superadmin";
-
-  if (groupSwitcherBox) {
-    if (isSuperadmin) {
-      groupSwitcherBox.classList.add("hidden");
-    } else {
-      groupSwitcherBox.classList.remove("hidden");
-    }
-  }
-
-  saveActiveGroup(selectedGroup.groupId);
-
-  if (!isSuperadmin) {
-    renderGroupSwitcherOptions(currentSession.allGroups || [], selectedGroup.groupId);
-  }
-
-  if (userInfoGroup) {
-    userInfoGroup.textContent = `Group: ${selectedGroup.groupName || "-"}`;
-  }
-
-  if (userInfoRole) {
-    userInfoRole.textContent =
-      `Global: ${((currentSession.globalRole || "-") + "").toLowerCase()} • Group: ${((currentSession.activeGroupRole || "-") + "").toLowerCase()}`;
-  }
-
-  applyRoleBasedMenu();
-  ensureAllowedActiveTab();
-
-  if (groupSwitcherStatus && !isSuperadmin) {
-    groupSwitcherStatus.textContent = "Memuat data group...";
-  }
-
-  await reloadDataByGroup();
-
-  if (groupSwitcherStatus && !isSuperadmin) {
-    groupSwitcherStatus.textContent = `Group aktif: ${selectedGroup.groupName || "-"}`;
-  }
 }
 
 function resetCurrentSession() {
@@ -2387,7 +2331,7 @@ submitApplyOwnerBtn?.addEventListener("click", async () => {
       "success"
     );
 
-    await logoutUser();
+    await window.logoutApp();
   } catch (error) {
     console.error("APPLY OWNER ERROR:", error);
     showToast(error.message || "Gagal mengajukan owner.", "error");
@@ -3890,14 +3834,18 @@ async function loadChallengeLeaderboard(groupId, hijriMonth) {
 
 async function loadMembers(groupId) {
   if (!groupId) return;
-
   if (!memberList) return;
-  memberList.innerHTML = "Loading members...";
+
+  memberList.innerHTML = `
+    <div class="rounded-2xl border border-zinc-800 bg-black/30 px-4 py-5 text-sm text-zinc-400">
+      Loading members...
+    </div>
+  `;
 
   try {
     const members = await getGroupMembers(groupId);
 
-    if (!members.length) {
+    if (!members || !members.length) {
       memberList.innerHTML = `
         <div class="rounded-2xl border border-dashed border-zinc-700 bg-black/20 px-4 py-5 text-sm text-zinc-500">
           Belum ada member.
@@ -3909,6 +3857,7 @@ async function loadMembers(groupId) {
     memberList.innerHTML = members
       .map((m, index) => {
         const roleLabel = ((m.roleInGroup || "member") + "").toLowerCase();
+
         const roleClass =
           roleLabel === "owner"
             ? "bg-amber-500/15 text-amber-400 border border-amber-500/30"
@@ -3920,9 +3869,6 @@ async function loadMembers(groupId) {
               <div class="min-w-0">
                 <p class="text-white font-semibold text-sm md:text-base break-words">
                   ${index + 1}. ${m.fullName || "-"}
-                </p>
-                <p class="text-zinc-500 text-xs mt-1 break-all">
-                  ${m.email || "-"}
                 </p>
               </div>
 
@@ -3936,6 +3882,7 @@ async function loadMembers(groupId) {
       .join("");
   } catch (error) {
     console.error("LOAD MEMBERS ERROR:", error);
+
     memberList.innerHTML = `
       <div class="rounded-2xl border border-dashed border-rose-500/30 bg-rose-500/5 px-4 py-5 text-sm text-rose-300">
         Gagal memuat member.
@@ -4024,24 +3971,19 @@ async function loadStats(uid) {
       statTotalAmal.textContent = String(todayStats.totalAmal || 0);
     }
 
-if (statTotalAmal) {
-  statTotalAmal.textContent = String(todayStats.totalAmal || 0);
-}
+    if (statTilawah) {
+      statTilawah.textContent = String(todayStats.tilawahPages || 0);
+    }
 
-if (statTilawah) {
-  statTilawah.textContent = String(todayStats.tilawahPages || 0);
-}
-
-if (statStreak) {
-  statStreak.textContent = String(streak || 0);
-}
-
+    if (statStreak) {
+      statStreak.textContent = String(streak || 0);
+    }
   } catch (error) {
     console.error("LOAD STATS ERROR:", error);
 
     if (statTotalAmal) statTotalAmal.textContent = "0";
-if (statTilawah) statTilawah.textContent = "0";
-if (statStreak) statStreak.textContent = "0";
+    if (statTilawah) statTilawah.textContent = "0";
+    if (statStreak) statStreak.textContent = "0";
   }
 }
 
@@ -4612,42 +4554,21 @@ window.resetMode = function () {
   if (submitBtn) submitBtn.textContent = "Submit";
 };
 
-window.logoutApp = async function() {
+window.logoutApp = async function () {
   try {
+    membershipService.stopWatchingMemberships();
+
     if (currentSession?.uid) {
       localStorage.removeItem(getActiveTabStorageKey(currentSession.uid));
       localStorage.removeItem(getActiveGroupStorageKey(currentSession.uid));
     }
 
+    resetCurrentSession();
     await logoutUser();
-
-    if (bootLoading) bootLoading.classList.add("hidden");
-    if (dashboardBox) dashboardBox.classList.add("hidden");
-    if (authBox) authBox.classList.add("hidden");
-    if (mainActions) mainActions.classList.remove("hidden");
-
-    if (authForm) authForm.reset();
-    if (authMessage) authMessage.textContent = "";
-    if (authTitle) authTitle.textContent = "Form Auth";
-
-    currentSession = {
-      uid: null,
-      fullName: null,
-      email: null,
-      role: null,
-      globalRole: null,
-      activeGroupRole: null,
-      ownerId: null,
-      groupName: null,
-      groupId: null,
-      allGroups: []
-    };
-
-    memberActivityCache = [];
-    approvedOwnersCache = [];
+    showLandingState();
   } catch (error) {
-    console.error("LOGOUT UI ERROR:", error);
-    alert("Logout gagal. Cek console.");
+    console.error("LOGOUT ERROR:", error);
+    showToast("Gagal logout.", "error");
   }
 };
 
@@ -5006,8 +4927,9 @@ submitJoinGroupBtn?.addEventListener("click", async () => {
       : [...(currentSession.allGroups || []), newGroup];
 
     currentSession.allGroups = nextGroups;
-
-    await syncSessionAfterGroupChange(newGroup);
+    await sessionService.setActiveGroup(auth.currentUser, result.groupId, {
+  reason: "join-group"
+});
 
     showToast(`Berhasil bergabung ke ${result.groupName}`, "success");
     closeJoinGroupModal();
@@ -5254,14 +5176,16 @@ memberActivityFilter?.addEventListener("change", () => {
 groupSwitcherSelect?.addEventListener("change", async () => {
   const selectedId = groupSwitcherSelect.value;
 
-  const selectedGroup = (currentSession.allGroups || []).find(
-    (group) => group.groupId === selectedId
-  );
+  if (!selectedId) return;
 
-  if (!selectedGroup) return;
-
-  showToast(`Berpindah ke group: ${selectedGroup.groupName}`, "info");
-  await syncSessionAfterGroupChange(selectedGroup);
+  try {
+    await sessionService.setActiveGroup(auth.currentUser, selectedId, {
+      reason: "group-switcher"
+    });
+  } catch (error) {
+    console.error("GROUP SWITCH ERROR:", error);
+    showToast(error.message || "Gagal berpindah group.", "error");
+  }
 });
 
 function showAuthNotice(message, type = "info") {
@@ -5377,9 +5301,6 @@ authForm?.addEventListener("submit", async (e) => {
   }
 });
 
-
-let isRestoringSession = false;
-
 function showLandingState() {
   resetCurrentSession();
 
@@ -5391,102 +5312,98 @@ function showLandingState() {
   if (groupSwitcherBox) groupSwitcherBox.classList.add("hidden");
 }
 
-async function restoreDashboardSession(user) {
-  if (!user) return false;
-  if (isRestoringSession) return false;
-
-  try {
-    isRestoringSession = true;
-
-    if (bootLoading) {
-      bootLoading.classList.remove("hidden");
-    }
-
-    const profile = await getUserProfile(user.uid);
-    if (!profile) {
-      throw new Error("Profil user tidak ditemukan.");
-    }
-
-    const memberships = await getUserMemberships(user.uid);
-    const primaryMembership =
-      memberships.find((item) => item.isPrimary) || memberships[0] || null;
-
-    if (!primaryMembership) {
-      throw new Error("Membership user tidak ditemukan.");
-    }
-
-    const selectedMembership = primaryMembership;
-
-    if (selectedMembership?.groupId) {
-      saveActiveGroup(selectedMembership.groupId);
-    }
-
-currentSession = {
-  uid: user.uid,
-  fullName: profile.fullName || user.displayName || "-",
-  email: profile.email || user.email || "-",
-  role: profile.role || "member",
-  globalRole: profile.role || "member",
-  activeGroupRole: selectedMembership.roleInGroup || "member",
-  ownerId: selectedMembership.ownerId || null,
-  groupName: selectedMembership.groupName || "-",
-  groupId: selectedMembership.groupId || null,
-  allGroups: memberships || []
-};
-
-if (currentSession.uid && currentSession.groupId) {
-  localStorage.setItem(
-    getActiveGroupStorageKey(currentSession.uid),
-    currentSession.groupId
-  );
-}
-
-    showDashboard({
-      uid: currentSession.uid,
-      fullName: currentSession.fullName,
-      email: currentSession.email,
-      role: currentSession.role,
-      globalRole: currentSession.globalRole,
-      activeGroupRole: currentSession.activeGroupRole,
-      ownerId: currentSession.ownerId,
-      groupName: currentSession.groupName,
-      groupId: currentSession.groupId,
-      allGroups: currentSession.allGroups
-    });
-
-    return true;
-  } catch (error) {
-    console.error("RESTORE DASHBOARD SESSION ERROR:", error);
-    showToast(error.message || "Gagal memulihkan session dashboard.", "error");
-
-    try {
-      await logoutUser();
-    } catch (logoutError) {
-      console.warn("LOGOUT AFTER RESTORE FAILED:", logoutError);
-    }
-
+const sessionService = createSessionService({
+  getCurrentSession: () => currentSession,
+  setCurrentSession: (nextSession) => {
+    currentSession = nextSession;
+  },
+  resetCurrentSession: () => {
+    resetCurrentSession();
+  },
+  getSavedActiveGroup: (uid) => getSavedActiveGroup(uid),
+  getActiveGroupStorageKey: (uid) => getActiveGroupStorageKey(uid),
+  showDashboard: (payload) => {
+    showDashboard(payload);
+  },
+  showLandingState: () => {
     showLandingState();
-    return false;
-  } finally {
-    isRestoringSession = false;
-    bootLoading?.classList.add("hidden");
+  },
+  showToast: (message, type = "info") => {
+    showToast(message, type);
+  },
+  bootLoading,
+  onAfterSetActiveGroup: async ({ session }) => {
+    const isSuperadmin =
+      ((session?.globalRole || "") + "").toLowerCase() === "superadmin";
+
+    if (groupSwitcherBox) {
+      if (isSuperadmin) {
+        groupSwitcherBox.classList.add("hidden");
+      } else {
+        groupSwitcherBox.classList.remove("hidden");
+      }
+    }
+
+    if (!isSuperadmin) {
+      renderGroupSwitcherOptions(session?.allGroups || [], session?.groupId || "");
+    }
+
+    if (userInfoGroup) {
+      userInfoGroup.textContent = `Group: ${session?.groupName || "-"}`;
+    }
+
+    if (userInfoRole) {
+      userInfoRole.textContent =
+        `Global: ${((session?.globalRole || "-") + "").toLowerCase()} • Group: ${((session?.activeGroupRole || "-") + "").toLowerCase()}`;
+    }
+
+    applyRoleBasedMenu();
+    ensureAllowedActiveTab();
+
+    if (!isSuperadmin && groupSwitcherStatus) {
+      groupSwitcherStatus.textContent = "Memuat data group...";
+    }
+
+    await reloadDataByGroup();
+
+    if (!isSuperadmin && groupSwitcherStatus) {
+      groupSwitcherStatus.textContent = `Group aktif: ${session?.groupName || "-"}`;
+    }
   }
-}
+});
+
+const membershipService = createMembershipService({
+  getCurrentSession: () => currentSession,
+  resetCurrentSession: () => {
+    resetCurrentSession();
+  },
+  getSavedActiveGroup: (uid) => getSavedActiveGroup(uid),
+  getActiveGroupStorageKey: (uid) => getActiveGroupStorageKey(uid),
+  resolveActiveMembership: sessionService.resolveActiveMembership,
+  setActiveGroup: sessionService.setActiveGroup,
+  showLandingState: () => {
+    showLandingState();
+  },
+  showToast: (message, type = "info") => {
+    showToast(message, type);
+  }
+});
 
 const DEBUG = false;
 
 onAuthStateChanged(auth, async (user) => {
-
   if (DEBUG) {
     console.log("AUTH STATE CHANGED:", user ? user.email : "NO USER");
   }
 
   if (!user) {
+    membershipService.stopWatchingMemberships();
     showLandingState();
     return;
   }
 
-  await restoreDashboardSession(user);
+  await sessionService.restoreDashboardSession(user);
+  membershipService.watchUserMemberships(user);
 });
 
 </script>
