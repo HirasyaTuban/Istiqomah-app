@@ -5450,29 +5450,28 @@ authForm?.addEventListener("submit", async (e) => {
     const cleanGroupName = groupName?.value?.trim() || "";
     const cleanInviteCode = inviteCode?.value?.trim()?.toUpperCase() || "";
 
-    if (currentMode === "login") {
-      console.log("INDEX LOGIN FLOW START:", { email: cleanEmail });
+if (currentMode === "login") {
+  console.log("INDEX LOGIN FLOW START:", { email: cleanEmail, currentMode });
 
-      const user = await loginUser(cleanEmail, cleanPassword);
+  const user = await loginUser(cleanEmail, cleanPassword);
+  console.log("INDEX LOGIN USER:", user);
 
-      console.log("INDEX LOGIN USER:", user);
+  if (!user) {
+    throw new Error("User tidak ditemukan setelah login.");
+  }
 
-      if (!user) {
-        throw new Error("User tidak ditemukan setelah login.");
-      }
+  if (authMessage) {
+    authMessage.textContent = "Login berhasil. Memuat dashboard...";
+  }
 
-      if (authMessage) {
-        authMessage.textContent = "Login berhasil. Memuat dashboard...";
-      }
+  showToast("Login berhasil. Memuat dashboard...", "success");
 
-      showToast("Login berhasil. Memuat dashboard...", "success");
+  console.log("INDEX RESTORE SESSION START");
+  await sessionService.restoreDashboardSession(user);
+  console.log("INDEX RESTORE SESSION DONE");
 
-      console.log("INDEX RESTORE SESSION START");
-      await sessionService.restoreDashboardSession(user);
-      console.log("INDEX RESTORE SESSION DONE");
-
-      return;
-    }
+  return;
+}
 
     if (currentMode === "register") {
       const result = await registerOwner(
@@ -5522,12 +5521,12 @@ authForm?.addEventListener("submit", async (e) => {
 
     throw new Error("Mode auth tidak dikenali.");
   } catch (error) {
-    console.error("AUTH ERROR FULL:", {
-      code: error?.code,
-      message: error?.message,
-      stack: error?.stack,
-      raw: error
-    });
+  console.error("AUTH ERROR FULL:", {
+    code: error?.code,
+    message: error?.message,
+    stack: error?.stack,
+    raw: error
+  });
 
     if (error.code === "auth/email-not-verified") {
       if (typeof window.setMode === "function") {

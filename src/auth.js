@@ -126,28 +126,16 @@ export async function loginUser(email, password) {
     if (!cleanEmail) throw new Error("Email wajib diisi.");
     if (!password) throw new Error("Password wajib diisi.");
 
-    console.log("LOGIN START:", { email: cleanEmail });
-
     const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, password);
     const user = userCredential.user;
 
-    console.log("LOGIN SUCCESS FIREBASE:", {
-      uid: user?.uid,
-      email: user?.email,
-      emailVerified: user?.emailVerified
-    });
-
     await user.reload();
 
-    console.log("LOGIN AFTER RELOAD:", {
-      uid: user?.uid,
-      email: user?.email,
-      emailVerified: user?.emailVerified
-    });
-
     if (!user.emailVerified) {
+      await signOut(auth);
+
       const err = new Error(
-        "Email belum diverifikasi. Klik 'Kirim ulang verifikasi', lalu buka email terbaru."
+        "Email belum diverifikasi atau link verifikasi belum valid. Klik 'Kirim ulang verifikasi', lalu buka email terbaru."
       );
       err.code = "auth/email-not-verified";
       throw err;
@@ -155,12 +143,7 @@ export async function loginUser(email, password) {
 
     return user;
   } catch (err) {
-    console.error("LOGIN ERROR FULL:", {
-      code: err?.code,
-      message: err?.message,
-      stack: err?.stack,
-      raw: err
-    });
+    console.error("LOGIN ERROR:", err);
 
     if (err.code === "auth/invalid-credential") {
       throw new Error("Email atau password salah.");
@@ -168,14 +151,6 @@ export async function loginUser(email, password) {
 
     if (err.code === "auth/user-disabled") {
       throw new Error("Akun ini dinonaktifkan.");
-    }
-
-    if (err.code === "auth/too-many-requests") {
-      throw new Error("Terlalu banyak percobaan login. Coba lagi beberapa saat.");
-    }
-
-    if (err.code === "auth/network-request-failed") {
-      throw new Error("Koneksi internet bermasalah. Periksa jaringan lalu coba lagi.");
     }
 
     throw err;
@@ -311,8 +286,12 @@ export async function joinGroup(fullName, email, password, inviteCode) {
 // PROFILE USER
 export async function getUserProfile(uid) {
   try {
-    if (!uid) {
-      throw new Error("UID user tidak valid.");
+    if (!auth.currentUser) {
+      throw new Error("Session login tidak tersedia.");
+    }
+
+    if (auth.currentUser.uid !== uid) {
+      throw new Error("Akses profil ditolak karena session tidak sesuai.");
     }
 
     const userRef = doc(db, "users", uid);
@@ -409,8 +388,12 @@ export async function createAdditionalGroup(ownerUid, ownerName, ownerEmail, gro
 // MEMBERSHIP USER
 export async function getUserMemberships(uid) {
   try {
-    if (!uid) {
-      throw new Error("UID membership tidak valid.");
+    if (!auth.currentUser) {
+      throw new Error("Session login tidak tersedia.");
+    }
+
+    if (auth.currentUser.uid !== uid) {
+      throw new Error("Akses membership ditolak.");
     }
 
     const membershipRef = collection(db, "users", uid, "memberships");
@@ -510,21 +493,35 @@ export async function createInviteCode(groupId, ownerUid, groupName) {
 
 // GET GROUP MEMBERS
 export async function getGroupMembers(groupId) {
+  //console.log("DEBUG groupId (members):", groupId);
+
   try {
+    const groupRef = doc(db, "groups", groupId);
+    const groupSnap = await getDoc(groupRef);
+
+    //console.log("DEBUG group exists?:", groupSnap.exists());
+    console.log("DEBUG group data:", groupSnap.exists() ? groupSnap.data() : null);
+
     const membersRef = collection(db, "groups", groupId, "members");
     const membersSnap = await getDocs(membersRef);
 
-    if (membersSnap.empty) return [];
+    console.log("DEBUG members empty?:", membersSnap.empty);
+    //console.log("DEBUG members size:", membersSnap.size);
 
-    return membersSnap.docs.map((docItem) => ({
+    const members = membersSnap.docs.map((docItem) => ({
       id: docItem.id,
       ...docItem.data()
     }));
+
+    console.log("DEBUG members data:", members);
+
+    return members;
   } catch (err) {
     console.error("GET GROUP MEMBERS ERROR:", err);
     throw err;
   }
 }
+
 
 // PENDING OWNERS
 export async function getPendingOwners() {
