@@ -4152,12 +4152,7 @@ async function loadStats(uid) {
 
 function setActiveDashboardTab(tabName, meta = {}) {
   const source = meta.source || "unknown";
-
   console.log("SET ACTIVE TAB:", tabName, "| source:", source);
-
-  if (tabName === "community") {
-    console.trace("TRACE community forced");
-  }
 
   dashboardTabContents.forEach((section) => {
     section.classList.add("hidden");
