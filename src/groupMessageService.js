@@ -32,38 +32,67 @@ export async function saveGroupMessage(groupId, message, createdBy) {
 export async function getGroupMessage(groupId) {
   try {
     const cleanGroupId = (groupId || "").trim();
-    console.log("DEBUG groupId (message):", cleanGroupId);
 
-    if (!cleanGroupId) return null;
+    if (!cleanGroupId) {
+      return {
+        status: "invalid",
+        data: null
+      };
+    }
 
     const snap = await getDoc(doc(db, "groups", cleanGroupId, "message", "today"));
-    console.log("DEBUG message exists?:", snap.exists());
 
-    if (!snap.exists()) return null;
+    if (!snap.exists()) {
+      return {
+        status: "empty",
+        data: null
+      };
+    }
 
     const data = snap.data() || {};
-    console.log("DEBUG message data:", data);
 
-    if (!data.message || !data.createdAt) return null;
+    if (!data.message || !data.createdAt) {
+      return {
+        status: "invalid-data",
+        data: null
+      };
+    }
+
     const createdAtDate =
       typeof data.createdAt?.toDate === "function"
         ? data.createdAt.toDate()
         : null;
 
-    if (!createdAtDate) return null;
+    if (!createdAtDate) {
+      return {
+        status: "invalid-date",
+        data: null
+      };
+    }
 
     const now = new Date();
     const diffHours = (now - createdAtDate) / (1000 * 60 * 60);
 
-    if (diffHours > 24) return null;
+    if (diffHours > 24) {
+      return {
+        status: "expired",
+        data: null
+      };
+    }
 
     return {
-      id: snap.id,
-      ...data
+      status: "ok",
+      data: {
+        id: snap.id,
+        ...data
+      }
     };
   } catch (err) {
     console.error("GET GROUP MESSAGE ERROR:", err);
-    return null;
+    return {
+      status: "error",
+      data: null
+    };
   }
 }
 

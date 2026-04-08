@@ -3242,17 +3242,22 @@ async function loadGroupTargetEditor(groupId) {
   if (!groupTargetInput) return;
 
   try {
-    const data = await getGroupTarget(groupId);
+    const result = await getGroupTarget(groupId);
 
-    if (!data || !data.text || !data.text.trim()) {
+    if (!result || result.status !== "ok" || !result.data) {
       groupTargetInput.value = "";
+
       if (groupTargetStatus) {
-        groupTargetStatus.textContent = "Belum ada target untuk group ini.";
+        if (result?.status === "expired") {
+          groupTargetStatus.textContent = "Target lama sudah expired. Silakan buat target baru.";
+        } else {
+          groupTargetStatus.textContent = "Belum ada target untuk group ini.";
+        }
       }
       return;
     }
 
-    groupTargetInput.value = data.text || "";
+    groupTargetInput.value = result.data.text || "";
 
     if (groupTargetStatus) {
       groupTargetStatus.textContent = "Target group aktif berhasil dimuat.";
@@ -3260,6 +3265,7 @@ async function loadGroupTargetEditor(groupId) {
   } catch (error) {
     console.error("LOAD GROUP TARGET EDITOR ERROR:", error);
     groupTargetInput.value = "";
+
     if (groupTargetStatus) {
       groupTargetStatus.textContent = "Gagal memuat target group.";
     }
@@ -3270,25 +3276,32 @@ async function loadGroupTarget(groupId) {
   if (!groupId || !groupTargetBox) return;
 
   try {
-    const data = await getGroupTarget(groupId);
+    const result = await getGroupTarget(groupId);
 
-    if (!data || !data.text || !data.text.trim()) {
-      groupTargetBox.classList.add("hidden");
-      if (groupTargetText) groupTargetText.textContent = "";
+    groupTargetBox.classList.remove("hidden");
+
+    if (!result || result.status !== "ok" || !result.data) {
+      if (groupTargetText) {
+        groupTargetText.textContent =
+          result?.status === "expired"
+            ? "Target mingguan sebelumnya sudah lewat 7 hari."
+            : "Belum ada target mingguan untuk group ini.";
+      }
+
       if (groupTargetProgressText) groupTargetProgressText.textContent = "0 / 0";
       if (groupTargetProgressBar) groupTargetProgressBar.style.width = "0%";
       return;
     }
 
     if (groupTargetText) {
-      groupTargetText.textContent = data.text;
+      groupTargetText.textContent = result.data.text || "-";
     }
-
-    groupTargetBox.classList.remove("hidden");
   } catch (error) {
     console.error("LOAD TARGET ERROR:", error);
-    groupTargetBox.classList.add("hidden");
-    if (groupTargetText) groupTargetText.textContent = "";
+
+    groupTargetBox.classList.remove("hidden");
+
+    if (groupTargetText) groupTargetText.textContent = "Gagal memuat target group.";
     if (groupTargetProgressText) groupTargetProgressText.textContent = "0 / 0";
     if (groupTargetProgressBar) groupTargetProgressBar.style.width = "0%";
   }
@@ -3298,17 +3311,22 @@ async function loadOwnerMessageEditor(groupId) {
   if (!ownerMessageInput) return;
 
   try {
-    const data = await getGroupMessage(groupId);
+    const result = await getGroupMessage(groupId);
 
-    if (!data || !data.message || !data.message.trim()) {
+    if (!result || result.status !== "ok" || !result.data) {
       ownerMessageInput.value = "";
+
       if (ownerMessageStatus) {
-        ownerMessageStatus.textContent = "Belum ada pesan untuk group ini.";
+        if (result?.status === "expired") {
+          ownerMessageStatus.textContent = "Pesan lama sudah expired. Silakan buat pesan baru.";
+        } else {
+          ownerMessageStatus.textContent = "Belum ada pesan untuk group ini.";
+        }
       }
       return;
     }
 
-    ownerMessageInput.value = data.message || "";
+    ownerMessageInput.value = result.data.message || "";
 
     if (ownerMessageStatus) {
       ownerMessageStatus.textContent = "Pesan group aktif berhasil dimuat.";
@@ -3316,6 +3334,7 @@ async function loadOwnerMessageEditor(groupId) {
   } catch (error) {
     console.error("LOAD OWNER MESSAGE EDITOR ERROR:", error);
     ownerMessageInput.value = "";
+
     if (ownerMessageStatus) {
       ownerMessageStatus.textContent = "Gagal memuat pesan group.";
     }
@@ -3369,23 +3388,34 @@ async function loadGroupMessage(groupId) {
   if (!groupId || !ownerMessageBox) return;
 
   try {
-    const data = await getGroupMessage(groupId);
+    const result = await getGroupMessage(groupId);
 
-    if (!data || !data.message || !data.message.trim()) {
-      ownerMessageBox.classList.add("hidden");
-      if (ownerMessageText) ownerMessageText.textContent = "";
+    if (!result || result.status !== "ok" || !result.data) {
+      ownerMessageBox.classList.remove("hidden");
+
+      if (ownerMessageText) {
+        if (result?.status === "expired") {
+          ownerMessageText.textContent = "Pesan owner sebelumnya sudah lewat 24 jam.";
+        } else {
+          ownerMessageText.textContent = "Belum ada pesan owner hari ini.";
+        }
+      }
+
       return;
     }
 
     if (ownerMessageText) {
-      ownerMessageText.textContent = data.message;
+      ownerMessageText.textContent = result.data.message || "-";
     }
 
     ownerMessageBox.classList.remove("hidden");
   } catch (error) {
     console.error("LOAD GROUP MESSAGE ERROR:", error);
-    ownerMessageBox.classList.add("hidden");
-    if (ownerMessageText) ownerMessageText.textContent = "";
+    ownerMessageBox.classList.remove("hidden");
+
+    if (ownerMessageText) {
+      ownerMessageText.textContent = "Gagal memuat pesan owner.";
+    }
   }
 }
 

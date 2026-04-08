@@ -108,39 +108,67 @@ export async function saveGroupTarget(groupId, rawTarget, createdBy) {
 export async function getGroupTarget(groupId) {
   try {
     const cleanGroupId = (groupId || "").trim();
-    console.log("DEBUG groupId (target):", cleanGroupId);
 
-    if (!cleanGroupId) return null;
+    if (!cleanGroupId) {
+      return {
+        status: "invalid",
+        data: null
+      };
+    }
 
     const snap = await getDoc(doc(db, "groups", cleanGroupId, "target", "weekly"));
-    console.log("DEBUG target exists?:", snap.exists());
 
-    if (!snap.exists()) return null;
+    if (!snap.exists()) {
+      return {
+        status: "empty",
+        data: null
+      };
+    }
 
     const data = snap.data() || {};
-    console.log("DEBUG target data:", data);
 
-    if (!data.text || !data.createdAt) return null;
+    if (!data.text || !data.createdAt) {
+      return {
+        status: "invalid-data",
+        data: null
+      };
+    }
 
     const createdAtDate =
       typeof data.createdAt?.toDate === "function"
         ? data.createdAt.toDate()
         : null;
 
-    if (!createdAtDate) return null;
+    if (!createdAtDate) {
+      return {
+        status: "invalid-date",
+        data: null
+      };
+    }
 
     const now = new Date();
     const diffDays = (now - createdAtDate) / (1000 * 60 * 60 * 24);
 
-    if (diffDays > 7) return null;
+    if (diffDays > 7) {
+      return {
+        status: "expired",
+        data: null
+      };
+    }
 
     return {
-      id: snap.id,
-      ...data
+      status: "ok",
+      data: {
+        id: snap.id,
+        ...data
+      }
     };
   } catch (err) {
     console.error("GET GROUP TARGET ERROR:", err);
-    throw err;
+    return {
+      status: "error",
+      data: null
+    };
   }
 }
 
