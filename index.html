@@ -2284,6 +2284,16 @@ const submitApplyOwnerBtn = document.getElementById("submitApplyOwnerBtn");
 const applyOwnerGroupName = document.getElementById("applyOwnerGroupName");
 
 // TEMPATKAN EVENT LISTENER DI SINI
+dashboardTabButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const tab = btn.dataset.tab;
+    console.log("CLICK TAB:", tab);
+    if (!tab) return;
+
+    setActiveDashboardTab(tab);
+  });
+});
+
 applyOwnerBtn?.addEventListener("click", () => {
   if (!currentSession?.uid) {
     showToast("Silakan login terlebih dahulu.", "error");
@@ -2458,6 +2468,8 @@ function bindProgressChecklistListeners() {
   tilawahPagesInput?.addEventListener("input", runLiveRefresh);
   syukurText?.addEventListener("input", runLiveRefresh);
 }
+
+
 
 async function loadTodayProgressToUI(uid) {
   if (!uid) return;
