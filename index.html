@@ -1889,20 +1889,21 @@ function applyRoleBasedMenu() {
   console.log("APPLY ROLE BASED MENU:", {
     globalRole,
     activeGroupRole,
-    currentTab: document.querySelector(".dashboard-tab-btn.dashboard-tab-btn--active")?.dataset?.tab || null
+    groupId: currentSession?.groupId || null,
+    groupName: currentSession?.groupName || null
   });
 
-  // Reset: tab dasar selalu ada
+  // Reset tombol tab dasar: tetap tampil
   if (homeTabBtn) homeTabBtn.classList.remove("hidden");
   if (amalTabBtn) amalTabBtn.classList.remove("hidden");
   if (communityTabBtn) communityTabBtn.classList.remove("hidden");
   if (helpTabBtn) helpTabBtn.classList.remove("hidden");
 
-  // Reset: tab khusus disembunyikan dulu
+  // Tab khusus disembunyikan dulu
   if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
   if (adminTabBtn) adminTabBtn.classList.add("hidden");
 
-  // Panel upgrade owner
+  // Box ajukan owner
   if (applyOwnerBox) {
     applyOwnerBox.classList.add("hidden");
 
@@ -1919,24 +1920,25 @@ function applyRoleBasedMenu() {
     if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
     if (adminTabBtn) adminTabBtn.classList.remove("hidden");
   } else {
-    // Non-superadmin
+    // Owner group: munculkan tab owner
     if (activeGroupRole === "owner") {
       if (ownerTabBtn) ownerTabBtn.classList.remove("hidden");
     }
   }
 
-  updateDashboardTabLayout();
-
-  // Pastikan tab aktif tetap valid
   const allowedTabs = getAllowedTabs();
   const activeBtn = document.querySelector(".dashboard-tab-btn.dashboard-tab-btn--active");
   const currentActiveTab = activeBtn?.dataset?.tab || null;
 
-  console.log("ALLOWED TABS:", allowedTabs);
+  console.log("ROLE MENU CHECK:", {
+    allowedTabs,
+    currentActiveTab
+  });
 
+  // Hanya pindah tab kalau tab sekarang tidak valid
   if (!currentActiveTab || !allowedTabs.includes(currentActiveTab)) {
     const fallbackTab = allowedTabs[0] || "home";
-    console.log("FORCE SWITCH TO FALLBACK TAB:", fallbackTab);
+    console.log("FORCE SWITCH TAB:", fallbackTab);
     setActiveDashboardTab(fallbackTab, { source: "role-based-menu" });
   }
 }
