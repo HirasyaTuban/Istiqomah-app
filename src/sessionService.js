@@ -1,8 +1,3 @@
-import {
-  getUserProfile,
-  getUserMemberships
-} from "./auth.js";
-
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { db } from "./firebase.js";
 import { getUserProfile, getUserMemberships, getPrimaryMembership } from "./auth.js";
