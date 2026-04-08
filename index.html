@@ -4165,7 +4165,6 @@ function setActiveDashboardTab(tabName, meta = {}) {
   });
 
   const activeSection = document.getElementById(`tab-${tabName}`);
-  console.log("ACTIVE SECTION:", activeSection);
 
   if (activeSection) {
     activeSection.classList.remove("hidden");
@@ -4177,6 +4176,16 @@ function setActiveDashboardTab(tabName, meta = {}) {
     activeBtn.classList.remove("bg-zinc-800", "text-zinc-300");
     activeBtn.classList.add("dashboard-tab-btn--active", "bg-amber-500", "text-black");
   }
+
+  console.log("AFTER TAB SWITCH:", {
+    tabName,
+    activeClass: activeSection?.className,
+    activeDisplay: activeSection?.style.display,
+    communityDisplay: document.getElementById("tab-community")?.style.display,
+    amalDisplay: document.getElementById("tab-amal")?.style.display,
+    ownerDisplay: document.getElementById("tab-owner")?.style.display,
+    helpDisplay: document.getElementById("tab-help")?.style.display
+  });
 
   saveActiveTab(tabName);
 }
@@ -5257,7 +5266,7 @@ generateInviteBtn?.addEventListener("click", async () => {
 });
 
 // ===============================
-// SAVE PROGRESS
+// SAVE PROGRESS berhasil
 // ===============================
 
 saveProgressBtn?.addEventListener("click", async () => {
