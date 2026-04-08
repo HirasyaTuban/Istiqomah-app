@@ -2285,12 +2285,15 @@ const applyOwnerGroupName = document.getElementById("applyOwnerGroupName");
 
 // TEMPATKAN EVENT LISTENER DI SINI
 dashboardTabButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     const tab = btn.dataset.tab;
     console.log("CLICK TAB:", tab);
     if (!tab) return;
 
-    setActiveDashboardTab(tab);
+    setActiveDashboardTab(tab, { source: "tab-click" });
   });
 });
 
@@ -4147,8 +4150,14 @@ async function loadStats(uid) {
   }
 }
 
-function setActiveDashboardTab(tabName) {
-  console.log("SET ACTIVE TAB:", tabName);
+function setActiveDashboardTab(tabName, meta = {}) {
+  const source = meta.source || "unknown";
+
+  console.log("SET ACTIVE TAB:", tabName, "| source:", source);
+
+  if (tabName === "community") {
+    console.trace("TRACE community forced");
+  }
 
   dashboardTabContents.forEach((section) => {
     section.classList.add("hidden");
@@ -4176,13 +4185,6 @@ function setActiveDashboardTab(tabName) {
 
   saveActiveTab(tabName);
 }
-
-dashboardTabButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const tabName = btn.dataset.tab;
-    setActiveDashboardTab(tabName);
-  });
-});
 
 async function handleApproveOwner(userId) {
   try {
