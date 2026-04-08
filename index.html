@@ -474,7 +474,7 @@ svg path {
   <p id="groupSwitcherStatus" class="text-sm text-amber-400 mt-3 font-medium"></p>
 </div>
 
-<div id="dashboardTabs" class="flex gap-2 mb-4 overflow-x-auto whitespace-nowrap pb-1">
+<div id="dashboardTabs" class="flex flex-wrap gap-2 mb-4 pb-1">
   <button
     type="button"
     class="dashboard-tab-btn w-full min-h-[44px] px-3 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-[13px] leading-none flex items-center justify-center text-center hover:bg-zinc-700 hover:text-white transition duration-200"
@@ -1883,20 +1883,26 @@ let currentSession = {
 };
 
 function applyRoleBasedMenu() {
-  const globalRole = (currentSession.globalRole || "").toLowerCase();
-  const activeGroupRole = (currentSession.activeGroupRole || "").toLowerCase();
+  const globalRole = ((currentSession?.globalRole || "") + "").toLowerCase();
+  const activeGroupRole = ((currentSession?.activeGroupRole || "") + "").toLowerCase();
 
+  console.log("APPLY ROLE BASED MENU:", {
+    globalRole,
+    activeGroupRole,
+    currentTab: document.querySelector(".dashboard-tab-btn.dashboard-tab-btn--active")?.dataset?.tab || null
+  });
+
+  // Reset: tab dasar selalu ada
   if (homeTabBtn) homeTabBtn.classList.remove("hidden");
   if (amalTabBtn) amalTabBtn.classList.remove("hidden");
   if (communityTabBtn) communityTabBtn.classList.remove("hidden");
   if (helpTabBtn) helpTabBtn.classList.remove("hidden");
 
+  // Reset: tab khusus disembunyikan dulu
   if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
-  if (ownerPanel) ownerPanel.classList.add("hidden");
-
   if (adminTabBtn) adminTabBtn.classList.add("hidden");
-  if (adminPanel) adminPanel.classList.add("hidden");
 
+  // Panel upgrade owner
   if (applyOwnerBox) {
     applyOwnerBox.classList.add("hidden");
 
@@ -1905,32 +1911,41 @@ function applyRoleBasedMenu() {
     }
   }
 
+  // Superadmin: hanya admin + help
   if (globalRole === "superadmin") {
-    if (adminTabBtn) adminTabBtn.classList.remove("hidden");
-    if (adminPanel) adminPanel.classList.remove("hidden");
-
     if (homeTabBtn) homeTabBtn.classList.add("hidden");
     if (amalTabBtn) amalTabBtn.classList.add("hidden");
     if (communityTabBtn) communityTabBtn.classList.add("hidden");
     if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
-
-    updateDashboardTabLayout();
-    return;
-  }
-
-  if (activeGroupRole === "owner") {
-    if (ownerTabBtn) ownerTabBtn.classList.remove("hidden");
-    if (ownerPanel) ownerPanel.classList.remove("hidden");
+    if (adminTabBtn) adminTabBtn.classList.remove("hidden");
+  } else {
+    // Non-superadmin
+    if (activeGroupRole === "owner") {
+      if (ownerTabBtn) ownerTabBtn.classList.remove("hidden");
+    }
   }
 
   updateDashboardTabLayout();
+
+  // Pastikan tab aktif tetap valid
+  const allowedTabs = getAllowedTabs();
+  const activeBtn = document.querySelector(".dashboard-tab-btn.dashboard-tab-btn--active");
+  const currentActiveTab = activeBtn?.dataset?.tab || null;
+
+  console.log("ALLOWED TABS:", allowedTabs);
+
+  if (!currentActiveTab || !allowedTabs.includes(currentActiveTab)) {
+    const fallbackTab = allowedTabs[0] || "home";
+    console.log("FORCE SWITCH TO FALLBACK TAB:", fallbackTab);
+    setActiveDashboardTab(fallbackTab, { source: "role-based-menu" });
+  }
 }
 
 function updateDashboardTabLayout() {
   const dashboardTabs = document.getElementById("dashboardTabs");
   if (!dashboardTabs) return;
 
-  dashboardTabs.className = "flex gap-2 mb-4 overflow-x-auto whitespace-nowrap pb-1";
+  dashboardTabs.className = "flex flex-wrap gap-2 mb-4 pb-1";
 }
 
 function createSkeletonLines(count = 3, heightClass = "h-4") {
@@ -5618,9 +5633,15 @@ const sessionService = createSessionService({
   },
   bootLoading,
 
-  onAfterSetActiveGroup: async ({ session }) => {
+onAfterSetActiveGroup: async ({ session }) => {
   const isSuperadmin =
     ((session?.globalRole || "") + "").toLowerCase() === "superadmin";
+
+  const globalRole =
+    ((session?.globalRole || "") + "").toLowerCase();
+
+  const activeGroupRole =
+    ((session?.activeGroupRole || "") + "").toLowerCase();
 
   if (groupSwitcherBox) {
     if (isSuperadmin) {
@@ -5640,10 +5661,18 @@ const sessionService = createSessionService({
 
   if (userInfoRole) {
     userInfoRole.textContent =
-      `Global: ${((session?.globalRole || "-") + "").toLowerCase()} • Group: ${((session?.activeGroupRole || "-") + "").toLowerCase()}`;
+      `Global: ${globalRole || "-"} • Group: ${activeGroupRole || "-"}`;
   }
 
-applyRoleBasedMenu();
+  applyRoleBasedMenu();
+
+  console.log("ROLE MENU CHECK:", {
+    globalRole,
+    activeGroupRole,
+    isSuperadmin,
+    groupName: session?.groupName || null,
+    groupId: session?.groupId || null
+  });
 
   if (isSuperadmin) {
     await reloadAdminDashboard();
