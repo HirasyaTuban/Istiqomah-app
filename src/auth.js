@@ -493,35 +493,21 @@ export async function createInviteCode(groupId, ownerUid, groupName) {
 
 // GET GROUP MEMBERS
 export async function getGroupMembers(groupId) {
-  //console.log("DEBUG groupId (members):", groupId);
-
   try {
-    const groupRef = doc(db, "groups", groupId);
-    const groupSnap = await getDoc(groupRef);
-
-    //console.log("DEBUG group exists?:", groupSnap.exists());
-    console.log("DEBUG group data:", groupSnap.exists() ? groupSnap.data() : null);
-
     const membersRef = collection(db, "groups", groupId, "members");
     const membersSnap = await getDocs(membersRef);
 
-    console.log("DEBUG members empty?:", membersSnap.empty);
-    //console.log("DEBUG members size:", membersSnap.size);
+    if (membersSnap.empty) return [];
 
-    const members = membersSnap.docs.map((docItem) => ({
+    return membersSnap.docs.map((docItem) => ({
       id: docItem.id,
       ...docItem.data()
     }));
-
-    console.log("DEBUG members data:", members);
-
-    return members;
   } catch (err) {
     console.error("GET GROUP MEMBERS ERROR:", err);
     throw err;
   }
 }
-
 
 // PENDING OWNERS
 export async function getPendingOwners() {
