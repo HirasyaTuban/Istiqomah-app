@@ -1199,7 +1199,7 @@ svg path {
   </div>
 
   <!-- OWNER PANEL -->
-  <div id="ownerPanel" class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 hidden">
+  <div id="ownerPanel" class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
     <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Owner Panel</p>
     <p class="text-white font-bold text-xl">Aksi Group</p>
     <p class="text-zinc-400 text-sm mt-1 mb-4">
@@ -4172,12 +4172,17 @@ async function loadStats(uid) {
   }
 }
 
-function setActiveDashboardTab(tabName) {
-  console.log("SET ACTIVE TAB:", tabName);
+function setActiveDashboardTab(tabName, meta = {}) {
+  const source = meta.source || "unknown";
+  console.log("SET ACTIVE TAB:", tabName, "| source:", source);
 
   dashboardTabContents.forEach((section) => {
     section.classList.add("hidden");
     section.style.display = "none";
+    section.style.visibility = "hidden";
+    section.style.opacity = "0";
+    section.style.height = "0";
+    section.style.overflow = "hidden";
   });
 
   dashboardTabButtons.forEach((btn) => {
@@ -4186,13 +4191,14 @@ function setActiveDashboardTab(tabName) {
   });
 
   const activeSection = document.getElementById(`tab-${tabName}`);
-  console.log("ACTIVE SECTION:", activeSection);
 
   if (activeSection) {
     activeSection.classList.remove("hidden");
     activeSection.style.display = "block";
     activeSection.style.visibility = "visible";
     activeSection.style.opacity = "1";
+    activeSection.style.height = "auto";
+    activeSection.style.overflow = "visible";
     activeSection.style.minHeight = "240px";
 
     requestAnimationFrame(() => {
@@ -4208,6 +4214,16 @@ function setActiveDashboardTab(tabName) {
     activeBtn.classList.remove("bg-zinc-800", "text-zinc-300");
     activeBtn.classList.add("dashboard-tab-btn--active", "bg-amber-500", "text-black");
   }
+
+  console.log("AFTER TAB SWITCH:", {
+    tabName,
+    activeClass: activeSection?.className,
+    activeDisplay: activeSection?.style.display,
+    communityDisplay: document.getElementById("tab-community")?.style.display,
+    amalDisplay: document.getElementById("tab-amal")?.style.display,
+    ownerDisplay: document.getElementById("tab-owner")?.style.display,
+    helpDisplay: document.getElementById("tab-help")?.style.display
+  });
 
   saveActiveTab(tabName);
 }
