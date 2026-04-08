@@ -4172,9 +4172,8 @@ async function loadStats(uid) {
   }
 }
 
-function setActiveDashboardTab(tabName, meta = {}) {
-  const source = meta.source || "unknown";
-  console.log("SET ACTIVE TAB:", tabName, "| source:", source);
+function setActiveDashboardTab(tabName) {
+  console.log("SET ACTIVE TAB:", tabName);
 
   dashboardTabContents.forEach((section) => {
     section.classList.add("hidden");
@@ -4187,10 +4186,21 @@ function setActiveDashboardTab(tabName, meta = {}) {
   });
 
   const activeSection = document.getElementById(`tab-${tabName}`);
+  console.log("ACTIVE SECTION:", activeSection);
 
   if (activeSection) {
     activeSection.classList.remove("hidden");
     activeSection.style.display = "block";
+    activeSection.style.visibility = "visible";
+    activeSection.style.opacity = "1";
+    activeSection.style.minHeight = "240px";
+
+    requestAnimationFrame(() => {
+      activeSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    });
   }
 
   const activeBtn = document.querySelector(`.dashboard-tab-btn[data-tab="${tabName}"]`);
@@ -4198,16 +4208,6 @@ function setActiveDashboardTab(tabName, meta = {}) {
     activeBtn.classList.remove("bg-zinc-800", "text-zinc-300");
     activeBtn.classList.add("dashboard-tab-btn--active", "bg-amber-500", "text-black");
   }
-
-  console.log("AFTER TAB SWITCH:", {
-    tabName,
-    activeClass: activeSection?.className,
-    activeDisplay: activeSection?.style.display,
-    communityDisplay: document.getElementById("tab-community")?.style.display,
-    amalDisplay: document.getElementById("tab-amal")?.style.display,
-    ownerDisplay: document.getElementById("tab-owner")?.style.display,
-    helpDisplay: document.getElementById("tab-help")?.style.display
-  });
 
   saveActiveTab(tabName);
 }
