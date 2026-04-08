@@ -5628,10 +5628,6 @@ const membershipService = createMembershipService({
 const DEBUG = false;
 
 onAuthStateChanged(auth, async (user) => {
-  if (DEBUG) {
-    console.log("AUTH STATE CHANGED:", user ? user.email : "NO USER");
-  }
-
   if (!user) {
     membershipService.stopWatchingMemberships();
     showLandingState();
@@ -5641,6 +5637,7 @@ onAuthStateChanged(auth, async (user) => {
   await sessionService.restoreDashboardSession(user);
 
   // MODE STABIL DULU
+  membershipService.stopWatchingMemberships();
   // membershipService.watchUserMemberships(user);
 });
 
