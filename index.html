@@ -5657,7 +5657,16 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
+  // mode stabil dulu: watcher dimatikan
   membershipService.stopWatchingMemberships();
+
+  try {
+    await sessionService.restoreDashboardSession(user);
+  } catch (error) {
+    console.error("AUTH STATE RESTORE ERROR:", error);
+    showLandingState();
+    showToast(error.message || "Gagal memulihkan dashboard.", "error");
+  }
 });
 
 </script>
