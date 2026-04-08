@@ -329,12 +329,12 @@ svg path {
 
       <div id="mainActions" class="landing-actions space-y-3 hidden">
         <button
-          type="button"
-          class="landing-btn bg-amber-500 hover:bg-amber-400 text-black font-bold px-4 transition"
-          onclick="window.setMode('login')"
-        >
-          Login
-        </button>
+  type="button"
+  class="landing-btn bg-amber-500 hover:bg-amber-400 text-black font-bold px-4 transition"
+  onclick="console.log('TOMBOL LOGIN DIKLIK'); window.setMode('login')"
+>
+  Login
+</button>
 
         <button
           type="button"
@@ -4771,9 +4771,21 @@ window.resetMode = function () {
   if (authMessage) authMessage.textContent = "";
 
   if (authTitle) authTitle.textContent = "Form Auth";
-  if (authBox) authBox.classList.add("hidden");
-  if (dashboardBox) dashboardBox.classList.add("hidden");
-  if (mainActions) mainActions.classList.remove("hidden");
+
+  if (authBox) {
+    authBox.classList.add("hidden");
+    authBox.style.display = "none";
+  }
+
+  if (dashboardBox) {
+    dashboardBox.classList.add("hidden");
+    dashboardBox.style.display = "none";
+  }
+
+  if (mainActions) {
+    mainActions.classList.remove("hidden");
+    mainActions.style.display = "block";
+  }
 
   if (fullName) fullName.classList.add("hidden");
   if (groupName) groupName.classList.add("hidden");
@@ -4806,9 +4818,21 @@ window.logoutApp = async function () {
 window.setMode = function(mode) {
   currentMode = mode;
 
-  if (mainActions) mainActions.classList.add("hidden");
-  if (dashboardBox) dashboardBox.classList.add("hidden");
-  if (authBox) authBox.classList.remove("hidden");
+  if (mainActions) {
+    mainActions.classList.add("hidden");
+    mainActions.style.display = "none";
+  }
+
+  if (dashboardBox) {
+    dashboardBox.classList.add("hidden");
+    dashboardBox.style.display = "none";
+  }
+
+  if (authBox) {
+    authBox.classList.remove("hidden");
+    authBox.style.display = "block";
+  }
+
   if (authMessage) authMessage.textContent = "";
 
   if (fullName) fullName.classList.add("hidden");
@@ -4820,20 +4844,20 @@ window.setMode = function(mode) {
     resendVerificationBtn.classList.add("hidden");
   }
 
-if (mode === "login") {
-  if (authTitle) authTitle.textContent = "Masuk ke Akun";
-  if (submitBtn) submitBtn.textContent = "Login";
+  if (mode === "login") {
+    if (authTitle) authTitle.textContent = "Masuk ke Akun";
+    if (submitBtn) submitBtn.textContent = "Login";
 
-  if (forgotPasswordBtn) {
-    forgotPasswordBtn.classList.remove("hidden");
+    if (forgotPasswordBtn) {
+      forgotPasswordBtn.classList.remove("hidden");
+    }
+
+    if (resendVerificationBtn) {
+      resendVerificationBtn.classList.remove("hidden");
+    }
+
+    return;
   }
-
-  if (resendVerificationBtn) {
-    resendVerificationBtn.classList.remove("hidden");
-  }
-
-  return;
-}
 
   if (mode === "register") {
     if (authTitle) authTitle.textContent = "Daftar sebagai Owner";
@@ -5461,14 +5485,11 @@ if (currentMode === "login") {
   }
 
   if (authMessage) {
-    authMessage.textContent = "Login berhasil. Memuat dashboard...";
+    authMessage.textContent = "Login Firebase berhasil.";
   }
 
-  showToast("Login berhasil. Memuat dashboard...", "success");
-
-  console.log("INDEX RESTORE SESSION START");
-  await sessionService.restoreDashboardSession(user);
-  console.log("INDEX RESTORE SESSION DONE");
+  showToast("Login Firebase berhasil.", "success");
+  alert("LOGIN FIREBASE BERHASIL");
 
   return;
 }
