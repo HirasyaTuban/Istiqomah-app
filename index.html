@@ -474,7 +474,7 @@ svg path {
   <p id="groupSwitcherStatus" class="text-sm text-amber-400 mt-3 font-medium"></p>
 </div>
 
-<div id="dashboardTabs" class="flex flex-wrap gap-2 mb-4 pb-1">
+<div id="dashboardTabs" class="flex gap-2 mb-4 overflow-x-auto whitespace-nowrap pb-1">
   <button
     type="button"
     class="dashboard-tab-btn w-full min-h-[44px] px-3 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-[13px] leading-none flex items-center justify-center text-center hover:bg-zinc-700 hover:text-white transition duration-200"
@@ -1893,7 +1893,7 @@ function applyRoleBasedMenu() {
     groupName: currentSession?.groupName || null
   });
 
-  // Reset tombol tab dasar: tetap tampil
+  // Reset semua tombol utama dulu
   if (homeTabBtn) homeTabBtn.classList.remove("hidden");
   if (amalTabBtn) amalTabBtn.classList.remove("hidden");
   if (communityTabBtn) communityTabBtn.classList.remove("hidden");
@@ -1912,18 +1912,16 @@ function applyRoleBasedMenu() {
     }
   }
 
-  // Superadmin: hanya admin + help
+  // Aturan role
   if (globalRole === "superadmin") {
+    // superadmin hanya fokus approval
     if (homeTabBtn) homeTabBtn.classList.add("hidden");
     if (amalTabBtn) amalTabBtn.classList.add("hidden");
     if (communityTabBtn) communityTabBtn.classList.add("hidden");
     if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
     if (adminTabBtn) adminTabBtn.classList.remove("hidden");
-  } else {
-    // Owner group: munculkan tab owner
-    if (activeGroupRole === "owner") {
-      if (ownerTabBtn) ownerTabBtn.classList.remove("hidden");
-    }
+  } else if (activeGroupRole === "owner") {
+    if (ownerTabBtn) ownerTabBtn.classList.remove("hidden");
   }
 
   const allowedTabs = getAllowedTabs();
@@ -1935,7 +1933,6 @@ function applyRoleBasedMenu() {
     currentActiveTab
   });
 
-  // Hanya pindah tab kalau tab sekarang tidak valid
   if (!currentActiveTab || !allowedTabs.includes(currentActiveTab)) {
     const fallbackTab = allowedTabs[0] || "home";
     console.log("FORCE SWITCH TAB:", fallbackTab);
