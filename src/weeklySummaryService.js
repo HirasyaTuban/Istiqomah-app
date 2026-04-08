@@ -35,7 +35,7 @@ export async function getWeeklySummary(groupId) {
     ...d.data()
   }));
 
-  console.log("DEBUG weekly members:", members);
+  //console.log("DEBUG weekly members:", members);
 
   const keys = getLast7DaysKeys();
   const result = [];

@@ -493,20 +493,20 @@ export async function createInviteCode(groupId, ownerUid, groupName) {
 
 // GET GROUP MEMBERS
 export async function getGroupMembers(groupId) {
-  console.log("DEBUG groupId (members):", groupId);
+  //console.log("DEBUG groupId (members):", groupId);
 
   try {
     const groupRef = doc(db, "groups", groupId);
     const groupSnap = await getDoc(groupRef);
 
-    console.log("DEBUG group exists?:", groupSnap.exists());
+    //console.log("DEBUG group exists?:", groupSnap.exists());
     console.log("DEBUG group data:", groupSnap.exists() ? groupSnap.data() : null);
 
     const membersRef = collection(db, "groups", groupId, "members");
     const membersSnap = await getDocs(membersRef);
 
     console.log("DEBUG members empty?:", membersSnap.empty);
-    console.log("DEBUG members size:", membersSnap.size);
+    //console.log("DEBUG members size:", membersSnap.size);
 
     const members = membersSnap.docs.map((docItem) => ({
       id: docItem.id,
