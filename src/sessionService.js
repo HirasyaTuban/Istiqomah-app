@@ -153,90 +153,117 @@ export function createSessionService(deps = {}) {
   }
 
   async function restoreDashboardSession(user) {
-    if (!user) return false;
-    if (isRestoringSession) return false;
+  try {
+    console.log("RESTORE DASHBOARD SESSION START:", {
+      uid: user?.uid,
+      email: user?.email
+    });
 
-    try {
-      isRestoringSession = true;
-      bootLoading?.classList.remove("hidden");
-
-      const profile = await getUserProfile(user.uid);
-
-      if (!profile) {
-        throw new Error("Profil user tidak ditemukan.");
-      }
-
-      const membershipsRaw = await getUserMemberships(user.uid);
-
-      if (!Array.isArray(membershipsRaw) || membershipsRaw.length === 0) {
-        clearCurrentSession();
-        syncSavedActiveGroup(user.uid, null);
-        showLandingState();
-        showToast("Kamu belum tergabung di komunitas mana pun.", "info");
-        return false;
-      }
-
-      const savedGroupId = getSavedActiveGroup(user.uid);
-
-      const {
-        membership: selectedMembership,
-        source,
-        memberships
-      } = resolveActiveMembership(membershipsRaw, savedGroupId);
-
-      if (!selectedMembership) {
-        clearCurrentSession();
-        syncSavedActiveGroup(user.uid, null);
-        showLandingState();
-        showToast("Komunitas aktif tidak ditemukan.", "error");
-        return false;
-      }
-
-      syncSavedActiveGroup(user.uid, selectedMembership.groupId);
-
-      const nextSession = buildDashboardSession(
-        user,
-        profile,
-        selectedMembership,
-        memberships
-      );
-
-      setCurrentSession(nextSession);
-      renderDashboardSession(nextSession);
-
-      if (typeof onAfterSetActiveGroup === "function") {
-        await onAfterSetActiveGroup({
-          session: nextSession,
-          membership: selectedMembership,
-          source,
-          reason: "restore"
-        });
-      }
-
-      if (source !== "saved") {
-        console.info(
-          `[SESSION AUTO-FIX] active group restored from "${source}" -> ${selectedMembership.groupId}`
-        );
-      }
-
-      return true;
-    } catch (error) {
-      console.error("RESTORE DASHBOARD SESSION ERROR:", error);
-
-      clearCurrentSession();
-      syncSavedActiveGroup(user.uid, null);
-      showLandingState();
-      showToast(
-        error?.message || "Gagal memulihkan session dashboard.",
-        "error"
-      );
-
-      return false;
-    } finally {
-      isRestoringSession = false;
-      bootLoading?.classList.add("hidden");
+    if (!user?.uid) {
+      deps.showLandingState?.();
+      return;
     }
+
+    const uid = user.uid;
+    const profile = await getUserProfile(uid);
+
+    console.log("PROFILE RESULT:", profile);
+
+    if (!profile) {
+      throw new Error("Profil user tidak ditemukan di Firestore.");
+    }
+
+    const globalRole = (profile.role || "").toLowerCase();
+
+    if (globalRole === "superadmin") {
+      const adminSession = {
+        uid,
+        fullName: profile.fullName || user.displayName || "User",
+        email: profile.email || user.email || "",
+        role: profile.role || "superadmin",
+        globalRole: profile.role || "superadmin",
+        activeGroupRole: null,
+        ownerId: profile.ownerId || uid,
+        groupName: null,
+        groupId: null,
+        allGroups: []
+      };
+
+      deps.setCurrentSession?.(adminSession);
+      deps.showDashboard?.(adminSession);
+      return;
+    }
+
+    const { activeMembership, allGroups } = await resolveActiveMembership(user);
+
+    console.log("MEMBERSHIP RESULT:", {
+      activeMembership,
+      allGroups
+    });
+
+    if (!activeMembership) {
+      const fallbackSession = {
+        uid,
+        fullName: profile.fullName || user.displayName || "User",
+        email: profile.email || user.email || "",
+        role: profile.role || "member",
+        globalRole: profile.role || "member",
+        activeGroupRole: null,
+        ownerId: profile.ownerId || null,
+        groupName: null,
+        groupId: null,
+        allGroups: allGroups || []
+      };
+
+      deps.setCurrentSession?.(fallbackSession);
+      deps.showDashboard?.(fallbackSession);
+      deps.showToast?.("Login berhasil, tapi membership/group belum ditemukan.", "warning");
+      return;
+    }
+
+    localStorage.setItem(
+      deps.getActiveGroupStorageKey(uid),
+      activeMembership.groupId
+    );
+
+    const nextSession = {
+      uid,
+      fullName: profile.fullName || user.displayName || "User",
+      email: profile.email || user.email || "",
+      role: profile.role || activeMembership.roleInGroup || "member",
+      globalRole: profile.role || "member",
+      activeGroupRole: activeMembership.roleInGroup || "member",
+      ownerId: activeMembership.ownerId || profile.ownerId || null,
+      groupName: activeMembership.groupName || "Group",
+      groupId: activeMembership.groupId,
+      allGroups
+    };
+
+    console.log("NEXT SESSION:", nextSession);
+
+    deps.setCurrentSession?.(nextSession);
+    deps.showDashboard?.(nextSession);
+
+    if (typeof deps.onAfterSetActiveGroup === "function") {
+      await deps.onAfterSetActiveGroup({
+        session: nextSession,
+        reason: "restore-session"
+      });
+    }
+  } catch (error) {
+    console.error("RESTORE DASHBOARD SESSION ERROR FULL:", {
+      code: error?.code,
+      message: error?.message,
+      stack: error?.stack,
+      raw: error
+    });
+
+    deps.showToast?.(error.message || "Gagal memulihkan dashboard.", "error");
+    deps.showLandingState?.();
+  } finally {
+    deps.bootLoading?.classList.add("hidden");
   }
+}
 
   async function setActiveGroup(user, groupId, options = {}) {
     const {

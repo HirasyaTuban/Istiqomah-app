@@ -5450,23 +5450,29 @@ authForm?.addEventListener("submit", async (e) => {
     const cleanGroupName = groupName?.value?.trim() || "";
     const cleanInviteCode = inviteCode?.value?.trim()?.toUpperCase() || "";
 
-  if (currentMode === "login") {
-  const user = await loginUser(cleanEmail, cleanPassword);
+    if (currentMode === "login") {
+      console.log("INDEX LOGIN FLOW START:", { email: cleanEmail });
 
-  if (!user) {
-    throw new Error("User tidak ditemukan setelah login.");
-  }
+      const user = await loginUser(cleanEmail, cleanPassword);
 
-  if (authMessage) {
-    authMessage.textContent = "Login berhasil. Memuat dashboard...";
-  }
+      console.log("INDEX LOGIN USER:", user);
 
-  showToast("Login berhasil. Memuat dashboard...", "success");
+      if (!user) {
+        throw new Error("User tidak ditemukan setelah login.");
+      }
 
-  await sessionService.restoreDashboardSession(user);
+      if (authMessage) {
+        authMessage.textContent = "Login berhasil. Memuat dashboard...";
+      }
 
-  return;
-}
+      showToast("Login berhasil. Memuat dashboard...", "success");
+
+      console.log("INDEX RESTORE SESSION START");
+      await sessionService.restoreDashboardSession(user);
+      console.log("INDEX RESTORE SESSION DONE");
+
+      return;
+    }
 
     if (currentMode === "register") {
       const result = await registerOwner(
@@ -5515,27 +5521,32 @@ authForm?.addEventListener("submit", async (e) => {
     }
 
     throw new Error("Mode auth tidak dikenali.");
-} catch (error) {
-  console.error("AUTH ERROR:", error);
+  } catch (error) {
+    console.error("AUTH ERROR FULL:", {
+      code: error?.code,
+      message: error?.message,
+      stack: error?.stack,
+      raw: error
+    });
 
-  if (error.code === "auth/email-not-verified") {
-    if (typeof window.setMode === "function") {
-      window.setMode("login");
+    if (error.code === "auth/email-not-verified") {
+      if (typeof window.setMode === "function") {
+        window.setMode("login");
+      }
+
+      if (authMessage) {
+        authMessage.textContent = error.message;
+      }
+
+      showToast(error.message, "warning");
+    } else {
+      if (authMessage) {
+        authMessage.textContent = error.message || "Terjadi kesalahan.";
+      }
+
+      showToast(error.message || "Terjadi kesalahan.", "error");
     }
-
-    if (authMessage) {
-      authMessage.textContent = error.message;
-    }
-
-    showToast(error.message, "warning");
-  } else {
-    if (authMessage) {
-      authMessage.textContent = error.message || "Terjadi kesalahan.";
-    }
-
-    showToast(error.message || "Terjadi kesalahan.", "error");
-  }
-} finally {
+  } finally {
     setButtonLoading(submitBtn, false, "Submit");
   }
 });
@@ -5651,19 +5662,32 @@ const membershipService = createMembershipService({
 const DEBUG = false;
 
 onAuthStateChanged(auth, async (user) => {
+  console.log("ON AUTH STATE CHANGED:", {
+    uid: user?.uid || null,
+    email: user?.email || null,
+    emailVerified: user?.emailVerified || false
+  });
+
   if (!user) {
     membershipService.stopWatchingMemberships();
     showLandingState();
     return;
   }
 
-  // mode stabil dulu: watcher dimatikan
   membershipService.stopWatchingMemberships();
 
   try {
+    console.log("AUTH STATE -> RESTORE DASHBOARD");
     await sessionService.restoreDashboardSession(user);
+    console.log("AUTH STATE -> RESTORE SUCCESS");
   } catch (error) {
-    console.error("AUTH STATE RESTORE ERROR:", error);
+    console.error("AUTH STATE RESTORE ERROR FULL:", {
+      code: error?.code,
+      message: error?.message,
+      stack: error?.stack,
+      raw: error
+    });
+
     showLandingState();
     showToast(error.message || "Gagal memulihkan dashboard.", "error");
   }

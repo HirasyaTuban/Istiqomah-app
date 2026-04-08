@@ -26,10 +26,15 @@ if (DEBUG) {
 }
 
 export const auth = getAuth(app);
-await setPersistence(auth, browserLocalPersistence);
-
-if (DEBUG) {
-  console.log("FIREBASE AUTH OBJECT:", auth);
-}
-
 export const db = getFirestore(app);
+
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    if (DEBUG) {
+      console.log("Firebase persistence aktif: LOCAL");
+      console.log("FIREBASE AUTH OBJECT:", auth);
+    }
+  })
+  .catch((error) => {
+    console.error("GAGAL SET FIREBASE PERSISTENCE:", error);
+  });

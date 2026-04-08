@@ -126,16 +126,28 @@ export async function loginUser(email, password) {
     if (!cleanEmail) throw new Error("Email wajib diisi.");
     if (!password) throw new Error("Password wajib diisi.");
 
+    console.log("LOGIN START:", { email: cleanEmail });
+
     const userCredential = await signInWithEmailAndPassword(auth, cleanEmail, password);
     const user = userCredential.user;
 
+    console.log("LOGIN SUCCESS FIREBASE:", {
+      uid: user?.uid,
+      email: user?.email,
+      emailVerified: user?.emailVerified
+    });
+
     await user.reload();
 
-    if (!user.emailVerified) {
-      await signOut(auth);
+    console.log("LOGIN AFTER RELOAD:", {
+      uid: user?.uid,
+      email: user?.email,
+      emailVerified: user?.emailVerified
+    });
 
+    if (!user.emailVerified) {
       const err = new Error(
-        "Email belum diverifikasi atau link verifikasi belum valid. Klik 'Kirim ulang verifikasi', lalu buka email terbaru."
+        "Email belum diverifikasi. Klik 'Kirim ulang verifikasi', lalu buka email terbaru."
       );
       err.code = "auth/email-not-verified";
       throw err;
@@ -143,7 +155,12 @@ export async function loginUser(email, password) {
 
     return user;
   } catch (err) {
-    console.error("LOGIN ERROR:", err);
+    console.error("LOGIN ERROR FULL:", {
+      code: err?.code,
+      message: err?.message,
+      stack: err?.stack,
+      raw: err
+    });
 
     if (err.code === "auth/invalid-credential") {
       throw new Error("Email atau password salah.");
@@ -151,6 +168,14 @@ export async function loginUser(email, password) {
 
     if (err.code === "auth/user-disabled") {
       throw new Error("Akun ini dinonaktifkan.");
+    }
+
+    if (err.code === "auth/too-many-requests") {
+      throw new Error("Terlalu banyak percobaan login. Coba lagi beberapa saat.");
+    }
+
+    if (err.code === "auth/network-request-failed") {
+      throw new Error("Koneksi internet bermasalah. Periksa jaringan lalu coba lagi.");
     }
 
     throw err;
@@ -286,12 +311,8 @@ export async function joinGroup(fullName, email, password, inviteCode) {
 // PROFILE USER
 export async function getUserProfile(uid) {
   try {
-    if (!auth.currentUser) {
-      throw new Error("Session login tidak tersedia.");
-    }
-
-    if (auth.currentUser.uid !== uid) {
-      throw new Error("Akses profil ditolak karena session tidak sesuai.");
+    if (!uid) {
+      throw new Error("UID user tidak valid.");
     }
 
     const userRef = doc(db, "users", uid);
@@ -388,12 +409,8 @@ export async function createAdditionalGroup(ownerUid, ownerName, ownerEmail, gro
 // MEMBERSHIP USER
 export async function getUserMemberships(uid) {
   try {
-    if (!auth.currentUser) {
-      throw new Error("Session login tidak tersedia.");
-    }
-
-    if (auth.currentUser.uid !== uid) {
-      throw new Error("Akses membership ditolak.");
+    if (!uid) {
+      throw new Error("UID membership tidak valid.");
     }
 
     const membershipRef = collection(db, "users", uid, "memberships");
