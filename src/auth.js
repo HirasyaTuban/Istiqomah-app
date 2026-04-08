@@ -496,6 +496,12 @@ export async function getGroupMembers(groupId) {
   console.log("DEBUG groupId (members):", groupId);
 
   try {
+    const groupRef = doc(db, "groups", groupId);
+    const groupSnap = await getDoc(groupRef);
+
+    console.log("DEBUG group exists?:", groupSnap.exists());
+    console.log("DEBUG group data:", groupSnap.exists() ? groupSnap.data() : null);
+
     const membersRef = collection(db, "groups", groupId, "members");
     const membersSnap = await getDocs(membersRef);
 
@@ -515,6 +521,7 @@ export async function getGroupMembers(groupId) {
     throw err;
   }
 }
+
 
 // PENDING OWNERS
 export async function getPendingOwners() {
