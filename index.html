@@ -1787,6 +1787,8 @@ function showInfo(mode) {
 <script type="module">
 
 import {
+  doc,
+  getDoc,
   collection,
   getDocs,
   query,
@@ -4488,16 +4490,40 @@ function hydrateChallengeUI(hijriMonth) {
   };
 }
 
-console.log("CALL reloadDataByGroup:", currentSession);
-
 async function reloadDataByGroup() {
+  console.log("CALL reloadDataByGroup:", currentSession);
+
   const uid = currentSession.uid;
   const groupId = currentSession.groupId;
   const role = currentSession.activeGroupRole || currentSession.role;
   const globalRole = (currentSession.globalRole || "").toLowerCase();
 
   if (globalRole === "superadmin") return;
-  if (!uid || !groupId) return;
+
+  if (!uid || !groupId) {
+    if (groupSwitcherStatus) {
+      groupSwitcherStatus.textContent = "Belum ada group aktif.";
+    }
+    return;
+  }
+
+  try {
+    const groupSnap = await getDoc(doc(db, "groups", groupId));
+
+    if (!groupSnap.exists()) {
+      console.error("GROUP INVALID:", groupId);
+
+      if (groupSwitcherStatus) {
+        groupSwitcherStatus.textContent = "Group tidak ditemukan.";
+      }
+
+      showToast("Group aktif tidak valid. Silakan login ulang.", "error");
+      return;
+    }
+  } catch (err) {
+    console.error("CHECK GROUP ERROR:", err);
+    return;
+  }
 
   const today = getTodayInfo();
   const monthName = challengeMonthName ? challengeMonthName.textContent : "";
@@ -4506,7 +4532,6 @@ async function reloadDataByGroup() {
     groupSwitcherStatus.textContent = "Memuat data group...";
   }
 
-  // LOAD PENTING DULU
   await Promise.all([
     loadGroupMessage(groupId),
     loadOwnerMessageEditor(groupId),
@@ -4517,7 +4542,6 @@ async function reloadDataByGroup() {
     loadChallengeProgressVisual(uid, today.hijriMonth, monthName)
   ]);
 
-  // LOAD RINGAN / BISA NYUSUL
   runDeferred(() => loadMembers(groupId), 120);
   runDeferred(() => loadLeaderboard(groupId), 180);
   runDeferred(() => loadChallengeLeaderboard(groupId, today.hijriMonth), 240);
