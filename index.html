@@ -111,6 +111,84 @@
       100% { transform: translateY(0px); }
     }
 
+.hijri-chart-bar {
+  position: relative;
+  transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+}
+
+.hijri-chart-bar:hover {
+  transform: translateY(-2px);
+  opacity: 1;
+}
+
+.hijri-chart-bar--top {
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35), 0 0 18px rgba(245, 158, 11, 0.18);
+}
+
+.hijri-chart-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(4px);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 20;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.hijri-line-path {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawHijriLine 1.2s ease forwards;
+}
+
+.hijri-area-path {
+  opacity: 0;
+  animation: fadeHijriArea 1.2s ease forwards;
+  animation-delay: 0.2s;
+}
+
+.hijri-point {
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.hijri-point:hover {
+  transform: scale(1.08);
+}
+
+.hijri-chart-tooltip {
+  position: absolute;
+  z-index: 20;
+  pointer-events: none;
+  white-space: nowrap;
+  transform: translate(-50%, -120%);
+}
+
+@keyframes drawHijriLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fadeHijriArea {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+svg path {
+  transition: all 0.3s ease;
+}
+
+.hijri-chart-bar:hover .hijri-chart-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
     .home-animate {
       opacity: 0;
       transform: translateY(14px);
@@ -130,99 +208,6 @@
         transform: translateY(0);
       }
     }
-.superadmin-shell {
-  width: 100%;
-}
-
-.superadmin-hero {
-  border: 1px solid rgba(63, 63, 70, 1);
-  background:
-    radial-gradient(circle at top right, rgba(245, 158, 11, 0.08), transparent 28%),
-    linear-gradient(135deg, rgba(24, 24, 27, 1), rgba(9, 9, 11, 1));
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
-}
-
-.superadmin-card {
-  border: 1px solid rgba(39, 39, 42, 1);
-  background: linear-gradient(180deg, rgba(24, 24, 27, 0.98), rgba(9, 9, 11, 0.98));
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
-}
-
-.superadmin-soft-card {
-  border: 1px solid rgba(39, 39, 42, 1);
-  background: rgba(10, 10, 10, 0.78);
-}
-
-.superadmin-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border-radius: 9999px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.superadmin-badge-pending {
-  background: rgba(245, 158, 11, 0.14);
-  color: rgb(252, 211, 77);
-}
-
-.superadmin-badge-active {
-  background: rgba(16, 185, 129, 0.14);
-  color: rgb(110, 231, 183);
-}
-
-.superadmin-stat-number {
-  line-height: 1;
-  letter-spacing: -0.04em;
-}
-
-.superadmin-search {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-.superadmin-search:focus {
-  outline: none;
-  border-color: rgba(245, 158, 11, 0.9);
-  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
-  background: rgba(0, 0, 0, 1);
-}
-
-.superadmin-empty-box {
-  border: 1px dashed rgba(63, 63, 70, 1);
-  background: rgba(0, 0, 0, 0.55);
-}
-
-.superadmin-list-item {
-  border: 1px solid rgba(39, 39, 42, 1);
-  background: linear-gradient(180deg, rgba(10, 10, 10, 0.85), rgba(5, 5, 5, 0.92));
-  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
-}
-
-.superadmin-list-item:hover {
-  transform: translateY(-1px);
-  border-color: rgba(82, 82, 91, 1);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-}
-
-@media (max-width: 640px) {
-  .superadmin-stat-number {
-    font-size: 2rem;
-  }
-}
-
-.dashboard-mode .landing-shell {
-  width: 100%;
-  max-width: 100%;
-}
-
-.dashboard-mode #dashboardBox {
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto;
-}
 
     @media (min-width: 768px) {
       .landing-shell {
@@ -244,15 +229,67 @@
       .landing-copy {
         max-width: 390px;
       }
-
+#dashboardTabs::-webkit-scrollbar {
+  display: none;
+}
+#dashboardTabs {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
       .auth-shell {
         max-width: 460px;
       }
     }
+    .help-step-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(63, 63, 70, 1);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.help-step-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.help-step-badge {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  color: #f59e0b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.dashboard-tab-btn {
+  transition: all 0.2s ease;
+}
+
+.dashboard-tab-btn.dashboard-tab-btn--active {
+  background: linear-gradient(to bottom right, rgba(245, 158, 11, 1), rgba(251, 191, 36, 0.92));
+  color: #111827;
+  box-shadow: 0 10px 24px rgba(245, 158, 11, 0.22);
+}
+
+.dashboard-tab-btn.dashboard-tab-btn--active:hover {
+  color: #111827;
+}
+
   </style>
 </head>
-
-  <main class="min-h-screen bg-black text-zinc-100 flex items-start justify-center px-4 sm:px-6 py-6">
+<body>
+  <main class="min-h-screen bg-black text-zinc-100 flex items-start justify-center px-4 sm:px-6 py-8 overflow-y-auto">
   <div class="landing-shell">
       <div class="landing-hero text-center mb-8 md:mb-10">
         <div class="flex justify-center mb-8 md:mb-10">
@@ -283,9 +320,12 @@
         </div>
       </div>
 
-      <div id="bootLoading" class="landing-actions rounded-2xl border border-zinc-800 bg-black/60 p-4 text-center">
-        <p class="text-sm text-zinc-400">Memuat aplikasi...</p>
-      </div>
+<div id="bootLoading" class="landing-actions rounded-2xl border border-zinc-800 bg-black/60 p-4">
+  <div class="space-y-3">
+    <div class="h-4 w-32 rounded-lg bg-zinc-800/90 animate-pulse mx-auto"></div>
+    <div class="h-3 w-48 rounded-lg bg-zinc-800/90 animate-pulse mx-auto"></div>
+  </div>
+</div>
 
       <div id="mainActions" class="landing-actions space-y-3 hidden">
         <button
@@ -304,16 +344,13 @@
           Register Owner
         </button>
 
-<button
-  type="button"
-  class="landing-btn bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-4 border border-zinc-700 transition"
-  onclick="window.setMode('join')"
->
-  Daftar Anggota Baru
-</button>
-<p class="text-xs text-zinc-400 mt-2">
-  Untuk anggota yang belum punya akun. Jika sudah punya akun, login dulu lalu gabung group dari dashboard.
-</p>
+        <button
+          type="button"
+          class="landing-btn bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-4 border border-zinc-700 transition"
+          onclick="window.setMode('join')"
+        >
+          Join Group
+        </button>
       </div>
 
       <div id="authBox" class="auth-shell rounded-3xl border border-zinc-800 bg-black/60 p-5 md:p-6 hidden">
@@ -369,6 +406,16 @@
       </button>
     </div>
 
+<div class="flex justify-end mt-1">
+  <button
+    id="resendVerificationBtn"
+    type="button"
+    class="text-sm text-emerald-400 hover:text-emerald-300 transition hidden"
+  >
+    Kirim ulang verifikasi
+  </button>
+</div>
+
     <input
       id="inviteCode"
       type="text"
@@ -388,7 +435,7 @@
   <p id="authMessage" class="text-sm text-zinc-400 mt-4 leading-relaxed"></p>
 </div>
 
-<div id="dashboardBox" class="hidden w-full max-w-6xl mx-auto">
+<div id="dashboardBox" class="hidden w-full max-w-3xl mx-auto">  
 <div class="flex flex-col gap-3 mb-5">
   <div class="flex items-center justify-between gap-3">
     <div>
@@ -409,7 +456,7 @@
 </div>
 
   <!-- TEMPel GROUP SWITCHER DI SINI -->
-  <div id="groupSwitcherBox" class="mb-4 p-4 rounded-2xl bg-zinc-900 border border-zinc-800 hidden">
+<div id="groupSwitcherBox" class="mb-4 p-4 rounded-2xl bg-zinc-900 border border-zinc-800 hidden">
   <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Group Aktif</p>
   <p class="text-sm text-zinc-400 mb-3">
     Pilih group yang ingin Anda kelola.
@@ -427,49 +474,58 @@
   <p id="groupSwitcherStatus" class="text-sm text-amber-400 mt-3 font-medium"></p>
 </div>
 
-  <div id="dashboardTabs" class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
-    <button
-      type="button"
-      class="dashboard-tab-btn px-4 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 font-bold text-sm hover:bg-zinc-700 hover:text-white transition duration-200"
-      data-tab="home"
-    >
-      Beranda
-    </button>
+<div id="dashboardTabs" class="flex gap-2 mb-4 overflow-x-auto whitespace-nowrap pb-1">
+  <button
+    type="button"
+    class="dashboard-tab-btn w-full min-h-[44px] px-3 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-[13px] leading-none flex items-center justify-center text-center hover:bg-zinc-700 hover:text-white transition duration-200"
+    data-tab="home"
+  >
+    Beranda
+  </button>
 
-    <button
-      type="button"
-      class="dashboard-tab-btn px-3 py-2 rounded-xl bg-zinc-800 text-zinc-300 font-bold text-sm"
-      data-tab="amal"
-    >
-      Amal
-    </button>
+  <button
+    type="button"
+    class="dashboard-tab-btn w-full min-h-[44px] px-3 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-[13px] leading-none flex items-center justify-center text-center hover:bg-zinc-700 hover:text-white transition duration-200"
+    data-tab="amal"
+  >
+    Amal
+  </button>
 
-    <button
-      type="button"
-      class="dashboard-tab-btn px-3 py-2 rounded-xl bg-zinc-800 text-zinc-300 font-bold text-sm"
-      data-tab="community"
-    >
-      Komunitas
-    </button>
+  <button
+    type="button"
+    class="dashboard-tab-btn w-full min-h-[44px] px-3 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-[13px] leading-none flex items-center justify-center text-center hover:bg-zinc-700 hover:text-white transition duration-200"
+    data-tab="community"
+  >
+    Komunitas
+  </button>
 
-    <button
-      id="ownerTabBtn"
-      type="button"
-      class="dashboard-tab-btn px-3 py-2 rounded-xl bg-zinc-800 text-zinc-300 font-bold text-sm hidden"
-      data-tab="owner"
-    >
-      Owner
-    </button>
+  <button
+    id="ownerTabBtn"
+    type="button"
+    class="dashboard-tab-btn shrink-0 min-w-[96px] px-4 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-sm text-center hover:bg-zinc-700 hover:text-white transition duration-200"
+    data-tab="owner"
+  >
+    Owner
+  </button>
 
-<button
-  id="adminTabBtn"
-  type="button"
-  class="dashboard-tab-btn px-3 py-2 rounded-xl bg-zinc-800 text-zinc-300 font-bold text-sm hidden"
-  data-tab="admin"
->
-  Admin
-</button>
-  </div>
+  <button
+    id="adminTabBtn"
+    type="button"
+    class="dashboard-tab-btn shrink-0 min-w-[96px] px-4 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-sm text-center hover:bg-zinc-700 hover:text-white transition duration-200"
+    data-tab="admin"
+  >
+    Admin
+  </button>
+
+  <button
+    id="helpTabBtn"
+    type="button"
+    class="dashboard-tab-btn w-full min-h-[44px] px-3 py-2.5 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-[13px] leading-none flex items-center justify-center text-center hover:bg-zinc-700 hover:text-white transition duration-200"
+    data-tab="help"
+  >
+    Help
+  </button>
+</div>
 
 <!-- TAB: HOME -->
 <div id="tab-home" class="dashboard-tab-content space-y-5">
@@ -686,16 +742,41 @@
 </div>
 
     <div class="mt-5">
-      <label for="tilawahPages" class="block text-sm text-zinc-300 mb-2">Tilawah (berapa halaman)</label>
-      <input
-        id="tilawahPages"
-        type="number"
-        min="0"
-        value="0"
-        class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white"
-        placeholder="Contoh: 3"
-      />
-    </div>
+<label for="tilawahPages" class="block text-sm text-zinc-300 mb-2">Tilawah (berapa halaman)</label>
+<input
+  id="tilawahPages"
+  type="number"
+  min="0"
+  value="0"
+  class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white"
+  placeholder="Contoh: 3"
+/>
+<p id="tilawahAccumulationText" class="text-xs text-zinc-500 mt-2">
+  0 halaman • 0x Khatam
+</p>
+
+<div class="mt-2">
+  <div class="flex items-center justify-between gap-3 mb-1">
+    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.18em]">
+      Progress Khatam
+    </p>
+    <p id="tilawahKhatamPercentText" class="text-[11px] text-amber-400 font-medium">
+      0%
+    </p>
+  </div>
+
+  <div class="w-full h-2.5 bg-black/50 rounded-full overflow-hidden border border-zinc-800">
+    <div
+      id="tilawahKhatamProgressBar"
+      class="h-full bg-amber-500 rounded-full transition-all duration-500"
+      style="width: 0%"
+    ></div>
+  </div>
+
+  <p id="tilawahKhatamProgressLabel" class="text-[11px] text-zinc-500 mt-2">
+    0 / 604 halaman menuju khatam berikutnya
+  </p>
+</div>
 
     <div class="mt-5">
       <label for="syukurText" class="block text-sm text-zinc-300 mb-2">Catatan Syukur Hari Ini</label>
@@ -703,42 +784,96 @@
         id="syukurText"
         rows="5"
         class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white"
-        placeholder="Tuliskan hal yang Anda syukuri hari ini..."
+        placeholder="“Bukan tentang seberapa banyak yang kita punya, tapi seberapa sadar kita bersyukur. Tulis tiga nikmat hari ini… lalu lihat bagaimana hati jadi lebih hidup.”"
       ></textarea>
     </div>
   </div>
 
-  <!-- STATISTIK -->
-  <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
-    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Statistik</p>
-    <p class="text-white font-bold text-lg mb-4">Ibadah</p>
+<!-- STATISTIK -->
+<div class="rounded-2xl bg-gradient-to-br from-zinc-900 to-black border border-zinc-800 p-5">
+  <div class="flex items-start justify-between gap-3 mb-5">
+    <div>
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] leading-snug">
+        Statistik
+      </p>
+      <p class="text-white font-bold text-xl mt-2">Ibadah Hari Ini</p>
+      <p class="text-sm text-zinc-400 mt-1">
+        Ringkasan amal harian yang sudah tercatat.
+      </p>
+    </div>
 
-    <div class="space-y-3 text-sm">
-      <div class="flex justify-between items-center">
-        <span class="text-zinc-400">Amal Hari Ini</span>
-        <span id="statTotalAmal" class="text-white font-semibold">0</span>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span class="text-zinc-400">Tilawah Hari Ini</span>
-        <span id="statTilawah" class="text-white font-semibold">0 halaman</span>
-      </div>
-
-      <div class="flex justify-between items-center">
-        <span class="text-zinc-400">Streak</span>
-        <span id="statStreak" class="text-amber-500 font-semibold">0 hari</span>
-      </div>
+    <div class="shrink-0 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] font-bold uppercase tracking-[0.18em]">
+      Live
     </div>
   </div>
 
-  <!-- RIWAYAT -->
-  <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
-    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Riwayat 7 Hari</p>
-    <p class="text-sm text-zinc-400 mb-4">Ringkasan konsistensi amal Anda selama sepekan terakhir.</p>
-    <div id="weeklyHistoryList" class="space-y-3 text-sm text-zinc-300">
-      Memuat riwayat...
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+    <div class="rounded-2xl bg-black/30 border border-zinc-800 p-4">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.18em] mb-2">
+        Amal Hari Ini
+      </p>
+      <div class="flex items-end justify-between gap-3">
+        <p id="statTotalAmal" class="text-white font-black text-3xl leading-none tracking-tight tabular-nums">0</p>
+        <span class="text-zinc-500 text-xs">amal</span>
+      </div>
+      <div class="mt-4 h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
+        <div class="h-full w-[38%] rounded-full bg-white/80"></div>
+      </div>
+    </div>
+
+    <div class="rounded-2xl bg-black/30 border border-zinc-800 p-4">
+  <p class="text-[11px] text-zinc-500 uppercase tracking-[0.18em] mb-2">
+    Akumulasi Tilawah
+  </p>
+  <div class="flex items-end justify-between gap-3">
+    <p id="statTilawah" class="text-white font-black text-3xl leading-none tracking-tight tabular-nums">0</p>
+    <span class="text-zinc-500 text-xs">halaman</span>
+  </div>
+  <p id="statTilawahKhatam" class="text-xs text-zinc-500 mt-4">
+    0x Khatam
+  </p>
+</div>
+
+    <div class="rounded-2xl bg-amber-500/10 border border-amber-500/20 p-4">
+      <p class="text-[11px] text-amber-400 uppercase tracking-[0.18em] mb-2">
+        Streak
+      </p>
+      <div class="flex items-end justify-between gap-3">
+        <p id="statStreak" class="text-amber-400 font-black text-3xl leading-none tracking-tight tabular-nums">0</p>
+        <span class="text-amber-300/80 text-xs">hari</span>
+      </div>
+      <p class="text-xs text-zinc-400 mt-4">
+        Konsistensi kecil yang terus dijaga.
+      </p>
     </div>
   </div>
+</div>
+
+<!-- RIWAYAT -->
+<div class="rounded-2xl bg-gradient-to-br from-zinc-900 to-black border border-zinc-800 p-5">
+  <div class="flex items-start justify-between gap-3 mb-5">
+    <div>
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] leading-snug">
+        Riwayat 7 Hari
+      </p>
+      <p class="text-white font-bold text-xl mt-2">Konsistensi Pekanan</p>
+      <p class="text-sm text-zinc-400 mt-1">
+        Ringkasan amal selama sepekan terakhir.
+      </p>
+    </div>
+
+    <div class="shrink-0 px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 text-[11px] font-bold uppercase tracking-[0.18em]">
+      Weekly
+    </div>
+  </div>
+
+  <div
+    id="weeklyHistoryList"
+    class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-zinc-300"
+  >
+    Memuat riwayat...
+  </div>
+</div>
 
   <!-- PROGRESS BULANAN HIJRIYAH -->
   <div id="hijriMonthlyProgressBox" class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
@@ -795,10 +930,10 @@
         <div class="relative">
           <div class="absolute inset-x-0 bottom-5 h-px bg-zinc-800"></div>
 
-          <div
-            id="hijriMonthlyChart"
-            class="relative flex items-end gap-1 h-28 md:h-36"
-          >
+<div
+  id="hijriMonthlyChart"
+  class="relative w-full h-28 md:h-36"
+>
             <!-- bar chart isi dari JS -->
           </div>
         </div>
@@ -907,42 +1042,73 @@
 </div>
 
 <!-- TAB: COMMUNITY -->
-<div id="tab-community" class="dashboard-tab-content space-y-5 hidden">
+<div id="tab-community" class="dashboard-tab-content space-y-5 hidden min-h-[200px]">  
 
-  <!-- RINGKASAN KOMUNITAS -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 min-h-[120px] flex flex-col justify-between">
-      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] leading-snug">
-        Total Member
-      </p>
-      <p id="communityTotalMembers" class="text-white font-bold text-3xl leading-none mt-4">0</p>
+  <!-- HEADER + ACTION -->
+  <div class="flex items-center justify-between">
+    <div>
+      <p class="text-xs text-zinc-500 uppercase tracking-wider">Community</p>
+      <h2 class="text-white font-bold text-lg">Komunitas Aktif</h2>
     </div>
 
-    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 min-h-[120px] flex flex-col justify-between">
-      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] leading-snug">
-        Aktif Hari Ini
-      </p>
-      <p id="communityActiveToday" class="text-amber-500 font-bold text-3xl leading-none mt-4">0</p>
-    </div>
+    <button
+      id="openJoinGroupGlobalBtn"
+      type="button"
+      class="px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 text-xs font-medium transition"
+    >
+      + Gabung
+    </button>
+  </div>
 
-    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 min-h-[120px] flex flex-col justify-between">
-      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] leading-snug">
-        Belum Isi
-      </p>
-      <p id="communityNotFilled" class="text-zinc-300 font-bold text-3xl leading-none mt-4">0</p>
-    </div>
+  <!-- APPLY OWNER -->
+  <div id="applyOwnerBox" class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 hidden">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">
+          Upgrade Peran
+        </p>
+        <p class="text-white font-bold text-lg">Ingin membuat komunitas sendiri?</p>
+        <p class="text-sm text-zinc-400 mt-1">
+          Ajukan diri menjadi owner untuk membuat dan mengelola group sendiri.
+        </p>
+      </div>
 
-    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 min-h-[120px] flex flex-col justify-between">
-      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] leading-snug">
-        Rata-rata Amal
-      </p>
-      <p id="communityAverageAmal" class="text-white font-bold text-3xl leading-none mt-4">0</p>
+      <button
+        id="applyOwnerBtn"
+        type="button"
+        class="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-3 rounded-xl transition duration-200"
+      >
+        Ajukan Jadi Owner
+      </button>
     </div>
   </div>
 
-  <!-- DAFTAR MEMBER -->
+  <!-- RINGKASAN KOMUNITAS -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em]">Total Member</p>
+      <p id="communityTotalMembers" class="text-white font-bold text-3xl mt-4">0</p>
+    </div>
+
+    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em]">Aktif Hari Ini</p>
+      <p id="communityActiveToday" class="text-amber-500 font-bold text-3xl mt-4">0</p>
+    </div>
+
+    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em]">Belum Isi</p>
+      <p id="communityNotFilled" class="text-zinc-300 font-bold text-3xl mt-4">0</p>
+    </div>
+
+    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em]">Rata-rata Amal</p>
+      <p id="communityAverageAmal" class="text-white font-bold text-3xl mt-4">0</p>
+    </div>
+  </div>
+
+  <!-- MEMBER LIST -->
   <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
-    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Members</p>
+    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2">Members</p>
     <p class="text-sm text-zinc-400 mb-4">Daftar anggota dalam group aktif.</p>
     <div id="memberList" class="space-y-3 text-sm text-zinc-300">
       Memuat data member...
@@ -953,7 +1119,7 @@
   <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
 
     <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
-      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2">
         Leaderboard Amal Hari Ini
       </p>
       <p class="text-sm text-zinc-400 mb-4">Peringkat amal harian pada group aktif.</p>
@@ -963,7 +1129,7 @@
     </div>
 
     <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
-      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2">
         Leaderboard Challenge Bulan Ini
       </p>
       <p class="text-sm text-zinc-400 mb-4">Peringkat challenge bulanan pada group aktif.</p>
@@ -974,10 +1140,10 @@
 
   </div>
 
-  <!-- AKTIVITAS MEMBER -->
+  <!-- MEMBER ACTIVITY -->
   <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
     <div class="mb-4">
-      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2">
         Member Activity Hari Ini
       </p>
       <p class="text-sm text-zinc-400 mb-4">
@@ -1008,9 +1174,9 @@
     </div>
   </div>
 
-  <!-- RINGKASAN PEKANAN -->
+  <!-- WEEKLY SUMMARY -->
   <div id="weeklySummaryBox" class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 hidden">
-    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Ringkasan Pekanan</p>
+    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2">Ringkasan Pekanan</p>
     <div id="weeklyTopMembers" class="text-sm text-white space-y-2"></div>
 
     <div class="mt-4 border-t border-zinc-800 pt-4">
@@ -1022,60 +1188,56 @@
 </div>
 
 <!-- TAB: OWNER -->
-<div id="tab-owner" class="dashboard-tab-content space-y-5 hidden">
+<div id="tab-owner" class="dashboard-tab-content space-y-5 hidden min-h-[200px]">
 
-  <div id="ownerPanel" class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 hidden">
-    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Owner Panel</p>
-    <p class="text-white font-bold text-xl">Kelola Group</p>
-    <p class="text-zinc-400 text-sm mt-1 mb-4">
-      Kelola invite anggota, gabung ke group lain, dan atur kebutuhan group aktif.
-    </p>
-
-    <div class="rounded-2xl bg-black/30 border border-zinc-800 p-4">
-      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-3 leading-snug">
-        Aksi Group
-      </p>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <button
-          id="generateInviteBtn"
-          type="button"
-          class="w-full min-h-[52px] bg-amber-500 hover:bg-amber-400 text-black font-bold px-4 py-3 rounded-xl transition duration-200"
-        >
-          Generate Invite Code
-        </button>
-<div>
-  <button
-    id="openJoinGroupModalBtn"
-    type="button"
-    class="w-full min-h-[52px] bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-bold px-4 py-3 rounded-xl transition duration-200"
-  >
-    Gabung ke Group Lain
-  </button>
-
-  <p class="text-[11px] text-zinc-500 mt-1">
-    Untuk akun yang sudah login
-  </p>
-</div>
-      </div>
-
-<p class="text-xs text-zinc-500 mt-3">
-  Invite digunakan untuk anggota baru yang belum punya akun. 
-</p>
-<p class="text-xs text-zinc-500">
-  Gabung ke group lain digunakan untuk akun yang sudah login dan bisa masuk ke group owner lain memakai invite code.
-</p>
-<p class="text-xs text-amber-400 mt-1">
-  Saat masuk ke group owner lain, akun tetap mengikuti role pada group tersebut.
-</p>
-
-    <div id="inviteResultBox" class="mt-4 hidden text-center rounded-xl bg-black/40 border border-zinc-800 p-4">
-      <p class="text-xs text-zinc-500 uppercase tracking-[0.2em] mb-2">Invite Code</p>
-      <p id="inviteCodeText" class="text-2xl font-black text-amber-500 tracking-widest">-</p>
-      <p class="text-xs text-zinc-500 mt-2">Bagikan kode ini ke anggota yang ingin bergabung.</p>
+  <!-- HEADER -->
+  <div class="flex items-center justify-between">
+    <div>
+      <p class="text-xs text-zinc-500 uppercase tracking-wider">Owner</p>
+      <h2 class="text-white font-bold text-lg">Kelola Group Aktif</h2>
     </div>
   </div>
 
+  <!-- OWNER PANEL -->
+  <div id="ownerPanel" class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 hidden">
+    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Owner Panel</p>
+    <p class="text-white font-bold text-xl">Aksi Group</p>
+    <p class="text-zinc-400 text-sm mt-1 mb-4">
+      Kelola invite anggota dan kebutuhan utama pada group yang sedang aktif.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <button
+        id="generateInviteBtn"
+        type="button"
+        class="w-full min-h-[52px] bg-amber-500 hover:bg-amber-400 text-black font-bold px-4 py-3 rounded-xl transition duration-200"
+      >
+        Generate Invite Code
+      </button>
+
+      <button
+        id="openJoinGroupModalBtn"
+        type="button"
+        class="w-full min-h-[52px] bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-bold px-4 py-3 rounded-xl transition duration-200"
+      >
+        Gabung ke Group
+      </button>
+    </div>
+
+    <p class="text-xs text-zinc-500 mt-3">
+      Invite digunakan untuk anggota baru. Tombol gabung dipakai untuk akun owner yang ingin masuk ke group lain.
+    </p>
+
+    <div id="inviteResultBox" class="mt-4 hidden rounded-2xl bg-black/30 border border-zinc-800 p-5 text-center">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2">Invite Code</p>
+      <p id="inviteCodeText" class="text-2xl md:text-3xl font-black text-amber-500 tracking-widest">-</p>
+      <p class="text-xs text-zinc-500 mt-2">
+        Bagikan kode ini ke anggota yang ingin bergabung ke group aktif.
+      </p>
+    </div>
+  </div>
+
+  <!-- CREATE GROUP -->
   <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
     <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Buat Group Baru</p>
     <p class="text-sm text-zinc-400 mb-4">
@@ -1085,36 +1247,46 @@
     <button
       id="createGroupSimpleBtn"
       type="button"
-      class="w-full min-h-[52px] bg-green-500 hover:bg-green-400 text-black font-bold px-4 py-3 rounded-xl transition duration-200"
+      class="w-full min-h-[52px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-3 rounded-xl transition duration-200"
     >
       + Buat Group Baru
     </button>
   </div>
 
-  <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
-    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Pesan Motivasi Owner</p>
-    <p class="text-sm text-zinc-400 mb-4">
-      Tampilkan pesan singkat untuk menyemangati anggota pada group aktif.
-    </p>
+<!-- OWNER MESSAGE -->
+<div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+  <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Pesan Motivasi Owner</p>
+  <p class="text-sm text-zinc-400 mb-4">
+    Tampilkan pesan singkat untuk menyemangati anggota pada group aktif.
+  </p>
 
-    <textarea
-      id="ownerMessageInput"
-      rows="5"
-      class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white text-sm"
-      placeholder="Tulis pesan motivasi untuk group..."
-    ></textarea>
+  <textarea
+    id="ownerMessageInput"
+    rows="5"
+    class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white text-sm"
+    placeholder="Tulis pesan motivasi untuk group..."
+  ></textarea>
 
-    <button
-      id="saveOwnerMessageBtn"
-      type="button"
-      class="mt-3 w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition duration-200"
-    >
-      Simpan Pesan
-    </button>
+  <button
+    id="saveOwnerMessageBtn"
+    type="button"
+    class="mt-3 w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition duration-200"
+  >
+    Simpan Pesan
+  </button>
 
-    <p id="ownerMessageStatus" class="text-xs text-zinc-500 mt-2"></p>
-  </div>
+  <button
+    id="clearOwnerMessageBtn"
+    type="button"
+    class="mt-3 w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-xl transition duration-200"
+  >
+    Hapus Pesan
+  </button>
 
+  <p id="ownerMessageStatus" class="text-xs text-zinc-500 mt-2"></p>
+</div>
+
+  <!-- GROUP TARGET -->
   <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
     <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">Target Mingguan Group</p>
     <p class="text-sm text-zinc-400 mb-4">
@@ -1128,93 +1300,217 @@
       placeholder="Contoh: Dzikir pagi minimal 5 hari"
     />
 
-    <button
-      id="saveGroupTargetBtn"
-      type="button"
-      class="mt-3 w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition duration-200"
-    >
-      Simpan Target
-    </button>
+<button
+  id="saveGroupTargetBtn"
+  type="button"
+  class="mt-3 w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition duration-200"
+>
+  Simpan Target
+</button>
 
-    <p id="groupTargetStatus" class="text-xs text-zinc-500 mt-2"></p>
+<button
+  id="clearGroupTargetBtn"
+  type="button"
+  class="mt-3 w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 rounded-xl transition duration-200"
+>
+  Hapus Target
+</button>
+
+<p id="groupTargetStatus" class="text-xs text-zinc-500 mt-2"></p>
   </div>
 
 </div>
 
 <!-- TAB: ADMIN -->
-<div id="tab-admin" class="dashboard-tab-content hidden">
-  <div id="adminPanel" class="superadmin-shell space-y-4 md:space-y-5">
-        <section class="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-      <div class="superadmin-card rounded-3xl p-4 md:p-5 min-h-[120px] flex flex-col justify-between">
-        <p class="text-[10px] md:text-[11px] text-zinc-500 uppercase tracking-[0.24em]">Approved</p>
-        <p id="totalApprovedOwners" class="superadmin-stat-number text-3xl md:text-4xl font-black text-emerald-400 mt-4">0</p>
-      </div>
+<div id="tab-admin" class="dashboard-tab-content space-y-5 hidden min-h-[200px]">
 
-      <div class="superadmin-card rounded-3xl p-4 md:p-5 min-h-[120px] flex flex-col justify-between">
-        <p class="text-[10px] md:text-[11px] text-zinc-500 uppercase tracking-[0.24em]">Pending</p>
-        <p id="totalPendingOwners" class="superadmin-stat-number text-3xl md:text-4xl font-black text-amber-400 mt-4">0</p>
-      </div>
-
-      <div class="superadmin-card rounded-3xl p-4 md:p-5 min-h-[120px] flex flex-col justify-between">
-        <p class="text-[10px] md:text-[11px] text-zinc-500 uppercase tracking-[0.24em]">Rejected</p>
-        <p id="totalRejectedOwners" class="superadmin-stat-number text-3xl md:text-4xl font-black text-rose-400 mt-4">0</p>
-      </div>
-
-      <div class="superadmin-card rounded-3xl p-4 md:p-5 min-h-[120px] flex flex-col justify-between">
-        <p class="text-[10px] md:text-[11px] text-zinc-500 uppercase tracking-[0.24em]">Total</p>
-        <p id="totalAllOwners" class="superadmin-stat-number text-3xl md:text-4xl font-black text-white mt-4">0</p>
-      </div>
-    </section>
-
-    <section class="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-4 md:gap-5">
-      <div class="superadmin-card rounded-3xl p-5 md:p-6">
-        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-5">
-          <div class="min-w-0">
-            <h3 class="text-white font-bold text-xl md:text-2xl leading-tight">
-              Owner Pending
-            </h3>
-            <p id="pendingOwnersStatus" class="text-sm text-zinc-400 mt-2 leading-relaxed">
-              Memuat daftar owner pending...
-            </p>
-          </div>
-
-          <button
-            id="refreshPendingOwnersBtn"
-            type="button"
-            class="w-full sm:w-auto min-h-[48px] px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-bold transition duration-200 shadow-lg shadow-amber-500/10"
-          >
-            Refresh
-          </button>
-        </div>
-
-        <div id="pendingOwnersList" class="space-y-3 md:space-y-4"></div>
-      </div>
-
-      <div class="space-y-4 md:space-y-5">
-        <div class="superadmin-card rounded-3xl p-5 md:p-6">
-          <div class="mb-4">
-            <h3 class="text-white font-bold text-xl md:text-2xl leading-tight">
-              Cari Owner Aktif
-            </h3>
-            <p class="text-sm text-zinc-400 mt-2 leading-relaxed">
-              Gunakan pencarian untuk melihat siapa saja owner yang sudah aktif.
-            </p>
-          </div>
-
-          <input
-            id="approvedOwnerSearch"
-            type="text"
-            placeholder="Cari nama atau email owner..."
-            class="superadmin-search w-full px-4 py-3 rounded-2xl bg-black border border-zinc-700 text-white text-sm placeholder:text-zinc-500"
-          />
-
-          <div id="approvedOwnerList" class="space-y-3 mt-4"></div>
-        </div>
-       
-      </div>
-    </section>
-
+  <!-- HEADER -->
+  <div class="flex items-center justify-between">
+    <div>
+      <p class="text-xs text-zinc-500 uppercase tracking-wider">Admin</p>
+      <h2 class="text-white font-bold text-lg">Kelola Approval Owner</h2>
+    </div>
   </div>
+
+  <!-- SUMMARY -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em]">Approved</p>
+      <p id="totalApprovedOwners" class="text-emerald-400 font-bold text-3xl mt-4">0</p>
+    </div>
+
+    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em]">Pending</p>
+      <p id="totalPendingOwners" class="text-amber-400 font-bold text-3xl mt-4">0</p>
+    </div>
+
+    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em]">Rejected</p>
+      <p id="totalRejectedOwners" class="text-rose-400 font-bold text-3xl mt-4">0</p>
+    </div>
+
+    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em]">Total</p>
+      <p id="totalAllOwners" class="text-white font-bold text-3xl mt-4">0</p>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+
+    <!-- PENDING OWNER -->
+    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em]">Pending Owner</p>
+          <p id="pendingOwnersStatus" class="text-sm text-zinc-400 mt-1">
+            Memuat daftar owner pending...
+          </p>
+        </div>
+
+        <button
+          id="refreshPendingOwnersBtn"
+          type="button"
+          class="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-sm font-bold transition"
+        >
+          Refresh
+        </button>
+      </div>
+
+      <div id="pendingOwnersList" class="space-y-3"></div>
+    </div>
+
+    <!-- APPROVED OWNER SEARCH -->
+    <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2">
+        Owner Aktif
+      </p>
+
+      <p class="text-sm text-zinc-400 mb-4">
+        Cari owner yang sudah disetujui.
+      </p>
+
+      <input
+        id="approvedOwnerSearch"
+        type="text"
+        placeholder="Cari nama atau email owner..."
+        class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white text-sm placeholder:text-zinc-500"
+      />
+
+      <div id="approvedOwnerList" class="space-y-3 mt-4"></div>
+    </div>
+  </div>
+</div> 
+
+<!-- TAB: HELP -->
+<div id="tab-help" class="dashboard-tab-content space-y-5 hidden min-h-[200px]">
+
+  <!-- HERO -->
+  <div class="rounded-2xl bg-gradient-to-br from-zinc-900 to-black border border-amber-500/20 p-6">
+    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">
+      Help Center
+    </p>
+    <h3 class="text-white font-bold text-2xl md:text-3xl leading-tight">
+      Panduan & Bantuan Aplikasi
+    </h3>
+    <p class="text-zinc-400 text-sm mt-3 leading-relaxed max-w-2xl">
+      Temukan panduan singkat pemasangan aplikasi, informasi layanan bantuan,
+      dan pengenalan singkat tentang aplikasi Istiqomah App.
+    </p>
+  </div>
+
+  <!-- INSTALL -->
+  <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">
+      Install Aplikasi
+    </p>
+    <p class="text-white font-bold text-xl">Pasang ke Layar Utama</p>
+    <p class="text-sm text-zinc-400 mt-2 leading-relaxed">
+      Untuk pengalaman yang lebih nyaman, aplikasi ini bisa dipasang seperti aplikasi biasa
+      di perangkat Anda.
+    </p>
+
+    <div class="mt-5 space-y-3">
+      <div class="help-step-card">
+        <div class="help-step-badge">1</div>
+        <div>
+          <p class="text-white font-semibold">Buka menu titik tiga di browser Chrome</p>
+          <p class="text-sm text-zinc-400 mt-1 leading-relaxed">
+            Tekan ikon <span class="text-amber-400 font-semibold">titik tiga</span>
+            di pojok kanan atas browser Google Chrome.
+          </p>
+        </div>
+      </div>
+
+      <div class="help-step-card">
+        <div class="help-step-badge">2</div>
+        <div>
+          <p class="text-white font-semibold">Pilih menu Install App</p>
+          <p class="text-sm text-zinc-400 mt-1 leading-relaxed">
+            Pilih menu <span class="text-amber-400 font-semibold">Install App</span>
+            atau <span class="text-amber-400 font-semibold">Tambahkan ke layar utama</span>,
+            lalu ikuti proses sampai selesai.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-5 rounded-2xl bg-black/30 border border-amber-500/20 p-4">
+      <p class="text-[11px] text-amber-400 uppercase tracking-[0.18em] mb-2">Catatan</p>
+      <p class="text-sm text-zinc-300 leading-relaxed">
+        Setelah aplikasi terpasang, akses akan menjadi lebih cepat, tampilannya lebih rapi,
+        dan penggunaan sehari-hari terasa lebih nyaman seperti aplikasi native.
+      </p>
+    </div>
+  </div>
+
+  <!-- TENTANG -->
+  <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">
+      Tentang Aplikasi
+    </p>
+    <p class="text-white font-bold text-xl">Menjaga Amal, Merawat Iman</p>
+    <p class="text-sm text-zinc-400 mt-3 leading-relaxed">
+      Istiqomah App hadir untuk membantu menjaga konsistensi amal harian, memperkuat
+      semangat bertumbuh dalam kebaikan, dan membangun kebersamaan dalam komunitas.
+      Aplikasi ini dirancang agar perjalanan istiqomah terasa lebih terarah, ringan,
+      dan menyenangkan untuk dijalani setiap hari.
+    </p>
+  </div>
+
+<!-- PENGGAGAS -->
+<div class="rounded-2xl bg-gradient-to-br from-zinc-900 to-black border border-zinc-800 p-5">
+  <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">
+    Penggagas Aplikasi
+  </p>
+
+  <div class="flex flex-col gap-5">
+    <div class="min-w-0">
+      <p class="text-white font-bold text-2xl">Sugiharto</p>
+      <p class="text-amber-400 text-sm mt-2 font-medium">Penggagas & Pengembang</p>
+      <p class="text-sm text-zinc-400 mt-3 leading-relaxed max-w-xl">
+        Terima kasih telah menggunakan aplikasi ini. Semoga kehadirannya menjadi
+        sarana yang bermanfaat untuk menjaga semangat istiqomah, memperkuat amal harian,
+        dan menghadirkan manfaat yang terus bertumbuh.
+      </p>
+
+      <div class="mt-5 text-sm">
+        <p class="text-zinc-300">
+          <span class="text-zinc-500">Email layanan:</span>
+          <a
+            href="mailto:sultantub4n@gmail.com"
+            class="text-amber-400 hover:text-amber-300 transition"
+          >
+            sultantub4n@gmail.com
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
 </div>
 
 <div id="createGroupModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 px-4">
@@ -1265,6 +1561,52 @@
   </div>
 </div>
 
+<div id="applyOwnerModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 px-4">
+  <div class="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 p-5 shadow-2xl">
+    <div class="flex items-start justify-between gap-3 mb-4">
+      <div>
+        <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2 leading-snug">
+          Ajukan Jadi Owner
+        </p>
+        <h3 class="text-white font-bold text-xl">Buat Komunitas Baru</h3>
+        <p class="text-sm text-zinc-400 mt-1">
+          Isi nama group yang ingin kamu kelola sebagai owner.
+        </p>
+      </div>
+
+      <button
+        id="cancelApplyOwnerBtn"
+        type="button"
+        class="px-3 py-2 rounded-xl bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white transition duration-200"
+      >
+        Tutup
+      </button>
+    </div>
+
+    <div class="space-y-4">
+      <div>
+        <label for="applyOwnerGroupName" class="block text-sm text-zinc-300 mb-2">
+          Nama Group
+        </label>
+        <input
+          id="applyOwnerGroupName"
+          type="text"
+          class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white text-sm"
+          placeholder="Contoh: Komunitas Subuh"
+        />
+      </div>
+
+      <button
+        id="submitApplyOwnerBtn"
+        type="button"
+        class="w-full min-h-[52px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition duration-200"
+      >
+        Ajukan
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="joinGroupModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 px-4">
   <div class="w-full max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 p-5 shadow-2xl">
     <div class="flex items-start justify-between gap-3 mb-4">
@@ -1276,7 +1618,6 @@
         <p class="text-sm text-zinc-400 mt-1">
           Gunakan akun yang sedang login untuk bergabung ke group lain.
         </p>
-        
       </div>
 
       <button
@@ -1320,7 +1661,19 @@
     </div>
   </main>
 
+<div class="text-center text-xs text-zinc-500 mt-10 pb-6">
+  Built with ❤️ for istiqomah<br/>
+  © 2026 Sugiharto
+</div>
+
+<div
+  id="toastContainer"
+  class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 pointer-events-none"
+></div>
+
 <script>
+ const toastContainer = document.getElementById("toastContainer");
+
 function showInfo(mode) {
   const box = document.getElementById("infoBox");
   const text = document.getElementById("infoText");
@@ -1336,64 +1689,98 @@ function showInfo(mode) {
   box.classList.remove("hidden");
 }
 
-  const toastContainer = document.getElementById("toastContainer");
+  function removeToast(toast) {
+    if (!toast) return;
+    toast.classList.remove("opacity-100", "translate-y-0", "scale-100");
+    toast.classList.add("opacity-0", "translate-y-[-8px]", "scale-[0.98]");
 
-function showToast(message, type = "info") {
-  if (!toastContainer) return;
-
-  const colorMap = {
-    success: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300",
-    error: "border-rose-500/40 bg-rose-500/10 text-rose-300",
-    warning: "border-amber-500/40 bg-amber-500/10 text-amber-300",
-    info: "border-zinc-700 bg-zinc-900 text-zinc-200"
-  };
-
-  const toast = document.createElement("div");
-  toast.className = `pointer-events-auto min-w-[260px] max-w-sm rounded-2xl border px-4 py-3 shadow-2xl backdrop-blur-sm transition-all duration-300 opacity-0 translate-y-[-8px] ${colorMap[type] || colorMap.info}`;
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "flex items-start gap-3";
-
-  const msg = document.createElement("div");
-  msg.className = "flex-1 text-sm leading-relaxed";
-  msg.textContent = message;
-
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "text-xs opacity-70 hover:opacity-100";
-  btn.textContent = "✕";
-
-  wrapper.appendChild(msg);
-  wrapper.appendChild(btn);
-  toast.appendChild(wrapper);
-  toastContainer.appendChild(toast);
-}
-
-function mergeUniqueGroups(existing = [], incoming = []) {
-  const map = new Map();
-
-  [...existing, ...incoming].forEach((item) => {
-    if (!item?.groupId) return;
-    map.set(item.groupId, item);
-  });
-
-  return Array.from(map.values());
-}
-
-function setButtonLoading(button, isLoading, idleText = "Submit", loadingText = "Memproses...") {
-  if (!button) return;
-
-  if (isLoading) {
-    button.dataset.originalText = button.textContent;
-    button.disabled = true;
-    button.classList.add("opacity-70", "cursor-not-allowed");
-    button.textContent = loadingText;
-  } else {
-    button.disabled = false;
-    button.classList.remove("opacity-70", "cursor-not-allowed");
-    button.textContent = button.dataset.originalText || idleText;
+    setTimeout(() => {
+      toast.remove();
+    }, 220);
   }
-}
+
+  function showToast(message, type = "info", options = {}) {
+    if (!toastContainer || !message) return;
+
+    const {
+      duration = 2600,
+      closable = true
+    } = options;
+
+    const colorMap = {
+      success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
+      error: "border-rose-500/30 bg-rose-500/10 text-rose-200",
+      warning: "border-amber-500/30 bg-amber-500/10 text-amber-200",
+      info: "border-zinc-700 bg-zinc-900/95 text-zinc-200"
+    };
+
+    const iconMap = {
+      success: "✓",
+      error: "!",
+      warning: "•",
+      info: "i"
+    };
+
+    const toast = document.createElement("div");
+    toast.className =
+      `pointer-events-auto min-w-[260px] max-w-sm rounded-2xl border px-4 py-3 shadow-2xl backdrop-blur-md transition-all duration-200 ease-out opacity-0 translate-y-[-8px] scale-[0.98] ${colorMap[type] || colorMap.info}`;
+
+    toast.innerHTML = `
+      <div class="flex items-start gap-3">
+        <div class="mt-0.5 w-5 h-5 shrink-0 rounded-full flex items-center justify-center text-[11px] font-bold border border-current/20">
+          ${iconMap[type] || iconMap.info}
+        </div>
+
+        <div class="flex-1 text-sm leading-relaxed">
+          ${message}
+        </div>
+
+        ${
+          closable
+            ? `<button
+                 type="button"
+                 class="toast-close text-xs opacity-60 hover:opacity-100 transition"
+                 aria-label="Tutup notifikasi"
+               >✕</button>`
+            : ""
+        }
+      </div>
+    `;
+
+    toastContainer.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.classList.remove("opacity-0", "translate-y-[-8px]", "scale-[0.98]");
+      toast.classList.add("opacity-100", "translate-y-0", "scale-100");
+    });
+
+    const closeBtn = toast.querySelector(".toast-close");
+    closeBtn?.addEventListener("click", () => removeToast(toast));
+
+    if (duration > 0) {
+      setTimeout(() => removeToast(toast), duration);
+    }
+
+    const maxToasts = 4;
+    while (toastContainer.children.length > maxToasts) {
+      removeToast(toastContainer.firstElementChild);
+    }
+  }
+
+  function setButtonLoading(button, isLoading, idleText = "Submit", loadingText = "Memproses...") {
+    if (!button) return;
+
+    if (isLoading) {
+      button.dataset.originalText = button.textContent;
+      button.disabled = true;
+      button.classList.add("opacity-70", "cursor-not-allowed");
+      button.textContent = loadingText;
+    } else {
+      button.disabled = false;
+      button.classList.remove("opacity-70", "cursor-not-allowed");
+      button.textContent = button.dataset.originalText || idleText;
+    }
+  }
   console.log("Service worker disabled in local development");
 </script>
 
@@ -1406,16 +1793,22 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  onAuthStateChanged,
+  fetchSignInMethodsForEmail
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { auth, db } from "./src/firebase.js"; // 🔥 INI WAJIB
 
 import {
   registerOwner,
+  applyAsOwnerWithCurrentUser,
   loginUser,
+  resendEmailVerificationManually,
   joinGroup,
   logoutUser,
   getUserProfile,
   getPrimaryMembership,
+  getUserMemberships,
   createInviteCode,
   getGroupMembers,
   getPendingOwners,
@@ -1429,12 +1822,15 @@ import {
   rejectOwner
 } from "./src/auth.js";
 
+import { createSessionService } from "./src/sessionService.js";
+import { createMembershipService } from "./src/membershipService.js";
+
 import {
   getTodayInfo,
   getHijriChallenge,
   getHijriEvent,
   getHijriFocus
-} from "./src/calendarEngine.js";
+} from "./src/calendarEngine.js?v=100";
 
 import {
   getTodayProgress,
@@ -1442,9 +1838,21 @@ import {
   getProgressItems
 } from "./src/progressService.js";
 
-import { saveGroupMessage, getGroupMessage } from "./src/groupMessageService.js";
-import { getGroupTargetProgress } from "./src/groupTargetProgressService.js";
-import { saveGroupTarget, getGroupTarget } from "./src/groupTargetService.js";
+import {
+  saveGroupMessage,
+  getGroupMessage,
+  clearGroupMessage
+} from "./src/groupMessageService.js?v=2";
+
+import { getGroupTargetProgress } from "./src/groupTargetProgressService.js?v=2";
+import {
+  saveGroupTarget,
+  getGroupTarget,
+  clearGroupTarget
+} from "./src/groupTargetService.js?v=2";
+
+import { getWeeklySummary } from "./src/weeklySummaryService.js?v=2";
+
 import { getMemberDailyActivity } from "./src/memberActivityService.js";
 import { getGroupLeaderboard } from "./src/leaderboardService.js";
 import { getTodayStats, getStreak } from "./src/statsService.js";
@@ -1454,24 +1862,251 @@ import {
   updateHijriBadge
 } from "./src/gamification.js";
 import { getChallengeProgress, saveChallengeProgress } from "./src/challengeService.js";
-import { getWeeklySummary } from "./src/weeklySummaryService.js";
 import { getChallengeLeaderboard } from "./src/challengeLeaderboardService.js";
 import { getIstiqomahStreak, getStreakLabel } from "./src/streakService.js";
 import { getWeeklyHistory } from "./src/historyService.js";
   
-
-  let currentMode = "";
+let currentMode = "";
 let currentSession = {
   uid: null,
   fullName: null,
   email: null,
+  role: null,
   globalRole: null,
-  roleInGroup: null,
+  activeGroupRole: null,
   ownerId: null,
   groupName: null,
   groupId: null,
   allGroups: []
 };
+
+function applyRoleBasedMenu() {
+  const globalRole = (currentSession.globalRole || "").toLowerCase();
+  const activeGroupRole = (currentSession.activeGroupRole || "").toLowerCase();
+
+  if (homeTabBtn) homeTabBtn.classList.remove("hidden");
+  if (amalTabBtn) amalTabBtn.classList.remove("hidden");
+  if (communityTabBtn) communityTabBtn.classList.remove("hidden");
+  if (helpTabBtn) helpTabBtn.classList.remove("hidden");
+
+  if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
+  if (ownerPanel) ownerPanel.classList.add("hidden");
+
+  if (adminTabBtn) adminTabBtn.classList.add("hidden");
+  if (adminPanel) adminPanel.classList.add("hidden");
+
+  if (applyOwnerBox) {
+    applyOwnerBox.classList.add("hidden");
+
+    if (globalRole !== "superadmin" && activeGroupRole === "member") {
+      applyOwnerBox.classList.remove("hidden");
+    }
+  }
+
+  if (globalRole === "superadmin") {
+    if (adminTabBtn) adminTabBtn.classList.remove("hidden");
+    if (adminPanel) adminPanel.classList.remove("hidden");
+
+    if (homeTabBtn) homeTabBtn.classList.add("hidden");
+    if (amalTabBtn) amalTabBtn.classList.add("hidden");
+    if (communityTabBtn) communityTabBtn.classList.add("hidden");
+    if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
+
+    updateDashboardTabLayout();
+    return;
+  }
+
+  if (activeGroupRole === "owner") {
+    if (ownerTabBtn) ownerTabBtn.classList.remove("hidden");
+    if (ownerPanel) ownerPanel.classList.remove("hidden");
+  }
+
+  updateDashboardTabLayout();
+}
+
+function updateDashboardTabLayout() {
+  const dashboardTabs = document.getElementById("dashboardTabs");
+  if (!dashboardTabs) return;
+
+  dashboardTabs.className = "flex gap-2 mb-4 overflow-x-auto whitespace-nowrap pb-1";
+}
+
+function createSkeletonLines(count = 3, heightClass = "h-4") {
+  return Array.from({ length: count })
+    .map((_, i) => {
+      const widthClass =
+        i % 3 === 0 ? "w-full" :
+        i % 3 === 1 ? "w-5/6" :
+        "w-2/3";
+
+      return `
+        <div class="${heightClass} ${widthClass} rounded-lg bg-zinc-800/90 animate-pulse"></div>
+      `;
+    })
+    .join("");
+}
+
+function runDeferred(task, delay = 250) {
+  setTimeout(() => {
+    Promise.resolve()
+      .then(task)
+      .catch((error) => console.error("DEFERRED TASK ERROR:", error));
+  }, delay);
+}
+
+function renderCardSkeleton(container, options = {}) {
+  if (!container) return;
+
+  const {
+    count = 3,
+    className = "space-y-3",
+    itemClass = "rounded-2xl border border-zinc-800 bg-black/30 p-4"
+  } = options;
+
+  container.innerHTML = `
+    <div class="${className}">
+      ${Array.from({ length: count })
+        .map(
+          () => `
+            <div class="${itemClass}">
+              <div class="space-y-3">
+                <div class="h-4 w-24 rounded-lg bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-5 w-2/3 rounded-lg bg-zinc-800/90 animate-pulse"></div>
+                <div class="space-y-2">
+                  ${createSkeletonLines(2)}
+                </div>
+              </div>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderInlineSkeleton(container, rows = 4) {
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="space-y-3">
+      ${Array.from({ length: rows })
+        .map(
+          () => `
+            <div class="rounded-xl border border-zinc-800 bg-black/30 p-3">
+              <div class="space-y-2">
+                <div class="h-4 w-1/3 rounded-lg bg-zinc-800/90 animate-pulse"></div>
+                <div class="h-4 w-5/6 rounded-lg bg-zinc-800/90 animate-pulse"></div>
+              </div>
+            </div>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderEmptyState(container, options = {}) {
+  if (!container) return;
+
+  const {
+    icon = "•",
+    title = "Belum ada data",
+    description = "Data akan muncul di sini setelah tersedia.",
+    actionLabel = "",
+    actionId = ""
+  } = options;
+
+  container.innerHTML = `
+    <div class="rounded-2xl border border-dashed border-zinc-700 bg-black/20 px-5 py-6 text-center">
+      <div class="w-10 h-10 mx-auto mb-3 rounded-full bg-zinc-800 text-zinc-300 flex items-center justify-center text-sm font-bold">
+        ${icon}
+      </div>
+      <p class="text-sm font-semibold text-zinc-200">${title}</p>
+      <p class="text-sm text-zinc-500 mt-2 leading-relaxed">${description}</p>
+      ${
+        actionLabel && actionId
+          ? `<button id="${actionId}" type="button" class="mt-4 px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm transition">${actionLabel}</button>`
+          : ""
+      }
+    </div>
+  `;
+}
+
+function getActiveGroupStorageKey(uid) {
+  return `istiqomah_active_group_${uid || "guest"}`;
+}
+
+const KHATAM_PAGES = 604;
+
+function getTilawahKhatamStorageKey(uid) {
+  return `tilawah_last_khatam_${uid}`;
+}
+
+function getSavedActiveGroup(uid) {
+  if (!uid) return null;
+  return localStorage.getItem(getActiveGroupStorageKey(uid));
+}
+
+function ensureAllowedActiveTab() {
+  const allowedTabs = getAllowedTabs();
+  const savedTab = getSavedActiveTab(currentSession.uid);
+
+  const currentVisibleTab = Array.from(dashboardTabContents).find(
+    (section) => !section.classList.contains("hidden") && section.style.display !== "none"
+  );
+
+  const currentVisibleTabName = currentVisibleTab
+    ? currentVisibleTab.id.replace("tab-", "")
+    : "";
+
+  if (currentVisibleTabName && allowedTabs.includes(currentVisibleTabName)) {
+    return;
+  }
+
+  const nextTab = allowedTabs.includes(savedTab)
+    ? savedTab
+    : (allowedTabs[0] || "home");
+
+  setActiveDashboardTab(nextTab);
+}
+
+async function hydrateMonthlyAmalUI(uid) {
+  if (!uid) return;
+
+  await Promise.all([
+    loadHijriMonthlyProgress(uid),
+    loadDailyProgressVisual(uid),
+    loadStats(uid),
+    loadWeeklyHistory(uid),
+    loadGamification(uid),
+    loadStreak(uid),
+    loadTilawahAccumulation(uid)
+  ]);
+}
+
+function resetCurrentSession() {
+  currentSession = {
+    uid: null,
+    fullName: null,
+    email: null,
+    role: null,
+    globalRole: null,
+    activeGroupRole: null,
+    ownerId: null,
+    groupName: null,
+    groupId: null,
+    allGroups: []
+  };
+}
+
+function getAllowedTabs() {
+  const globalRole = (currentSession.globalRole || "").toLowerCase();
+  const activeGroupRole = (currentSession.activeGroupRole || "").toLowerCase();
+
+  if (globalRole === "superadmin") return ["admin", "help"];
+  if (activeGroupRole === "owner") return ["home", "amal", "community", "owner", "help"];
+  return ["home", "amal", "community", "help"];
+}
 
 function saveActiveTab(tabName) {
   if (!currentSession?.uid) return;
@@ -1510,7 +2145,7 @@ const totalAllOwners = document.getElementById("totalAllOwners");
 
 const approvedOwnerSearch = document.getElementById("approvedOwnerSearch");
 const approvedOwnerList = document.getElementById("approvedOwnerList");
-const adminInsightList = document.getElementById("adminInsightList");
+const clearOwnerMessageBtn = document.getElementById("clearOwnerMessageBtn");
 
   const dashboardBox = document.getElementById("dashboardBox");
   const dashboardTitle = document.getElementById("dashboardTitle");
@@ -1566,11 +2201,16 @@ const userPoints = document.getElementById("userPoints");
 const levelProgressBar = document.getElementById("levelProgressBar");
 const levelProgressText = document.getElementById("levelProgressText");
 
-  const progressChecklist = document.getElementById("progressChecklist");
-  const tilawahPagesInput = document.getElementById("tilawahPages");
-  const syukurText = document.getElementById("syukurText");
-  const saveProgressBtn = document.getElementById("saveProgressBtn");
-  const progressMessage = document.getElementById("progressMessage");
+const statTilawahKhatam = document.getElementById("statTilawahKhatam");
+const tilawahAccumulationText = document.getElementById("tilawahAccumulationText");
+const tilawahKhatamPercentText = document.getElementById("tilawahKhatamPercentText");
+const tilawahKhatamProgressBar = document.getElementById("tilawahKhatamProgressBar");
+const tilawahKhatamProgressLabel = document.getElementById("tilawahKhatamProgressLabel");
+const progressChecklist = document.getElementById("progressChecklist");
+const tilawahPagesInput = document.getElementById("tilawahPages");
+const syukurText = document.getElementById("syukurText");
+const saveProgressBtn = document.getElementById("saveProgressBtn");
+const progressMessage = document.getElementById("progressMessage");
 
 const weeklyHistoryList = document.getElementById("weeklyHistoryList");
 const hijriEventBox = document.getElementById("hijriEventBox");
@@ -1591,6 +2231,7 @@ const ownerMessageText = document.getElementById("ownerMessageText");
 const groupTargetInput = document.getElementById("groupTargetInput");
 const saveGroupTargetBtn = document.getElementById("saveGroupTargetBtn");
 const groupTargetStatus = document.getElementById("groupTargetStatus");
+const clearGroupTargetBtn = document.getElementById("clearGroupTargetBtn");
 
 const groupTargetBox = document.getElementById("groupTargetBox");
 const groupTargetText = document.getElementById("groupTargetText");
@@ -1616,7 +2257,7 @@ const communityNotFilled = document.getElementById("communityNotFilled");
 const communityAverageAmal = document.getElementById("communityAverageAmal");
 
 const adminTabBtn = document.getElementById("adminTabBtn");
-const adminPanel = document.getElementById("adminPanel");
+const adminPanel = document.getElementById("tab-admin");
 const refreshPendingOwnersBtn = document.getElementById("refreshPendingOwnersBtn");
 const pendingOwnersStatus = document.getElementById("pendingOwnersStatus");
 const pendingOwnersList = document.getElementById("pendingOwnersList");
@@ -1624,6 +2265,7 @@ const pendingOwnersList = document.getElementById("pendingOwnersList");
 const homeTabBtn = document.querySelector('.dashboard-tab-btn[data-tab="home"]');
 const amalTabBtn = document.querySelector('.dashboard-tab-btn[data-tab="amal"]');
 const communityTabBtn = document.querySelector('.dashboard-tab-btn[data-tab="community"]');
+const helpTabBtn = document.getElementById("helpTabBtn");
 
 const reminderDzikirPagiEnabled = document.getElementById("reminderDzikirPagiEnabled");
 const reminderDzikirPagiStart = document.getElementById("reminderDzikirPagiStart");
@@ -1636,6 +2278,7 @@ const reminderTilawahEnabled = document.getElementById("reminderTilawahEnabled")
 const reminderTilawahTime1 = document.getElementById("reminderTilawahTime1");
 const reminderTilawahTime2 = document.getElementById("reminderTilawahTime2");
 const forgotPasswordBtn = document.getElementById("forgotPasswordBtn");
+const resendVerificationBtn = document.getElementById("resendVerificationBtn");
 
 const createGroupModal = document.getElementById("createGroupModal");
 const closeCreateGroupModalBtn = document.getElementById("closeCreateGroupModalBtn");
@@ -1650,11 +2293,109 @@ const submitJoinGroupBtn = document.getElementById("submitJoinGroupBtn");
 const joinGroupModalStatus = document.getElementById("joinGroupModalStatus");
 const openJoinGroupModalBtn = document.getElementById("openJoinGroupModalBtn");
 
+const applyOwnerBox = document.getElementById("applyOwnerBox");
+const applyOwnerBtn = document.getElementById("applyOwnerBtn");
+const applyOwnerModal = document.getElementById("applyOwnerModal");
+const cancelApplyOwnerBtn = document.getElementById("cancelApplyOwnerBtn");
+const submitApplyOwnerBtn = document.getElementById("submitApplyOwnerBtn");
+const applyOwnerGroupName = document.getElementById("applyOwnerGroupName");
+
+// TEMPATKAN EVENT LISTENER DI SINI
+applyOwnerBtn?.addEventListener("click", () => {
+  if (!currentSession?.uid) {
+    showToast("Silakan login terlebih dahulu.", "error");
+    return;
+  }
+
+  if (applyOwnerModal) {
+    applyOwnerModal.classList.remove("hidden");
+    applyOwnerModal.classList.add("flex");
+  }
+});
+
+cancelApplyOwnerBtn?.addEventListener("click", () => {
+  if (applyOwnerModal) {
+    applyOwnerModal.classList.add("hidden");
+    applyOwnerModal.classList.remove("flex");
+  }
+});
+
+resendVerificationBtn?.addEventListener("click", async () => {
+  try {
+    const cleanEmail = email?.value?.trim()?.toLowerCase() || "";
+    const cleanPassword = password?.value || "";
+
+    setButtonLoading(resendVerificationBtn, true, "Kirim ulang verifikasi", "Mengirim...");
+
+    const result = await resendEmailVerificationManually(cleanEmail, cleanPassword);
+
+    if (authMessage) {
+      authMessage.textContent = result.message;
+    }
+
+    showToast(result.message, result.alreadyVerified ? "info" : "success");
+  } catch (error) {
+    console.error("RESEND VERIFICATION BUTTON ERROR:", error);
+
+    if (authMessage) {
+      authMessage.textContent = error.message || "Gagal mengirim ulang verifikasi.";
+    }
+
+    showToast(error.message || "Gagal mengirim ulang verifikasi.", "error");
+  } finally {
+    setButtonLoading(
+      resendVerificationBtn,
+      false,
+      "Kirim ulang verifikasi"
+    );
+  }
+});
+
+submitApplyOwnerBtn?.addEventListener("click", async () => {
+  try {
+    if (!applyOwnerModal || !applyOwnerGroupName) return;
+
+    const requestedGroupName = (applyOwnerGroupName.value || "").trim();
+
+    if (!requestedGroupName) {
+      throw new Error("Nama group wajib diisi.");
+    }
+
+    setButtonLoading(submitApplyOwnerBtn, true, "Ajukan", "Memproses...");
+
+    const result = await applyAsOwnerWithCurrentUser(
+      currentSession.uid,
+      currentSession.fullName,
+      currentSession.email,
+      requestedGroupName
+    );
+
+    console.log("APPLY OWNER RESULT:", result);
+
+    applyOwnerModal.classList.add("hidden");
+    applyOwnerModal.classList.remove("flex");
+    applyOwnerGroupName.value = "";
+
+    showToast(
+      "Pengajuan owner berhasil dikirim. Silakan login kembali setelah approval admin.",
+      "success"
+    );
+
+    await window.logoutApp();
+  } catch (error) {
+    console.error("APPLY OWNER ERROR:", error);
+    showToast(error.message || "Gagal mengajukan owner.", "error");
+  } finally {
+    setButtonLoading(submitApplyOwnerBtn, false, "Ajukan");
+  }
+});
+
 const saveReminderSettingsBtn = document.getElementById("saveReminderSettingsBtn");
 const reminderSettingsStatus = document.getElementById("reminderSettingsStatus");
 const groupSwitcherBox = document.getElementById("groupSwitcherBox");
 const groupSwitcherSelect = document.getElementById("groupSwitcherSelect");
 const groupSwitcherStatus = document.getElementById("groupSwitcherStatus");
+const openJoinGroupGlobalBtn = document.getElementById("openJoinGroupGlobalBtn");
 
   function renderProgressChecklist(progressData) {
     const items = getProgressItems();
@@ -1680,20 +2421,95 @@ const groupSwitcherStatus = document.getElementById("groupSwitcherStatus");
     syukurText.value = progressData.syukur ?? "";
   }
 
-  async function loadTodayProgressToUI(uid) {
-    if (!uid) return;
+function refreshTodayStatusFromForm() {
+  const payload = collectProgressPayload();
+  const totalChecked = countDailyChecked(payload);
+  const status = getTodayStatusInfo(totalChecked);
 
-    progressMessage.textContent = "Memuat progress hari ini...";
+  if (todayStatusTitle) todayStatusTitle.textContent = status.title;
+  if (todayStatusSubtitle) todayStatusSubtitle.textContent = status.subtitle;
 
-    try {
-      const progressData = await getTodayProgress(uid);
-      renderProgressChecklist(progressData);
+  if (todayStatusBadge) {
+    todayStatusBadge.textContent = status.badge;
+    todayStatusBadge.className =
+      `shrink-0 px-3 py-1 rounded-full text-xs font-bold ${status.badgeClass}`;
+  }
+
+  const todayStatusBox = document.getElementById("todayStatusBox");
+  if (todayStatusBox) {
+    todayStatusBox.className =
+      `rounded-2xl bg-gradient-to-br border p-5 ${status.boxClass}`;
+  }
+}
+
+function refreshProgressVisualFromForm() {
+  const payload = collectProgressPayload();
+  const totalChecked = countDailyChecked(payload);
+  const totalItems = 16;
+  const percent = Math.round((totalChecked / totalItems) * 100);
+
+  if (dailyProgressPercent) {
+    dailyProgressPercent.textContent = `${percent}%`;
+  }
+
+  if (dailyProgressBar) {
+    dailyProgressBar.style.width = `${percent}%`;
+  }
+
+  if (dailyProgressText) {
+    dailyProgressText.textContent = `${totalChecked} dari ${totalItems} amal`;
+  }
+}
+
+function bindProgressChecklistListeners() {
+  const runLiveRefresh = () => {
+    refreshTodayStatusFromForm();
+    refreshProgressVisualFromForm();
+  };
+
+  const checkboxes = progressChecklist.querySelectorAll("input[type='checkbox']");
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", runLiveRefresh);
+  });
+
+  tilawahPagesInput?.addEventListener("input", runLiveRefresh);
+  syukurText?.addEventListener("input", runLiveRefresh);
+}
+
+async function loadTodayProgressToUI(uid) {
+  if (!uid) return;
+
+  if (progressMessage) progressMessage.textContent = "Menyiapkan form amal...";
+  renderCardSkeleton(progressChecklist, {
+    count: 6,
+    itemClass: "rounded-xl border border-zinc-800 bg-black/40 px-4 py-3"
+  });
+
+  try {
+    const progressData = await getTodayProgress(uid);
+    renderProgressChecklist(progressData);
+
+    bindProgressChecklistListeners();
+    refreshTodayStatusFromForm();
+    refreshProgressVisualFromForm();
+
+    if (progressMessage) {
       progressMessage.textContent = "Progress hari ini siap diisi.";
-    } catch (error) {
-      console.error("LOAD PROGRESS ERROR:", error);
+    }
+  } catch (error) {
+    console.error("LOAD PROGRESS ERROR:", error);
+
+    renderEmptyState(progressChecklist, {
+      icon: "!",
+      title: "Form amal gagal dimuat",
+      description: "Silakan refresh halaman atau coba lagi sebentar."
+    });
+
+    if (progressMessage) {
       progressMessage.textContent = "Gagal memuat progress hari ini.";
     }
   }
+}
 
 function getReminderStorageKey(uid) {
   return `istiqomah_reminders_${uid || "guest"}`;
@@ -1732,40 +2548,156 @@ function renderHijriMonthlyChart(dayItems = []) {
     return;
   }
 
-  const maxValue = Math.max(...dayItems.map((item) => item.totalAmal || 0), 1);
+  const width = hijriMonthlyChart.clientWidth || 320;
+  const height = hijriMonthlyChart.clientHeight || 140;
 
-  hijriMonthlyChart.innerHTML = dayItems
-    .map((item, index) => {
-      const value = item.totalAmal || 0;
+  const paddingTop = 14;
+  const paddingRight = 10;
+  const paddingBottom = 22;
+  const paddingLeft = 28; // lebih lebar untuk axis
 
-      // batang tetap terlihat walau 0
-      const height = value > 0
-        ? Math.max(16, Math.round((value / maxValue) * 100))
-        : 6;
+  const chartWidth = width - paddingLeft - paddingRight;
+  const chartHeight = height - paddingTop - paddingBottom;
 
-      // tampilkan label selang-seling supaya mobile tidak padat
-      const showLabel = dayItems.length <= 15 || index % 2 === 0;
+  const maxValue = Math.max(...dayItems.map((d) => d.totalAmal || 0), 1);
+  const midValue = Math.round(maxValue / 2);
 
-      // batang hari aktif vs kosong
-      const barClass = value > 0
-        ? "bg-amber-500/85 hover:bg-amber-400"
-        : "bg-zinc-800";
+  const stepX =
+    dayItems.length > 1 ? chartWidth / (dayItems.length - 1) : chartWidth;
+
+  const points = dayItems.map((item, index) => {
+    const value = item.totalAmal || 0;
+    const x = paddingLeft + index * stepX;
+    const y =
+      paddingTop + (chartHeight - (value / maxValue) * chartHeight);
+
+    return { x, y, value, day: item.day };
+  });
+
+  const linePath = points
+    .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
+    .join(" ");
+
+  const areaPath = `
+    ${linePath}
+    L ${points[points.length - 1].x} ${paddingTop + chartHeight}
+    L ${points[0].x} ${paddingTop + chartHeight}
+    Z
+  `;
+
+  const topValue = Math.max(...points.map((p) => p.value), 0);
+
+  // LABEL X (tanggal bawah)
+  const labels = points
+    .map((p, index) => {
+      const showLabel =
+        points.length <= 15 || index % 2 === 0 || index === points.length - 1;
 
       return `
-        <div class="flex-1 min-w-0 flex flex-col items-center justify-end gap-2">
-          <div
-            class="w-full rounded-t-md transition-all duration-300 ${barClass}"
-            style="height:${height}%"
-            title="Hari ${item.day}: ${value} amal"
-          ></div>
-
-          <span class="text-[9px] leading-none text-zinc-500 ${showLabel ? "" : "opacity-0"}">
-            ${item.day}
-          </span>
-        </div>
+        <text
+          x="${p.x}"
+          y="${height - 6}"
+          text-anchor="middle"
+          font-size="9"
+          fill="${showLabel ? "#71717a" : "transparent"}"
+        >
+          ${p.day}
+        </text>
       `;
     })
     .join("");
+
+  // TITIK
+  const circles = points
+    .map((p) => {
+      const isTop = p.value > 0 && p.value === topValue;
+
+      return `
+        <circle
+          class="hijri-point"
+          cx="${p.x}"
+          cy="${p.y}"
+          r="${isTop ? 4.5 : 3}"
+          fill="${isTop ? "#fde68a" : "#f59e0b"}"
+          stroke="${isTop ? "#f59e0b" : "none"}"
+          stroke-width="${isTop ? "1.2" : "0"}"
+          data-day="${p.day}"
+          data-value="${p.value}"
+        />
+      `;
+    })
+    .join("");
+
+  hijriMonthlyChart.innerHTML = `
+    <svg width="100%" height="100%" viewBox="0 0 ${width} ${height}" class="overflow-visible">
+
+      <!-- GRADIENT -->
+      <defs>
+        <linearGradient id="hijriAreaGradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.28" />
+          <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.02" />
+        </linearGradient>
+      </defs>
+
+      <!-- GRID -->
+      <line x1="${paddingLeft}" y1="${paddingTop}" x2="${width}" y2="${paddingTop}" stroke="#18181b" />
+      <line x1="${paddingLeft}" y1="${paddingTop + chartHeight/2}" x2="${width}" y2="${paddingTop + chartHeight/2}" stroke="#18181b" />
+      <line x1="${paddingLeft}" y1="${paddingTop + chartHeight}" x2="${width}" y2="${paddingTop + chartHeight}" stroke="#27272a" />
+
+      <!-- AXIS LABEL -->
+      <text x="4" y="${paddingTop + 4}" font-size="9" fill="#71717a">${maxValue}</text>
+      <text x="4" y="${paddingTop + chartHeight/2 + 3}" font-size="9" fill="#71717a">${midValue}</text>
+      <text x="4" y="${paddingTop + chartHeight + 3}" font-size="9" fill="#71717a">0</text>
+
+      <!-- AREA -->
+      <path
+        d="${areaPath}"
+        fill="url(#hijriAreaGradient)"
+        class="hijri-area-path"
+      />
+
+      <!-- LINE -->
+      <path
+        d="${linePath}"
+        fill="none"
+        stroke="#f59e0b"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="hijri-line-path"
+      />
+
+      ${circles}
+      ${labels}
+    </svg>
+
+    <div
+      id="hijriChartTooltip"
+      class="hijri-chart-tooltip hidden px-2 py-1 rounded-lg bg-zinc-900 border border-zinc-700 text-[10px] text-zinc-200 shadow-lg"
+    ></div>
+  `;
+
+  // TOOLTIP
+  const tooltip = hijriMonthlyChart.querySelector("#hijriChartTooltip");
+  const pointEls = hijriMonthlyChart.querySelectorAll(".hijri-point");
+
+  pointEls.forEach((point) => {
+    point.addEventListener("mousemove", (event) => {
+      const day = point.getAttribute("data-day");
+      const value = point.getAttribute("data-value");
+
+      tooltip.textContent = `Hari ${day}: ${value} amal`;
+      tooltip.classList.remove("hidden");
+
+      const rect = hijriMonthlyChart.getBoundingClientRect();
+      tooltip.style.left = `${event.clientX - rect.left}px`;
+      tooltip.style.top = `${event.clientY - rect.top}px`;
+    });
+
+    point.addEventListener("mouseleave", () => {
+      tooltip.classList.add("hidden");
+    });
+  });
 }
 
 function closeCreateGroupModal() {
@@ -2144,28 +3076,40 @@ function renderMemberActivityList(items) {
   if (!memberActivityList) return;
 
   if (!items.length) {
-    memberActivityList.innerHTML = "Belum ada data aktivitas.";
+    memberActivityList.innerHTML = `
+      <div class="rounded-2xl border border-dashed border-zinc-700 bg-black/20 px-4 py-5 text-sm text-zinc-500">
+        Belum ada data aktivitas.
+      </div>
+    `;
     return;
   }
 
   memberActivityList.innerHTML = items
     .map((member) => {
-      const statusText = member.hasFilledToday
-        ? `${member.totalAmal} amal`
+      const hasFilled = !!member.hasFilledToday;
+      const statusText = hasFilled
+        ? `${member.totalAmal || 0} amal`
         : "belum isi";
 
-      const statusClass = member.hasFilledToday
-        ? "text-amber-500"
-        : "text-zinc-500";
+      const statusClass = hasFilled
+        ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+        : "bg-zinc-800 text-zinc-400 border border-zinc-700";
 
       return `
-        <div class="flex justify-between items-center bg-black/40 border border-zinc-800 rounded-xl px-3 py-2">
-          <div>
-            <p class="text-white font-medium">${member.fullName}</p>
-            <p class="text-xs text-zinc-500">${member.roleInGroup}</p>
-          </div>
-          <div class="text-right">
-            <p class="${statusClass} font-semibold">${statusText}</p>
+        <div class="rounded-2xl border border-zinc-800 bg-black/30 p-4 hover:border-zinc-700 transition">
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="text-white font-semibold text-sm md:text-base break-words">
+                ${member.fullName || "-"}
+              </p>
+              <p class="text-zinc-500 text-xs mt-1">
+                ${((member.roleInGroup || "member") + "").toLowerCase()}
+              </p>
+            </div>
+
+            <span class="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide ${statusClass}">
+              ${statusText}
+            </span>
           </div>
         </div>
       `;
@@ -2222,17 +3166,31 @@ async function loadMemberActivity(groupId) {
   if (!groupId) return;
   if (!memberActivityList) return;
 
-  memberActivityList.innerHTML = "Loading member activity...";
+  renderCardSkeleton(memberActivityList, { count: 4 });
 
   try {
     const members = await getMemberDailyActivity(groupId);
     memberActivityCache = members;
 
     renderCommunitySummary(members);
+
+    if (!members.length) {
+      renderEmptyState(memberActivityList, {
+        icon: "👥",
+        title: "Belum ada aktivitas member",
+        description: "Aktivitas harian anggota akan muncul setelah ada isian hari ini."
+      });
+      return;
+    }
+
     applyMemberActivityFilter();
   } catch (error) {
     console.error("LOAD MEMBER ACTIVITY ERROR:", error);
-    memberActivityList.innerHTML = "Gagal memuat aktivitas member.";
+    renderEmptyState(memberActivityList, {
+      icon: "!",
+      title: "Gagal memuat aktivitas",
+      description: "Coba refresh lagi sebentar."
+    });
   }
 }
 
@@ -2248,11 +3206,11 @@ async function loadGroupTargetProgress(uid, groupId) {
       return;
     }
 
-    const progress = await getGroupTargetProgress(uid, data.target);
+    const progress = await getGroupTargetProgress(uid, data);
 
     if (!progress.supported) {
       if (groupTargetProgressText) {
-        groupTargetProgressText.textContent = progress.label;
+        groupTargetProgressText.textContent = progress.label || "Belum ada progress";
       }
       if (groupTargetProgressBar) {
         groupTargetProgressBar.style.width = "0%";
@@ -2269,45 +3227,165 @@ async function loadGroupTargetProgress(uid, groupId) {
     }
   } catch (error) {
     console.error("LOAD GROUP TARGET PROGRESS ERROR:", error);
+
+    if (groupTargetProgressText) {
+      groupTargetProgressText.textContent = "Gagal memuat progress";
+    }
+
+    if (groupTargetProgressBar) {
+      groupTargetProgressBar.style.width = "0%";
+    }
   }
 }
 
-async function loadGroupTarget(groupId) {
-  if (!groupId) return;
+async function loadGroupTargetEditor(groupId) {
+  if (!groupTargetInput) return;
 
   try {
     const data = await getGroupTarget(groupId);
 
-    if (!data || !data.target) {
-      if (groupTargetBox) groupTargetBox.classList.add("hidden");
+    if (!data || !data.text || !data.text.trim()) {
+      groupTargetInput.value = "";
+      if (groupTargetStatus) {
+        groupTargetStatus.textContent = "Belum ada target untuk group ini.";
+      }
       return;
     }
 
-    if (groupTargetBox) groupTargetBox.classList.remove("hidden");
-    if (groupTargetText) groupTargetText.textContent = data.target;
+    groupTargetInput.value = data.text || "";
 
+    if (groupTargetStatus) {
+      groupTargetStatus.textContent = "Target group aktif berhasil dimuat.";
+    }
   } catch (error) {
-    console.error("LOAD TARGET ERROR:", error);
+    console.error("LOAD GROUP TARGET EDITOR ERROR:", error);
+    groupTargetInput.value = "";
+    if (groupTargetStatus) {
+      groupTargetStatus.textContent = "Gagal memuat target group.";
+    }
   }
 }
 
-async function loadGroupMessage(groupId) {
-  if (!groupId) return;
+async function loadGroupTarget(groupId) {
+  if (!groupId || !groupTargetBox) return;
+
+  try {
+    const data = await getGroupTarget(groupId);
+
+    if (!data || !data.text || !data.text.trim()) {
+      groupTargetBox.classList.add("hidden");
+      if (groupTargetText) groupTargetText.textContent = "";
+      if (groupTargetProgressText) groupTargetProgressText.textContent = "0 / 0";
+      if (groupTargetProgressBar) groupTargetProgressBar.style.width = "0%";
+      return;
+    }
+
+    if (groupTargetText) {
+      groupTargetText.textContent = data.text;
+    }
+
+    groupTargetBox.classList.remove("hidden");
+  } catch (error) {
+    console.error("LOAD TARGET ERROR:", error);
+    groupTargetBox.classList.add("hidden");
+    if (groupTargetText) groupTargetText.textContent = "";
+    if (groupTargetProgressText) groupTargetProgressText.textContent = "0 / 0";
+    if (groupTargetProgressBar) groupTargetProgressBar.style.width = "0%";
+  }
+}
+
+async function loadOwnerMessageEditor(groupId) {
+  if (!ownerMessageInput) return;
 
   try {
     const data = await getGroupMessage(groupId);
 
     if (!data || !data.message || !data.message.trim()) {
-      if (ownerMessageBox) ownerMessageBox.classList.add("hidden");
-      if (ownerMessageText) ownerMessageText.textContent = "-";
+      ownerMessageInput.value = "";
+      if (ownerMessageStatus) {
+        ownerMessageStatus.textContent = "Belum ada pesan untuk group ini.";
+      }
       return;
     }
 
-    if (ownerMessageBox) ownerMessageBox.classList.remove("hidden");
-    if (ownerMessageText) ownerMessageText.textContent = data.message;
+    ownerMessageInput.value = data.message || "";
+
+    if (ownerMessageStatus) {
+      ownerMessageStatus.textContent = "Pesan group aktif berhasil dimuat.";
+    }
+  } catch (error) {
+    console.error("LOAD OWNER MESSAGE EDITOR ERROR:", error);
+    ownerMessageInput.value = "";
+    if (ownerMessageStatus) {
+      ownerMessageStatus.textContent = "Gagal memuat pesan group.";
+    }
+  }
+}
+
+clearOwnerMessageBtn?.addEventListener("click", async () => {
+  try {
+    if (!currentSession.uid || !currentSession.groupId) {
+      if (ownerMessageStatus) {
+        ownerMessageStatus.textContent = "User atau group belum terbaca.";
+      }
+      showToast("User atau group belum terbaca.", "error");
+      return;
+    }
+
+    if (ownerMessageStatus) {
+      ownerMessageStatus.textContent = "Menghapus pesan...";
+    }
+
+    setButtonLoading(clearOwnerMessageBtn, true, "Hapus Pesan", "Menghapus...");
+
+    await clearGroupMessage(currentSession.groupId);
+
+    if (ownerMessageInput) {
+      ownerMessageInput.value = "";
+    }
+
+    if (ownerMessageStatus) {
+      ownerMessageStatus.textContent = "Pesan berhasil dihapus.";
+    }
+
+    showToast("Pesan owner berhasil dihapus.", "success");
+
+    await loadGroupMessage(currentSession.groupId);
+    await loadOwnerMessageEditor(currentSession.groupId);
+  } catch (error) {
+    console.error("CLEAR OWNER MESSAGE ERROR:", error);
+
+    if (ownerMessageStatus) {
+      ownerMessageStatus.textContent = "Gagal menghapus pesan.";
+    }
+
+    showToast(error.message || "Gagal menghapus pesan.", "error");
+  } finally {
+    setButtonLoading(clearOwnerMessageBtn, false, "Hapus Pesan");
+  }
+});
+
+async function loadGroupMessage(groupId) {
+  if (!groupId || !ownerMessageBox) return;
+
+  try {
+    const data = await getGroupMessage(groupId);
+
+    if (!data || !data.message || !data.message.trim()) {
+      ownerMessageBox.classList.add("hidden");
+      if (ownerMessageText) ownerMessageText.textContent = "";
+      return;
+    }
+
+    if (ownerMessageText) {
+      ownerMessageText.textContent = data.message;
+    }
+
+    ownerMessageBox.classList.remove("hidden");
   } catch (error) {
     console.error("LOAD GROUP MESSAGE ERROR:", error);
-    if (ownerMessageBox) ownerMessageBox.classList.add("hidden");
+    ownerMessageBox.classList.add("hidden");
+    if (ownerMessageText) ownerMessageText.textContent = "";
   }
 }
 
@@ -2428,39 +3506,67 @@ async function loadGamification(uid) {
 }
 
 async function loadWeeklyHistory(uid) {
-  if (!uid) return;
-  if (!weeklyHistoryList) return;
+  if (!uid || !weeklyHistoryList) return;
 
-  weeklyHistoryList.innerHTML = "Loading history...";
+  renderInlineSkeleton(weeklyHistoryList, 4);
 
   try {
     const history = await getWeeklyHistory(uid);
 
     if (!history.length) {
-      weeklyHistoryList.innerHTML = "Belum ada riwayat.";
+      renderEmptyState(weeklyHistoryList, {
+        icon: "🗓",
+        title: "Riwayat belum ada",
+        description: "Mulai isi amal harian untuk melihat ringkasan 7 hari terakhir."
+      });
       return;
     }
 
-    weeklyHistoryList.innerHTML = history
-      .map((item) => {
-        const percent = Math.round((item.totalAmal / 16) * 100);
+weeklyHistoryList.innerHTML = history
+  .map((item) => {
+    const percent = Math.round((item.totalAmal / 16) * 100);
 
-        return `
-          <div class="rounded-xl border border-zinc-800 bg-black/40 px-3 py-2">
-            <div class="flex justify-between items-center mb-2">
-              <span class="text-white font-medium">${item.dayLabel}</span>
-              <span class="text-zinc-400 text-xs">${item.totalAmal} amal</span>
-            </div>
-            <div class="w-full h-2 bg-black/50 rounded-full overflow-hidden">
-              <div class="h-full bg-amber-500 rounded-full" style="width: ${percent}%"></div>
-            </div>
+    return `
+      <div class="rounded-2xl bg-black/30 border border-zinc-800 p-4">
+        <div class="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <p class="text-[11px] text-zinc-500 uppercase tracking-[0.18em]">
+              Hari
+            </p>
+            <p class="text-white font-bold text-lg mt-1">${item.dayLabel}</p>
           </div>
-        `;
-      })
-      .join("");
+
+          <div class="text-right">
+            <p class="text-white font-black text-2xl leading-none tracking-tight tabular-nums">
+              ${item.totalAmal}
+            </p>
+            <p class="text-zinc-500 text-xs mt-1">amal</p>
+          </div>
+        </div>
+
+        <div class="w-full h-2.5 bg-zinc-800 rounded-full overflow-hidden">
+          <div
+            class="h-full bg-amber-500 rounded-full transition-all duration-500"
+            style="width: ${percent}%"
+          ></div>
+        </div>
+
+        <div class="flex justify-between items-center mt-3 text-xs">
+          <span class="text-zinc-500">Konsistensi</span>
+          <span class="text-amber-400 font-semibold">${percent}%</span>
+        </div>
+      </div>
+    `;
+  })
+  .join("");
+
   } catch (error) {
     console.error("LOAD WEEKLY HISTORY ERROR:", error);
-    weeklyHistoryList.innerHTML = "Gagal memuat riwayat.";
+    renderEmptyState(weeklyHistoryList, {
+      icon: "!",
+      title: "Riwayat gagal dimuat",
+      description: "Silakan coba lagi."
+    });
   }
 }
 
@@ -2507,7 +3613,10 @@ async function loadHijriMonthlyProgress(uid) {
     const snapshot = await getDocs(progressQuery);
 
     const monthDocs = snapshot.docs
-      .map((docItem) => ({ id: docItem.id, ...docItem.data() }))
+      .map((docItem) => ({
+        id: docItem.id,
+        ...docItem.data()
+      }))
       .filter((item) => item.hijriMonth === currentHijriMonth);
 
     const dayItems = Array.from({ length: totalDaysInMonth }, (_, i) => ({
@@ -2528,6 +3637,7 @@ async function loadHijriMonthlyProgress(uid) {
     const averageAmal = activeDays ? (totalAmal / activeDays).toFixed(1) : "0";
     const percent = Math.round((activeDays / totalDaysInMonth) * 100);
     const bestStreak = calculateBestStreak(dayItems);
+    const topDayItem = [...dayItems].sort((a, b) => (b.totalAmal || 0) - (a.totalAmal || 0))[0];
 
     if (hijriMonthlyTitle) {
       hijriMonthlyTitle.textContent = `Progress Bulan ${currentHijriMonthLabel}`;
@@ -2538,9 +3648,9 @@ async function loadHijriMonthlyProgress(uid) {
     }
 
     const hijriMonthlyChartHint = document.getElementById("hijriMonthlyChartHint");
-if (hijriMonthlyChartHint) {
-  hijriMonthlyChartHint.textContent = "Ringkas per hari";
-}
+    if (hijriMonthlyChartHint) {
+      hijriMonthlyChartHint.textContent = "Hover untuk detail";
+    }
 
     if (hijriMonthlyPercent) {
       hijriMonthlyPercent.textContent = `${percent}%`;
@@ -2567,15 +3677,53 @@ if (hijriMonthlyChartHint) {
     }
 
     if (hijriMonthlyInsight) {
-      hijriMonthlyInsight.textContent = getHijriMonthlyInsight(percent);
+      const baseInsight = getHijriMonthlyInsight(percent);
+      const topDayText =
+        topDayItem && topDayItem.totalAmal > 0
+          ? ` Hari terbaikmu ada di hari ${topDayItem.day} dengan ${topDayItem.totalAmal} amal.`
+          : "";
+
+      hijriMonthlyInsight.textContent = `${baseInsight}${topDayText}`;
     }
 
     renderHijriMonthlyChart(dayItems);
   } catch (error) {
     console.error("LOAD HIJRI MONTHLY PROGRESS ERROR:", error);
 
+    if (hijriMonthlyPercent) {
+      hijriMonthlyPercent.textContent = "0%";
+    }
+
+    if (hijriMonthlyBar) {
+      hijriMonthlyBar.style.width = "0%";
+    }
+
+    if (hijriActiveDays) {
+      hijriActiveDays.textContent = "0";
+    }
+
+    if (hijriTotalAmal) {
+      hijriTotalAmal.textContent = "0";
+    }
+
+    if (hijriAverageAmal) {
+      hijriAverageAmal.textContent = "0";
+    }
+
+    if (hijriBestStreak) {
+      hijriBestStreak.textContent = "0";
+    }
+
+    if (hijriMonthlyChart) {
+      hijriMonthlyChart.innerHTML = `
+        <div class="w-full flex items-center justify-center h-full">
+          <p class="text-sm text-zinc-500">Belum ada data bulan ini.</p>
+        </div>
+      `;
+    }
+
     if (hijriMonthlyInsight) {
-      hijriMonthlyInsight.textContent = "Gagal memuat progress bulanan hijriyah.";
+      hijriMonthlyInsight.textContent = "Belum ada insight bulan ini.";
     }
   }
 }
@@ -2676,70 +3824,111 @@ async function loadStreak(uid) {
 }
 
 async function loadChallengeLeaderboard(groupId, hijriMonth) {
-  if (!groupId) return;
-  if (!challengeLeaderboardList) return;
+  if (!groupId || !challengeLeaderboardList) return;
 
-  challengeLeaderboardList.innerHTML = "Loading challenge leaderboard...";
+  renderCardSkeleton(challengeLeaderboardList, { count: 3 });
 
   try {
     const leaderboard = await getChallengeLeaderboard(groupId, hijriMonth);
 
     if (!leaderboard.length) {
-      challengeLeaderboardList.innerHTML = "Belum ada progress challenge.";
+      renderEmptyState(challengeLeaderboardList, {
+        icon: "🏁",
+        title: "Belum ada progress challenge",
+        description: "Leaderboard challenge akan muncul setelah anggota mulai mengisi."
+      });
       return;
     }
 
     challengeLeaderboardList.innerHTML = leaderboard
-      .map(
-        (item, index) => `
-        <div class="flex justify-between items-center bg-black/40 border border-zinc-800 rounded-xl px-3 py-2">
-          <div>
-            <p class="text-white font-medium">${index + 1}. ${item.fullName}</p>
-            <p class="text-xs text-zinc-500">${item.roleInGroup}</p>
+      .map((item, index) => {
+        const medal =
+          index === 0 ? "🥇" :
+          index === 1 ? "🥈" :
+          index === 2 ? "🥉" : `#${index + 1}`;
+
+        return `
+          <div class="rounded-2xl border border-zinc-800 bg-black/30 p-4 hover:border-zinc-700 transition">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                  ${medal}
+                </div>
+                <div class="min-w-0">
+                  <p class="text-white font-semibold text-sm md:text-base truncate">
+                    ${item.fullName || "-"}
+                  </p>
+                  <p class="text-zinc-500 text-xs mt-1">
+                    ${((item.roleInGroup || "member") + "").toLowerCase()}
+                  </p>
+                </div>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="text-emerald-400 font-bold text-lg leading-none">${item.totalProgress || 0}</p>
+                <p class="text-zinc-500 text-[11px] mt-1">progress</p>
+              </div>
+            </div>
           </div>
-          <div class="text-right">
-            <p class="text-amber-500 font-bold">${item.totalProgress}</p>
-            <p class="text-xs text-zinc-500">progress</p>
-          </div>
-        </div>
-      `
-      )
+        `;
+      })
       .join("");
   } catch (error) {
     console.error("LOAD CHALLENGE LEADERBOARD ERROR:", error);
-    challengeLeaderboardList.innerHTML = "Gagal memuat challenge leaderboard.";
+    renderEmptyState(challengeLeaderboardList, {
+      icon: "!",
+      title: "Leaderboard gagal dimuat",
+      description: "Coba beberapa saat lagi."
+    });
   }
 }
 
 async function loadMembers(groupId) {
-  if (!groupId) return;
-
-  const memberList = document.getElementById("memberList");
   if (!memberList) return;
-
-  memberList.innerHTML = "Loading members...";
 
   try {
     const members = await getGroupMembers(groupId);
 
-    if (!members.length) {
-      memberList.innerHTML = "Belum ada member.";
+    if (!members || members.length === 0) {
+      memberList.innerHTML = `
+        <div class="rounded-2xl border border-dashed border-zinc-700 bg-black/20 px-4 py-5 text-sm text-zinc-500">
+          Belum ada member.
+        </div>
+      `;
+      memberList.classList.remove("hidden");
+      memberList.style.display = "block";
       return;
     }
 
-    memberList.innerHTML = members
-      .map(
-        (m) => `
-        <div class="flex justify-between bg-black/40 border border-zinc-800 rounded-xl px-3 py-2">
-          <span>${m.fullName}</span>
-          <span class="text-xs text-zinc-500">${m.roleInGroup}</span>
+    memberList.classList.remove("hidden");
+    memberList.style.display = "block";
+
+    memberList.innerHTML = members.map((m, index) => `
+      <div class="rounded-2xl border border-zinc-800 p-4 bg-black/30">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-white font-bold text-sm md:text-base">
+              ${index + 1}. ${m.fullName || "Tanpa Nama"}
+            </p>
+            <p class="text-xs text-zinc-500 mt-1 break-all">
+              ${m.email || "-"}
+            </p>
+          </div>
+
+          <span class="shrink-0 px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-wide">
+            ${m.roleInGroup || "member"}
+          </span>
         </div>
-      `
-      )
-      .join("");
-  } catch (error) {
-    console.error("LOAD MEMBERS ERROR:", error);
-    memberList.innerHTML = "Gagal memuat member.";
+      </div>
+    `).join("");
+  } catch (err) {
+    console.error("LOAD MEMBERS ERROR:", err);
+    memberList.classList.remove("hidden");
+    memberList.style.display = "block";
+    memberList.innerHTML = `
+      <div class="rounded-2xl border border-dashed border-rose-500/30 bg-rose-500/10 px-4 py-5 text-sm text-rose-300">
+        Gagal memuat member.
+      </div>
+    `;
   }
 }
 
@@ -2752,7 +3941,6 @@ async function loadChallenge(uid, hijriMonth, monthName) {
 
 async function loadLeaderboard(groupId) {
   if (!groupId) return;
-
   if (!leaderboardList) return;
 
   leaderboardList.innerHTML = "Loading leaderboard...";
@@ -2761,30 +3949,174 @@ async function loadLeaderboard(groupId) {
     const leaderboard = await getGroupLeaderboard(groupId);
 
     if (!leaderboard.length) {
-      leaderboardList.innerHTML = "Belum ada data amal hari ini.";
+      leaderboardList.innerHTML = `
+        <div class="rounded-2xl border border-dashed border-zinc-700 bg-black/20 px-4 py-5 text-sm text-zinc-500">
+          Belum ada data amal hari ini.
+        </div>
+      `;
       return;
     }
 
     leaderboardList.innerHTML = leaderboard
-      .map(
-        (item, index) => `
-        <div class="flex justify-between items-center bg-black/40 border border-zinc-800 rounded-xl px-3 py-2">
-          <div>
-            <p class="text-white font-medium">${index + 1}. ${item.fullName}</p>
-            <p class="text-xs text-zinc-500">${item.roleInGroup}</p>
+      .map((item, index) => {
+        const medal =
+          index === 0 ? "🥇" :
+          index === 1 ? "🥈" :
+          index === 2 ? "🥉" : `#${index + 1}`;
+
+        return `
+          <div class="rounded-2xl border border-zinc-800 bg-black/30 p-4 hover:border-zinc-700 transition">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                  ${medal}
+                </div>
+
+                <div class="min-w-0">
+                  <p class="text-white font-semibold text-sm md:text-base truncate">
+                    ${item.fullName || "-"}
+                  </p>
+                  <p class="text-zinc-500 text-xs mt-1">
+                    ${((item.roleInGroup || "member") + "").toLowerCase()}
+                  </p>
+                </div>
+              </div>
+
+              <div class="text-right shrink-0">
+                <p class="text-amber-400 font-bold text-lg leading-none">${item.totalAmal || 0}</p>
+                <p class="text-zinc-500 text-[11px] mt-1">amal</p>
+              </div>
+            </div>
           </div>
-          <div class="text-right">
-            <p class="text-amber-500 font-bold">${item.totalAmal}</p>
-            <p class="text-xs text-zinc-500">amal</p>
-          </div>
-        </div>
-      `
-      )
+        `;
+      })
       .join("");
   } catch (error) {
     console.error("LOAD LEADERBOARD ERROR:", error);
-    leaderboardList.innerHTML = "Gagal memuat leaderboard.";
+    leaderboardList.innerHTML = `
+      <div class="rounded-2xl border border-dashed border-rose-500/30 bg-rose-500/5 px-4 py-5 text-sm text-rose-300">
+        Gagal memuat leaderboard.
+      </div>
+    `;
   }
+}
+
+async function loadTilawahAccumulation(uid) {
+  if (!uid) return;
+
+  try {
+    const data = await getTilawahAccumulation(uid);
+
+    // =============================
+    // TEXT
+    // =============================
+    if (tilawahAccumulationText) {
+      tilawahAccumulationText.textContent =
+        `${data.remainingPages} halaman • ${data.khatamCount}x Khatam`;
+    }
+
+    // =============================
+    // PROGRESS %
+    // =============================
+    if (tilawahKhatamPercentText) {
+      tilawahKhatamPercentText.textContent = `${data.progressPercent}%`;
+    }
+
+    if (tilawahKhatamProgressBar) {
+      tilawahKhatamProgressBar.style.width = `${data.progressPercent}%`;
+
+      // =============================
+      // COLOR LOGIC
+      // =============================
+      tilawahKhatamProgressBar.classList.remove("bg-amber-500", "bg-emerald-500");
+
+      if (data.progressPercent >= 90) {
+        tilawahKhatamProgressBar.classList.add("bg-emerald-500");
+      } else {
+        tilawahKhatamProgressBar.classList.add("bg-amber-500");
+      }
+    }
+
+    if (tilawahKhatamProgressLabel) {
+      tilawahKhatamProgressLabel.textContent =
+        `${data.remainingPages} / ${KHATAM_PAGES} halaman menuju khatam berikutnya`;
+    }
+
+    // =============================
+    // KHATAM DETECTION
+    // =============================
+    const storageKey = getTilawahKhatamStorageKey(uid);
+    const lastKhatam = Number(localStorage.getItem(storageKey) || 0);
+
+    if (data.khatamCount > lastKhatam) {
+      // 🎉 trigger toast
+      showToast(`MasyaAllah, ${data.khatamCount}x khatam tercapai!`, "success");
+
+      // simpan state baru
+      localStorage.setItem(storageKey, String(data.khatamCount));
+    } else {
+      // sync kalau belum ada
+      localStorage.setItem(storageKey, String(data.khatamCount));
+    }
+
+  } catch (error) {
+    console.error("LOAD TILAWAH ACCUMULATION ERROR:", error);
+
+    if (tilawahAccumulationText) {
+      tilawahAccumulationText.textContent = "0 halaman • 0x Khatam";
+    }
+
+    if (tilawahKhatamPercentText) {
+      tilawahKhatamPercentText.textContent = "0%";
+    }
+
+    if (tilawahKhatamProgressBar) {
+      tilawahKhatamProgressBar.style.width = "0%";
+      tilawahKhatamProgressBar.classList.remove("bg-emerald-500");
+      tilawahKhatamProgressBar.classList.add("bg-amber-500");
+    }
+
+    if (tilawahKhatamProgressLabel) {
+      tilawahKhatamProgressLabel.textContent =
+        `0 / ${KHATAM_PAGES} halaman menuju khatam berikutnya`;
+    }
+  }
+}
+
+async function getTilawahAccumulation(uid) {
+  if (!uid) {
+    return {
+      totalPages: 0,
+      khatamCount: 0,
+      remainingPages: 0,
+      progressPercent: 0
+    };
+  }
+
+  const progressRef = collection(db, "users", uid, "dailyProgress");
+  const progressQuery = query(progressRef, orderBy("date", "asc"));
+  const snapshot = await getDocs(progressQuery);
+
+  let totalPages = 0;
+
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data() || {};
+    totalPages += Number(data.tilawahPages || 0);
+  });
+
+  const khatamCount = Math.floor(totalPages / KHATAM_PAGES);
+  const remainingPages = totalPages % KHATAM_PAGES;
+  const progressPercent = Math.min(
+    100,
+    Math.round((remainingPages / KHATAM_PAGES) * 100)
+  );
+
+  return {
+    totalPages,
+    khatamCount,
+    remainingPages,
+    progressPercent
+  };
 }
 
 async function loadStats(uid) {
@@ -2793,67 +4125,58 @@ async function loadStats(uid) {
   try {
     const todayStats = await getTodayStats(uid);
     const streak = await getStreak(uid);
+    const tilawahData = await getTilawahAccumulation(uid);
 
     if (statTotalAmal) {
       statTotalAmal.textContent = String(todayStats.totalAmal || 0);
     }
 
     if (statTilawah) {
-      statTilawah.textContent = `${todayStats.tilawahPages || 0} halaman`;
+      statTilawah.textContent = String(tilawahData.remainingPages || 0);
+    }
+
+    if (statTilawahKhatam) {
+      statTilawahKhatam.textContent = `${tilawahData.khatamCount || 0}x Khatam`;
     }
 
     if (statStreak) {
-      statStreak.textContent = `${streak} hari`;
+      statStreak.textContent = String(streak || 0);
     }
   } catch (error) {
     console.error("LOAD STATS ERROR:", error);
 
     if (statTotalAmal) statTotalAmal.textContent = "0";
-    if (statTilawah) statTilawah.textContent = "0 halaman";
-    if (statStreak) statStreak.textContent = "0 hari";
+    if (statTilawah) statTilawah.textContent = "0";
+    if (statTilawahKhatam) statTilawahKhatam.textContent = "0x Khatam";
+    if (statStreak) statStreak.textContent = "0";
   }
 }
 
 function setActiveDashboardTab(tabName) {
+  console.log("SET ACTIVE TAB:", tabName);
+
   dashboardTabContents.forEach((section) => {
     section.classList.add("hidden");
+    section.style.display = "none";
   });
 
   dashboardTabButtons.forEach((btn) => {
-    btn.classList.remove("bg-amber-500", "text-black");
+    btn.classList.remove("dashboard-tab-btn--active", "bg-amber-500", "text-black");
     btn.classList.add("bg-zinc-800", "text-zinc-300");
   });
 
   const activeSection = document.getElementById(`tab-${tabName}`);
+  console.log("ACTIVE SECTION:", activeSection);
+
   if (activeSection) {
     activeSection.classList.remove("hidden");
-  }
-
-  if (ownerPanel) ownerPanel.classList.add("hidden");
-  if (adminPanel) adminPanel.classList.add("hidden");
-
-if (tabName === "owner" && (currentSession.roleInGroup || "").toLowerCase() === "owner") {
-  if (ownerPanel) ownerPanel.classList.remove("hidden");
-}
-
-if (tabName === "admin" && (currentSession.globalRole || "").toLowerCase() === "superadmin") {
-  if (adminPanel) adminPanel.classList.remove("hidden");
-}
-
-  if (tabName === "home" && activeSection) {
-    const animatedItems = activeSection.querySelectorAll(".home-animate");
-
-    animatedItems.forEach((item) => {
-      item.style.animation = "none";
-      item.offsetHeight;
-      item.style.animation = "";
-    });
+    activeSection.style.display = "block";
   }
 
   const activeBtn = document.querySelector(`.dashboard-tab-btn[data-tab="${tabName}"]`);
   if (activeBtn) {
     activeBtn.classList.remove("bg-zinc-800", "text-zinc-300");
-    activeBtn.classList.add("bg-amber-500", "text-black");
+    activeBtn.classList.add("dashboard-tab-btn--active", "bg-amber-500", "text-black");
   }
 
   saveActiveTab(tabName);
@@ -2891,6 +4214,23 @@ async function handleApproveOwner(userId) {
 
     showToast("Gagal approve owner.", "error");
   }
+}
+
+function updateDashboardTabActiveState(activeTab) {
+  const allTabButtons = document.querySelectorAll(".dashboard-tab-btn");
+
+  allTabButtons.forEach((btn) => {
+    const isActive = btn.dataset.tab === activeTab;
+
+    btn.classList.remove("dashboard-tab-btn--active");
+    btn.classList.remove("bg-zinc-800", "text-zinc-300");
+    btn.classList.add("bg-zinc-800", "text-zinc-300");
+
+    if (isActive) {
+      btn.classList.add("dashboard-tab-btn--active");
+      btn.classList.remove("bg-zinc-800", "text-zinc-300");
+    }
+  });
 }
 
 async function handleRejectOwner(userId) {
@@ -2935,7 +4275,7 @@ async function loadPendingOwners() {
     if (!pendingOwners.length) {
       pendingOwnersStatus.textContent = "Tidak ada owner yang menunggu approval.";
       pendingOwnersList.innerHTML = `
-        <div class="superadmin-empty-box rounded-2xl px-4 py-5 text-sm text-zinc-400">
+        <div class="rounded-2xl border border-dashed border-zinc-700 bg-black/20 px-4 py-5 text-sm text-zinc-500">
           Belum ada owner pending.
         </div>
       `;
@@ -2945,28 +4285,28 @@ async function loadPendingOwners() {
     pendingOwnersStatus.textContent = `${pendingOwners.length} owner menunggu approval.`;
 
     pendingOwnersList.innerHTML = pendingOwners.map((item, index) => `
-      <div class="superadmin-list-item rounded-2xl p-4 md:p-5">
+      <div class="rounded-2xl border border-zinc-800 bg-black/30 p-4 hover:border-zinc-700 transition">
         <div class="flex flex-col gap-4">
           <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
             <div class="min-w-0">
-              <p class="text-white font-bold text-base md:text-lg break-words leading-snug">
+              <p class="text-white font-semibold text-base md:text-lg break-words leading-snug">
                 ${index + 1}. ${item.fullName || "-"}
               </p>
               <p class="text-sm text-zinc-400 mt-1 break-all">${item.email || "-"}</p>
               <p class="text-xs text-zinc-500 mt-2">
-                Status: ${item.status || "pending"}
+                Status: ${((item.status || "pending") + "").toLowerCase()}
               </p>
             </div>
 
-            <span class="superadmin-badge superadmin-badge-pending shrink-0 self-start">
-              PENDING
+            <span class="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              Pending
             </span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <button
               type="button"
-              class="approve-owner-btn min-h-[46px] bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-2.5 rounded-xl transition duration-200"
+              class="approve-owner-btn min-h-[46px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition duration-200"
               data-user-id="${item.id}"
             >
               Approve
@@ -2974,7 +4314,7 @@ async function loadPendingOwners() {
 
             <button
               type="button"
-              class="reject-owner-btn min-h-[46px] bg-rose-500 hover:bg-rose-400 text-white font-bold py-2.5 rounded-xl transition duration-200"
+              class="reject-owner-btn min-h-[46px] bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 rounded-xl transition duration-200"
               data-user-id="${item.id}"
             >
               Reject
@@ -2985,8 +4325,17 @@ async function loadPendingOwners() {
     `).join("");
   } catch (error) {
     console.error("LOAD PENDING OWNERS ERROR:", error);
+
     if (pendingOwnersStatus) {
       pendingOwnersStatus.textContent = "Gagal memuat daftar owner pending.";
+    }
+
+    if (pendingOwnersList) {
+      pendingOwnersList.innerHTML = `
+        <div class="rounded-2xl border border-dashed border-rose-500/30 bg-rose-500/5 px-4 py-5 text-sm text-rose-300">
+          Gagal memuat daftar owner pending.
+        </div>
+      `;
     }
   }
 }
@@ -2996,7 +4345,7 @@ function renderApprovedOwners(items = []) {
 
   if (!items.length) {
     approvedOwnerList.innerHTML = `
-      <div class="superadmin-empty-box rounded-2xl px-4 py-5 text-sm text-zinc-400">
+      <div class="rounded-2xl border border-dashed border-zinc-700 bg-black/20 px-4 py-5 text-sm text-zinc-500">
         Belum ada owner aktif.
       </div>
     `;
@@ -3005,7 +4354,7 @@ function renderApprovedOwners(items = []) {
 
   approvedOwnerList.innerHTML = items
     .map((owner, index) => `
-      <div class="superadmin-list-item rounded-2xl p-4">
+      <div class="rounded-2xl border border-zinc-800 bg-black/30 p-4 hover:border-zinc-700 transition">
         <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           <div class="min-w-0">
             <p class="text-white font-semibold text-base break-words">
@@ -3019,8 +4368,8 @@ function renderApprovedOwners(items = []) {
             </p>
           </div>
 
-          <span class="superadmin-badge superadmin-badge-active shrink-0 self-start">
-            ACTIVE
+          <span class="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+            Active
           </span>
         </div>
       </div>
@@ -3045,27 +4394,6 @@ function applyApprovedOwnerSearch() {
   renderApprovedOwners(filtered);
 }
 
-function renderAdminInsights({ approvedCount = 0, pendingCount = 0, rejectedCount = 0 }) {
-  if (!adminInsightList) return;
-
-  adminInsightList.innerHTML = `
-    <div class="superadmin-soft-card rounded-2xl p-4">
-      <p class="text-sm text-zinc-400">Owner Approved</p>
-      <p class="text-white font-bold text-2xl mt-2">${approvedCount}</p>
-    </div>
-
-    <div class="superadmin-soft-card rounded-2xl p-4">
-      <p class="text-sm text-zinc-400">Owner Pending</p>
-      <p class="text-amber-400 font-bold text-2xl mt-2">${pendingCount}</p>
-    </div>
-
-    <div class="superadmin-soft-card rounded-2xl p-4">
-      <p class="text-sm text-zinc-400">Owner Rejected</p>
-      <p class="text-rose-400 font-bold text-2xl mt-2">${rejectedCount}</p>
-    </div>
-  `;
-}
-
 async function loadApprovedOwners() {
   try {
     if (!approvedOwnerList) return;
@@ -3084,11 +4412,11 @@ async function loadApprovedOwners() {
     console.error("LOAD APPROVED OWNERS ERROR:", err);
 
     if (approvedOwnerList) {
-approvedOwnerList.innerHTML = `
-  <div class="superadmin-empty-box rounded-2xl px-4 py-5 text-sm text-zinc-400">
-    Belum ada owner aktif.
-  </div>
-`;
+      approvedOwnerList.innerHTML = `
+        <div class="rounded-2xl border border-dashed border-zinc-700 bg-black/20 px-4 py-5 text-sm text-zinc-500">
+          Belum ada owner aktif.
+        </div>
+      `;
     }
   }
 }
@@ -3118,12 +4446,6 @@ async function loadAdminSummaryCards() {
         pendingOwners.length + approvedOwners.length + rejectedOwners.length
       );
     }
-
-    renderAdminInsights({
-      approvedCount: approvedOwners.length,
-      pendingCount: pendingOwners.length,
-      rejectedCount: rejectedOwners.length
-    });
   } catch (error) {
     console.error("LOAD ADMIN SUMMARY CARDS ERROR:", error);
   }
@@ -3133,14 +4455,47 @@ async function reloadAdminDashboard() {
   await loadPendingOwners();
   await loadApprovedOwners();
   await loadAdminSummaryCards();
-  
 }
+
+function hydrateChallengeUI(hijriMonth) {
+  const challenge = getHijriChallenge(hijriMonth);
+
+  if (challenge) {
+    if (challengeMonthName) challengeMonthName.textContent = challenge.name || "-";
+    if (challengeTitle) challengeTitle.textContent = challenge.challenge || "-";
+    if (challengeDescription) challengeDescription.textContent = challenge.description || "-";
+
+    if (challengeCardMonthName) challengeCardMonthName.textContent = challenge.name || "Progress Challenge";
+    if (challengeCardTitle) challengeCardTitle.textContent = challenge.challenge || "Checklist challenge bulan aktif";
+
+    return {
+      monthName: challenge.name || "",
+      challengeTitleText: challenge.challenge || ""
+    };
+  }
+
+  if (challengeMonthName) challengeMonthName.textContent = "-";
+  if (challengeTitle) challengeTitle.textContent = "-";
+  if (challengeDescription) challengeDescription.textContent = "-";
+
+  if (challengeCardMonthName) challengeCardMonthName.textContent = "Progress Challenge";
+  if (challengeCardTitle) challengeCardTitle.textContent = "Checklist challenge bulan aktif";
+
+  return {
+    monthName: "",
+    challengeTitleText: ""
+  };
+}
+
+console.log("CALL reloadDataByGroup:", currentSession);
 
 async function reloadDataByGroup() {
   const uid = currentSession.uid;
   const groupId = currentSession.groupId;
-  const role = currentSession.roleInGroup;
+  const role = currentSession.activeGroupRole || currentSession.role;
+  const globalRole = (currentSession.globalRole || "").toLowerCase();
 
+  if (globalRole === "superadmin") return;
   if (!uid || !groupId) return;
 
   const today = getTodayInfo();
@@ -3150,18 +4505,23 @@ async function reloadDataByGroup() {
     groupSwitcherStatus.textContent = "Memuat data group...";
   }
 
+  // LOAD PENTING DULU
   await Promise.all([
-    loadMembers(groupId),
-    loadLeaderboard(groupId),
-    loadChallengeLeaderboard(groupId, today.hijriMonth),
-    loadMemberActivity(groupId),
     loadGroupMessage(groupId),
+    loadOwnerMessageEditor(groupId),
     loadGroupTarget(groupId),
-    loadWeeklySummary(groupId, role),
-    loadChallenge(uid, today.hijriMonth, monthName)
+    loadGroupTargetEditor(groupId),
+    loadGroupTargetProgress(uid, groupId),
+    loadChallenge(uid, today.hijriMonth, monthName),
+    loadChallengeProgressVisual(uid, today.hijriMonth, monthName)
   ]);
 
-  await loadGroupTargetProgress(uid, groupId);
+  // LOAD RINGAN / BISA NYUSUL
+  runDeferred(() => loadMembers(groupId), 120);
+  runDeferred(() => loadLeaderboard(groupId), 180);
+  runDeferred(() => loadChallengeLeaderboard(groupId, today.hijriMonth), 240);
+  runDeferred(() => loadMemberActivity(groupId), 300);
+  runDeferred(() => loadWeeklySummary(groupId, role), 360);
 
   if (groupSwitcherStatus) {
     groupSwitcherStatus.textContent = `Group aktif: ${currentSession.groupName}`;
@@ -3187,205 +4547,148 @@ function showDashboard({
   uid,
   fullName,
   email,
+  role,
   globalRole,
-  roleInGroup,
+  activeGroupRole,
   ownerId,
   groupName,
   groupId,
   allGroups = []
 }) {
-  const normalizedGlobalRole = (globalRole || "").toLowerCase();
-  const normalizedRoleInGroup = (roleInGroup || "").toLowerCase();
+  if (mainActions) mainActions.classList.add("hidden");
+  if (authBox) authBox.classList.add("hidden");
+  if (dashboardBox) dashboardBox.classList.remove("hidden");
+  if (bootLoading) bootLoading.classList.add("hidden");
+
   const today = getTodayInfo();
+  const challenge = getHijriChallenge(today.hijriMonth);
+  const hijriEvent = getHijriEvent(today.hijriMonth, today.hijriDay);
+  const hijriFocus = getHijriFocus(today.hijriMonth);
 
   currentSession = {
     uid: uid || null,
     fullName: fullName || null,
     email: email || null,
-    globalRole: normalizedGlobalRole || null,
-    roleInGroup: normalizedRoleInGroup || null,
+    role: role || null,
+    globalRole: globalRole || role || null,
+    activeGroupRole: activeGroupRole || null,
     ownerId: ownerId || null,
     groupName: groupName || null,
     groupId: groupId || null,
     allGroups: allGroups || []
   };
 
-  document.body.classList.add("dashboard-mode");
+  const isSuperadmin =
+    ((currentSession.globalRole || "") + "").toLowerCase() === "superadmin";
 
-  if (mainActions) mainActions.classList.add("hidden");
-  if (authBox) authBox.classList.add("hidden");
-  if (dashboardBox) dashboardBox.classList.remove("hidden");
+  if (dashboardTitle) {
+    dashboardTitle.textContent = `Assalamu'alaikum, ${fullName || "User"}`;
+  }
 
-  if (dashboardTitle) dashboardTitle.textContent = "Istiqomah App Dashboard";
+  if (groupSwitcherBox) {
+    if (isSuperadmin) {
+      groupSwitcherBox.classList.add("hidden");
+    } else {
+      groupSwitcherBox.classList.remove("hidden");
+      renderGroupSwitcherOptions(allGroups || [], groupId);
+    }
+  }
+
+  if (groupSwitcherStatus && !isSuperadmin) {
+    groupSwitcherStatus.textContent = `Group aktif: ${groupName || "-"}`;
+  }
+
   if (userInfoName) userInfoName.textContent = fullName || "-";
   if (userInfoEmail) userInfoEmail.textContent = email || "-";
+
   if (userInfoRole) {
     userInfoRole.textContent =
-      normalizedGlobalRole === "superadmin"
-        ? "superadmin"
-        : (normalizedRoleInGroup || "-");
+      `Global: ${((currentSession.globalRole || "-") + "").toLowerCase()} • Group: ${((currentSession.activeGroupRole || "-") + "").toLowerCase()}`;
   }
+
   if (userInfoGroup) {
-    userInfoGroup.textContent = groupName ? `Group: ${groupName}` : "Group: -";
+    userInfoGroup.textContent = `Group: ${groupName || "-"}`;
   }
 
-  dashboardTabContents.forEach((section) => {
-    section.classList.add("hidden");
-  });
+  if (gregorianDateText) {
+    gregorianDateText.textContent = today?.gregorianDate || "-";
+  }
 
-  dashboardTabButtons.forEach((btn) => {
-    btn.classList.remove("bg-amber-500", "text-black");
-    btn.classList.add("bg-zinc-800", "text-zinc-300");
-  });
+  if (hijriDateText) {
+    hijriDateText.textContent = today?.hijriDate || "-";
+  }
 
-  if (ownerPanel) ownerPanel.classList.add("hidden");
-  if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
-  if (adminPanel) adminPanel.classList.add("hidden");
-  if (adminTabBtn) adminTabBtn.classList.add("hidden");
+  if (challenge) {
+    if (challengeMonthName) challengeMonthName.textContent = challenge.name || "-";
+    if (challengeTitle) challengeTitle.textContent = challenge.challenge || "-";
+    if (challengeDescription) challengeDescription.textContent = challenge.description || "-";
 
-  if (groupSwitcherBox) groupSwitcherBox.classList.add("hidden");
+    if (challengeCardMonthName) challengeCardMonthName.textContent = challenge.name || "Progress Challenge";
+    if (challengeCardTitle) challengeCardTitle.textContent = challenge.challenge || "Checklist challenge bulan aktif";
+  } else {
+    if (challengeMonthName) challengeMonthName.textContent = "-";
+    if (challengeTitle) challengeTitle.textContent = "-";
+    if (challengeDescription) challengeDescription.textContent = "-";
 
-  if (homeTabBtn) homeTabBtn.classList.remove("hidden");
-  if (amalTabBtn) amalTabBtn.classList.remove("hidden");
-  if (communityTabBtn) communityTabBtn.classList.remove("hidden");
+    if (challengeCardMonthName) challengeCardMonthName.textContent = "Progress Challenge";
+    if (challengeCardTitle) challengeCardTitle.textContent = "Checklist challenge bulan aktif";
+  }
 
-  if (normalizedGlobalRole === "superadmin") {
-    if (homeTabBtn) homeTabBtn.classList.add("hidden");
-    if (amalTabBtn) amalTabBtn.classList.add("hidden");
-    if (communityTabBtn) communityTabBtn.classList.add("hidden");
-    if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
-    if (groupSwitcherBox) groupSwitcherBox.classList.add("hidden");
+  if (hijriEvent) {
+    if (hijriEventBox) hijriEventBox.classList.remove("hidden");
+    if (hijriEventTitle) hijriEventTitle.textContent = hijriEvent.title || "-";
+    if (hijriEventDescription) hijriEventDescription.textContent = hijriEvent.description || "-";
+  } else {
+    if (hijriEventBox) hijriEventBox.classList.add("hidden");
+    if (hijriEventTitle) hijriEventTitle.textContent = "-";
+    if (hijriEventDescription) hijriEventDescription.textContent = "-";
+  }
 
-    const adminTabContent = document.getElementById("tab-admin");
+  if (hijriFocus) {
+    if (hijriFocusBox) hijriFocusBox.classList.remove("hidden");
+    if (hijriFocusTitle) hijriFocusTitle.textContent = hijriFocus.focusTitle || "-";
 
-    if (adminTabBtn) {
-      adminTabBtn.classList.remove("hidden");
-      adminTabBtn.classList.remove("bg-zinc-800", "text-zinc-300");
-      adminTabBtn.classList.add("bg-amber-500", "text-black");
+    if (hijriFocusList) {
+      hijriFocusList.innerHTML = (hijriFocus.points || [])
+        .map((item) => `<li>${item}</li>`)
+        .join("");
     }
-
-    if (adminTabContent) adminTabContent.classList.remove("hidden");
-    if (adminPanel) adminPanel.classList.remove("hidden");
-
-    reloadAdminDashboard();
-    saveActiveTab("admin");
-    return;
+  } else {
+    if (hijriFocusBox) hijriFocusBox.classList.add("hidden");
+    if (hijriFocusTitle) hijriFocusTitle.textContent = "-";
+    if (hijriFocusList) hijriFocusList.innerHTML = "<li>-</li>";
   }
 
-  if (allGroups.length > 1 && groupSwitcherBox) {
-    groupSwitcherBox.classList.remove("hidden");
-    renderGroupSwitcherOptions(allGroups, groupId || "");
-    if (groupSwitcherStatus) {
-      groupSwitcherStatus.textContent = groupName
-        ? `Group aktif: ${groupName}`
-        : "Pilih group aktif";
-    }
-  }
+  const monthName = challengeMonthName ? challengeMonthName.textContent : "";
 
-  if (normalizedRoleInGroup === "owner") {
-    if (ownerTabBtn) ownerTabBtn.classList.remove("hidden");
-  }
-
-  const savedTab = getSavedActiveTab(uid);
-  const allowedTabs = ["home", "amal", "community"];
-
-  if (normalizedRoleInGroup === "owner") {
-    allowedTabs.push("owner");
-  }
-
-  let defaultTab = "home";
-  if (normalizedRoleInGroup === "owner") {
-    defaultTab = "owner";
-  }
-
-  const finalTab = allowedTabs.includes(savedTab) ? savedTab : defaultTab;
-  setActiveDashboardTab(finalTab);
-
+  // Muat data utama lebih dulu
   loadTodayProgressToUI(uid);
   loadTodayStatus(uid);
-  loadStats(uid);
-  loadGamification(uid);
-  loadStreak(uid);
-  loadWeeklyHistory(uid);
-  loadHijriMonthlyProgress(uid);
   loadDailyProgressVisual(uid);
-  loadChallengeProgressVisual(
-    uid,
-    today.hijriMonth,
-    challengeMonthName ? challengeMonthName.textContent : ""
-  );
-
-  if (groupId) {
-    loadMembers(groupId);
-    loadLeaderboard(groupId);
-    loadMemberActivity(groupId);
-    loadGroupMessage(groupId);
-    loadGroupTarget(groupId);
-    loadGroupTargetProgress(uid, groupId);
-    loadWeeklySummary(groupId, normalizedRoleInGroup);
-    loadChallengeLeaderboard(groupId, today.hijriMonth);
-  }
-
-  loadChallenge(
-    uid,
-    today.hijriMonth,
-    challengeMonthName ? challengeMonthName.textContent : ""
-  );
-
-  requestNotificationPermission();
-  const reminderSettings = loadReminderSettings(uid);
-  fillReminderForm(reminderSettings);
-  scheduleIstiqomahReminders();
-}
-
-  // ... semua logic di atas ...
-
-  if (normalizedRoleInGroup === "owner") {
-    if (ownerPanel) ownerPanel.classList.remove("hidden");
-    if (ownerTabBtn) ownerTabBtn.classList.remove("hidden");
-  }
-
-  // ✅ PINDAHKAN SEMUA INI KE DALAM FUNCTION
-  loadTodayProgressToUI(uid);
-  loadTodayStatus(uid);
-  loadMembers(groupId);
-  loadLeaderboard(groupId);
-  loadStats(uid);
-  loadGamification(uid);
-  loadStreak(uid);
-  loadWeeklyHistory(uid);
-  loadHijriMonthlyProgress(uid);
-  loadWeeklySummary(groupId, roleInGroup);
-  loadMemberActivity(groupId);
+  loadChallenge(uid, today.hijriMonth, monthName);
+  loadChallengeProgressVisual(uid, today.hijriMonth, monthName);
   loadGroupMessage(groupId);
+  loadOwnerMessageEditor(groupId);
   loadGroupTarget(groupId);
+  loadGroupTargetEditor(groupId);
   loadGroupTargetProgress(uid, groupId);
 
-  loadChallenge(
-    uid,
-    today.hijriMonth,
-    challengeMonthName ? challengeMonthName.textContent : ""
-  );
-
-  loadChallengeLeaderboard(groupId, today.hijriMonth);
-
-  loadDailyProgressVisual(uid);
-  loadChallengeProgressVisual(
-    uid,
-    today.hijriMonth,
-    challengeMonthName ? challengeMonthName.textContent : ""
-  );
-
-  requestNotificationPermission();
-
-  const reminderSettings = loadReminderSettings(uid);
-  fillReminderForm(reminderSettings);
+  // Muat data susulan
+  runDeferred(() => loadStats(uid), 150);
+  runDeferred(() => loadGamification(uid), 200);
+  runDeferred(() => loadStreak(uid), 250);
+  runDeferred(() => loadWeeklyHistory(uid), 320);
+  runDeferred(() => loadHijriMonthlyProgress(uid), 420);
+  runDeferred(() => loadMembers(groupId), 480);
+  runDeferred(() => loadLeaderboard(groupId), 540);
+  runDeferred(() => loadChallengeLeaderboard(groupId, today.hijriMonth), 600);
+  runDeferred(() => loadMemberActivity(groupId), 660);
+  runDeferred(() => loadWeeklySummary(groupId, activeGroupRole), 720);
 
   scheduleIstiqomahReminders();
 }
 
 window.resetMode = function () {
-  document.body.classList.remove("dashboard-mode");
   currentMode = "";
 
   if (authForm) authForm.reset();
@@ -3401,45 +4704,26 @@ window.resetMode = function () {
   if (inviteCode) inviteCode.classList.add("hidden");
 
   if (forgotPasswordBtn) forgotPasswordBtn.classList.add("hidden");
-  if (submitBtn) submitBtn.textContent = "Submit";
+  if (resendVerificationBtn) resendVerificationBtn.classList.add("hidden");
 
+  if (submitBtn) submitBtn.textContent = "Submit";
 };
 
-window.logoutApp = async function() {
+window.logoutApp = async function () {
   try {
+    membershipService.stopWatchingMemberships();
+
     if (currentSession?.uid) {
       localStorage.removeItem(getActiveTabStorageKey(currentSession.uid));
+      localStorage.removeItem(getActiveGroupStorageKey(currentSession.uid));
     }
 
+    resetCurrentSession();
     await logoutUser();
-    document.body.classList.remove("dashboard-mode");
-
-    if (bootLoading) bootLoading.classList.add("hidden");
-    if (dashboardBox) dashboardBox.classList.add("hidden");
-    if (authBox) authBox.classList.add("hidden");
-    if (mainActions) mainActions.classList.remove("hidden");
-
-    if (authForm) authForm.reset();
-    if (authMessage) authMessage.textContent = "";
-    if (authTitle) authTitle.textContent = "Form Auth";
-
-currentSession = {
-  uid: null,
-  fullName: null,
-  email: null,
-  globalRole: null,
-  roleInGroup: null,
-  ownerId: null,
-  groupName: null,
-  groupId: null,
-  allGroups: []
-};
-
-    memberActivityCache = [];
-    approvedOwnersCache = [];
+    showLandingState();
   } catch (error) {
-    console.error("LOGOUT UI ERROR:", error);
-    alert("Logout gagal. Cek console.");
+    console.error("LOGOUT ERROR:", error);
+    showToast("Gagal logout.", "error");
   }
 };
 
@@ -3455,43 +4739,87 @@ window.setMode = function(mode) {
   if (groupName) groupName.classList.add("hidden");
   if (inviteCode) inviteCode.classList.add("hidden");
 
-  if (mode === "login") {
-    if (authTitle) authTitle.textContent = "Masuk ke Akun";
-    if (submitBtn) submitBtn.textContent = "Login";
+  if (forgotPasswordBtn) forgotPasswordBtn.classList.add("hidden");
+  if (typeof resendVerificationBtn !== "undefined" && resendVerificationBtn) {
+    resendVerificationBtn.classList.add("hidden");
   }
+
+if (mode === "login") {
+  if (authTitle) authTitle.textContent = "Masuk ke Akun";
+  if (submitBtn) submitBtn.textContent = "Login";
+
+  if (forgotPasswordBtn) {
+    forgotPasswordBtn.classList.remove("hidden");
+  }
+
+  if (resendVerificationBtn) {
+    resendVerificationBtn.classList.remove("hidden");
+  }
+
+  return;
+}
 
   if (mode === "register") {
     if (authTitle) authTitle.textContent = "Daftar sebagai Owner";
     if (fullName) fullName.classList.remove("hidden");
     if (groupName) groupName.classList.remove("hidden");
     if (submitBtn) submitBtn.textContent = "Register Owner";
+    return;
   }
 
-if (mode === "join") {
-  if (authTitle) authTitle.textContent = "Daftar Anggota Baru";
-  if (fullName) fullName.classList.remove("hidden");
-  if (inviteCode) inviteCode.classList.remove("hidden");
-  if (submitBtn) submitBtn.textContent = "Daftar & Gabung";
-
-  if (authMessage) {
-    authMessage.textContent =
-      "Gunakan email baru yang belum terdaftar. Jika sudah punya akun, login dulu lalu gabung group dari dashboard.";
-  }
-}
-
-  if (forgotPasswordBtn) {
-    forgotPasswordBtn.classList.add("hidden");
-  }
-
-  if (mode === "login") {
-    if (authTitle) authTitle.textContent = "Masuk ke Akun";
-    if (submitBtn) submitBtn.textContent = "Login";
-
-    if (forgotPasswordBtn) {
-      forgotPasswordBtn.classList.remove("hidden");
-    }
+  if (mode === "join") {
+    if (authTitle) authTitle.textContent = "Gabung ke Group";
+    if (fullName) fullName.classList.remove("hidden");
+    if (inviteCode) inviteCode.classList.remove("hidden");
+    if (submitBtn) submitBtn.textContent = "Join Group";
+    return;
   }
 };
+
+clearGroupTargetBtn?.addEventListener("click", async () => {
+  try {
+    if (!currentSession.uid || !currentSession.groupId) {
+      if (groupTargetStatus) {
+        groupTargetStatus.textContent = "User atau group belum terbaca.";
+      }
+      showToast("User atau group belum terbaca.", "error");
+      return;
+    }
+
+    if (groupTargetStatus) {
+      groupTargetStatus.textContent = "Menghapus target...";
+    }
+
+    setButtonLoading(clearGroupTargetBtn, true, "Hapus Target", "Menghapus...");
+
+    await clearGroupTarget(currentSession.groupId);
+
+    if (groupTargetInput) {
+      groupTargetInput.value = "";
+    }
+
+    if (groupTargetStatus) {
+      groupTargetStatus.textContent = "Target berhasil dihapus.";
+    }
+
+    showToast("Target mingguan berhasil dihapus.", "success");
+
+    await loadGroupTarget(currentSession.groupId);
+    await loadGroupTargetEditor(currentSession.groupId);
+    await loadGroupTargetProgress(currentSession.uid, currentSession.groupId);
+  } catch (error) {
+    console.error("CLEAR GROUP TARGET ERROR:", error);
+
+    if (groupTargetStatus) {
+      groupTargetStatus.textContent = "Gagal menghapus target.";
+    }
+
+    showToast(error.message || "Gagal menghapus target.", "error");
+  } finally {
+    setButtonLoading(clearGroupTargetBtn, false, "Hapus Target");
+  }
+});
+
 
 saveChallengeBtn?.addEventListener("click", async () => {
   try {
@@ -3513,6 +4841,8 @@ saveChallengeBtn?.addEventListener("click", async () => {
     });
 
     const today = getTodayInfo();
+
+    showToast("Progress challenge disimpan ✨", "success", { duration: 1500 });
 
     await saveChallengeProgress(
       currentSession.uid,
@@ -3591,8 +4921,8 @@ saveReminderSettingsBtn?.addEventListener("click", () => {
 const createGroupSimpleBtn = document.getElementById("createGroupSimpleBtn");
 
 createGroupSimpleBtn?.addEventListener("click", () => {
-  if ((currentSession.roleInGroup || "").toLowerCase() !== "owner") {
-    alert("Hanya owner yang bisa membuat group");
+  if ((currentSession.activeGroupRole || "").toLowerCase() !== "owner") {
+    showToast("Hanya owner yang bisa membuat group.", "warning");
     return;
   }
 
@@ -3611,21 +4941,6 @@ createGroupSimpleBtn?.addEventListener("click", () => {
   }
 });
 
-function closeJoinGroupModal() {
-  if (joinGroupModal) {
-    joinGroupModal.classList.add("hidden");
-    joinGroupModal.classList.remove("flex");
-  }
-
-  if (joinGroupCodeInput) {
-    joinGroupCodeInput.value = "";
-  }
-
-  if (joinGroupModalStatus) {
-    joinGroupModalStatus.textContent = "";
-  }
-}
-
 createGroupModal?.addEventListener("click", (event) => {
   if (event.target === createGroupModal) {
     closeCreateGroupModal();
@@ -3638,9 +4953,9 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-openJoinGroupModalBtn?.addEventListener("click", () => {
-  if (!currentSession.uid) {
-    alert("Silakan login terlebih dahulu.");
+openJoinGroupGlobalBtn?.addEventListener("click", () => {
+  if (!currentSession?.uid) {
+    showToast("Silakan login terlebih dahulu.", "error");
     return;
   }
 
@@ -3649,13 +4964,12 @@ openJoinGroupModalBtn?.addEventListener("click", () => {
     joinGroupModal.classList.add("flex");
   }
 
-  if (joinGroupCodeInput) {
-    joinGroupCodeInput.value = "";
-    joinGroupCodeInput.focus();
-  }
-
   if (joinGroupModalStatus) {
     joinGroupModalStatus.textContent = "";
+  }
+
+  if (joinGroupCodeInput) {
+    joinGroupCodeInput.value = "";
   }
 });
 
@@ -3671,171 +4985,115 @@ joinGroupModal?.addEventListener("click", (event) => {
 
 submitCreateGroupBtn?.addEventListener("click", async () => {
   try {
-    if ((currentSession.roleInGroup || "").toLowerCase() !== "owner") {
-      if (createGroupModalStatus) {
-        createGroupModalStatus.textContent = "Hanya owner yang bisa membuat group.";
-      }
+    const name = (createGroupNameInput.value || "").trim();
+
+    if (!name) {
+      showToast("Nama group wajib diisi.", "warning");
       return;
     }
 
-    const groupName = createGroupNameInput?.value?.trim();
+    setButtonLoading(submitCreateGroupBtn, true, "Simpan Group", "Membuat...");
 
-    if (!groupName) {
-      if (createGroupModalStatus) {
-        createGroupModalStatus.textContent = "Nama group wajib diisi.";
-      }
-      return;
-    }
-
-    if (createGroupModalStatus) {
-      createGroupModalStatus.textContent = "Menyimpan group...";
-    }
+    // ⚡ optimistic
+    showToast("Membuat group...", "info");
 
     const result = await createAdditionalGroup(
       currentSession.uid,
       currentSession.fullName,
       currentSession.email,
-      groupName
+      name
     );
 
-const newGroup = {
-  groupId: result.groupId,
-  groupName: result.groupName,
-  ownerId: result.ownerId || null,
-  roleInGroup: "owner"
-};
+    showToast("Group berhasil dibuat 🚀", "success");
 
-currentSession.allGroups = mergeUniqueGroups(currentSession.allGroups, [newGroup]);
-currentSession.groupId = result.groupId;
-currentSession.groupName = result.groupName;
-currentSession.ownerId = result.ownerId || null;
-currentSession.roleInGroup = "owner";
+    closeCreateGroupModal();
 
-renderGroupSwitcherOptions(currentSession.allGroups, result.groupId);
-
-if (userInfoGroup) {
-  userInfoGroup.textContent = `Group: ${result.groupName}`;
-}
-
-if (userInfoRole) {
-  userInfoRole.textContent = currentSession.roleInGroup;
-}
-
-if (userInfoRole) {
-  userInfoRole.textContent = currentSession.roleInGroup;
-}
-
-if (groupSwitcherStatus) {
-  groupSwitcherStatus.textContent = `Group aktif: ${result.groupName}`;
-}
-
-setActiveDashboardTab(
-  (currentSession.roleInGroup || "").toLowerCase() === "owner" ? "owner" : "home"
-);
-
-await reloadDataByGroup();
-
-if (ownerPanel) ownerPanel.classList.add("hidden");
-if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
-if (weeklySummaryBox) weeklySummaryBox.classList.add("hidden");
-
-if ((currentSession.roleInGroup || "").toLowerCase() === "owner") {
-  if (ownerPanel) ownerPanel.classList.remove("hidden");
-  if (ownerTabBtn) ownerTabBtn.classList.remove("hidden");
-}
-
-if (createGroupModalStatus) {
-  createGroupModalStatus.textContent = `Berhasil membuat group ${result.groupName}`;
-}
-
-showToast(`Berhasil membuat group ${result.groupName}.`, "success");
-
-setTimeout(() => {
-  closeCreateGroupModal();
-}, 500);
+    
+showDashboard({
+  uid: currentSession.uid,
+  fullName: currentSession.fullName,
+  email: currentSession.email,
+  role: currentSession.role,
+  globalRole: currentSession.globalRole,
+  activeGroupRole: currentSession.activeGroupRole,
+  ownerId: currentSession.ownerId,
+  groupName: currentSession.groupName,
+  groupId: currentSession.groupId,
+  allGroups: currentSession.allGroups
+});
 
 
-  } catch (err) {
-    console.error("CREATE GROUP MODAL ERROR:", err);
-
-    if (createGroupModalStatus) {
-      createGroupModalStatus.textContent = err.message || "Gagal membuat group.";
-    }
+  } catch (error) {
+    console.error(error);
+    showToast(error.message || "Gagal membuat group.", "error");
+  } finally {
+    setButtonLoading(submitCreateGroupBtn, false, "Simpan Group");
   }
 });
 
 submitJoinGroupBtn?.addEventListener("click", async () => {
   try {
-    if (!currentSession.uid) {
-      if (joinGroupModalStatus) {
-        joinGroupModalStatus.textContent = "Silakan login terlebih dahulu.";
-      }
+    const liveUser = auth.currentUser;
+
+    if (!liveUser) {
+      showToast("Sesi login sudah habis. Silakan login lagi.", "error");
+      closeJoinGroupModal();
       return;
     }
 
-    const inviteCode = joinGroupCodeInput?.value?.trim()?.toUpperCase();
+    if (!currentSession?.uid || currentSession.uid !== liveUser.uid) {
+      showToast("Sesi user tidak sinkron. Silakan login ulang.", "error");
+      closeJoinGroupModal();
+      return;
+    }
+
+    const inviteCode = (joinGroupCodeInput?.value || "").trim().toUpperCase();
 
     if (!inviteCode) {
-      if (joinGroupModalStatus) {
-        joinGroupModalStatus.textContent = "Kode invite wajib diisi.";
-      }
+      showToast("Kode invite wajib diisi.", "warning");
       return;
     }
 
-    if (joinGroupModalStatus) {
-      joinGroupModalStatus.textContent = "Memproses join group...";
-    }
+    setButtonLoading(submitJoinGroupBtn, true, "Gabung Group", "Memproses...");
+    showToast("Sedang bergabung ke group...", "info");
 
     const result = await joinGroupWithCurrentUser(
-      currentSession.uid,
-      currentSession.fullName,
-      currentSession.email,
+      liveUser.uid,
+      currentSession.fullName || liveUser.displayName || "User",
+      currentSession.email || liveUser.email || "",
       inviteCode
+    );
+
+    const exists = (currentSession.allGroups || []).some(
+      (group) => group.groupId === result.groupId
     );
 
     const newGroup = {
       groupId: result.groupId,
       groupName: result.groupName,
-      ownerId: result.ownerId || currentSession.ownerId,
-      roleInGroup: result.roleInGroup || "member"
+      roleInGroup: (result.roleInGroup || "member").toLowerCase(),
+      ownerId: result.ownerId || null
     };
 
-currentSession.allGroups = mergeUniqueGroups(currentSession.allGroups, [newGroup]);
-currentSession.groupId = result.groupId;
-currentSession.groupName = result.groupName;
-currentSession.ownerId = result.ownerId || null;
-currentSession.roleInGroup = result.roleInGroup || "member";
-currentSession.globalRole = currentSession.globalRole || "member";
+    const nextGroups = exists
+      ? currentSession.allGroups.map((group) =>
+          group.groupId === result.groupId ? { ...group, ...newGroup } : group
+        )
+      : [...(currentSession.allGroups || []), newGroup];
 
-    renderGroupSwitcherOptions(currentSession.allGroups, result.groupId);
+    currentSession.allGroups = nextGroups;
+    await sessionService.setActiveGroup(auth.currentUser, result.groupId, {
+  reason: "join-group"
+});
 
-    if (userInfoGroup) {
-      userInfoGroup.textContent = `Group: ${result.groupName}`;
-    }
-
-    if (groupSwitcherStatus) {
-      groupSwitcherStatus.textContent = `Group aktif: ${result.groupName}`;
-    }
-
-    await reloadDataByGroup();
-
-    if (joinGroupModalStatus) {
-      joinGroupModalStatus.textContent = `Berhasil bergabung ke ${result.groupName}`;
-    }
-
-    showToast(`Berhasil bergabung ke ${result.groupName}.`, "success");
-
-    setTimeout(() => {
-      closeJoinGroupModal();
-    }, 500);
+    showToast(`Berhasil bergabung ke ${result.groupName}`, "success");
+    closeJoinGroupModal();
 
   } catch (err) {
     console.error("JOIN GROUP MODAL ERROR:", err);
-
-    if (joinGroupModalStatus) {
-      joinGroupModalStatus.textContent =
-        err.message || "Gagal bergabung ke group.";
-    }
+    showToast(err.message || "Gagal join group.", "error");
+  } finally {
+    setButtonLoading(submitJoinGroupBtn, false, "Gabung Group");
   }
 });
 
@@ -3845,6 +5103,7 @@ saveOwnerMessageBtn?.addEventListener("click", async () => {
       if (ownerMessageStatus) {
         ownerMessageStatus.textContent = "User atau group belum terbaca.";
       }
+      showToast("User atau group belum terbaca.", "error");
       return;
     }
 
@@ -3854,12 +5113,15 @@ saveOwnerMessageBtn?.addEventListener("click", async () => {
       if (ownerMessageStatus) {
         ownerMessageStatus.textContent = "Pesan tidak boleh kosong.";
       }
+      showToast("Pesan tidak boleh kosong.", "warning");
       return;
     }
 
     if (ownerMessageStatus) {
       ownerMessageStatus.textContent = "Menyimpan pesan...";
     }
+
+    setButtonLoading(saveOwnerMessageBtn, true, "Simpan Pesan", "Menyimpan...");
 
     await saveGroupMessage(
       currentSession.groupId,
@@ -3871,12 +5133,20 @@ saveOwnerMessageBtn?.addEventListener("click", async () => {
       ownerMessageStatus.textContent = "Pesan berhasil disimpan.";
     }
 
+    showToast("Pesan owner berhasil disimpan.", "success");
+
     await loadGroupMessage(currentSession.groupId);
+    await loadOwnerMessageEditor(currentSession.groupId);
   } catch (error) {
     console.error("SAVE OWNER MESSAGE ERROR:", error);
+
     if (ownerMessageStatus) {
       ownerMessageStatus.textContent = "Gagal menyimpan pesan.";
     }
+
+    showToast(error.message || "Gagal menyimpan pesan.", "error");
+  } finally {
+    setButtonLoading(saveOwnerMessageBtn, false, "Simpan Pesan");
   }
 });
 
@@ -3887,18 +5157,28 @@ saveOwnerMessageBtn?.addEventListener("click", async () => {
 saveGroupTargetBtn?.addEventListener("click", async () => {
   try {
     if (!currentSession.groupId || !currentSession.uid) {
-      groupTargetStatus.textContent = "Group tidak ditemukan.";
+      if (groupTargetStatus) {
+        groupTargetStatus.textContent = "Group tidak ditemukan.";
+      }
+      showToast("Group tidak ditemukan.", "error");
       return;
     }
 
-    const target = groupTargetInput?.value?.trim();
+    const target = groupTargetInput?.value?.trim() || "";
 
     if (!target) {
-      groupTargetStatus.textContent = "Target tidak boleh kosong.";
+      if (groupTargetStatus) {
+        groupTargetStatus.textContent = "Target tidak boleh kosong.";
+      }
+      showToast("Target tidak boleh kosong.", "warning");
       return;
     }
 
-    groupTargetStatus.textContent = "Menyimpan target...";
+    if (groupTargetStatus) {
+      groupTargetStatus.textContent = "Menyimpan target...";
+    }
+
+    setButtonLoading(saveGroupTargetBtn, true, "Simpan Target", "Menyimpan...");
 
     await saveGroupTarget(
       currentSession.groupId,
@@ -3906,14 +5186,25 @@ saveGroupTargetBtn?.addEventListener("click", async () => {
       currentSession.uid
     );
 
-    groupTargetStatus.textContent = "Target berhasil disimpan.";
+    if (groupTargetStatus) {
+      groupTargetStatus.textContent = "Target berhasil disimpan.";
+    }
+
+    showToast("Target mingguan berhasil disimpan.", "success");
 
     await loadGroupTarget(currentSession.groupId);
+    await loadGroupTargetEditor(currentSession.groupId);
     await loadGroupTargetProgress(currentSession.uid, currentSession.groupId);
-
   } catch (error) {
     console.error("SAVE TARGET ERROR:", error);
-    groupTargetStatus.textContent = "Gagal menyimpan target.";
+
+    if (groupTargetStatus) {
+      groupTargetStatus.textContent = error.message || "Gagal menyimpan target.";
+    }
+
+    showToast(error.message || "Gagal menyimpan target.", "error");
+  } finally {
+    setButtonLoading(saveGroupTargetBtn, false, "Simpan Target");
   }
 });
 
@@ -3973,43 +5264,62 @@ generateInviteBtn?.addEventListener("click", async () => {
   }
 });
 
-
 // ===============================
 // SAVE PROGRESS
 // ===============================
+
 saveProgressBtn?.addEventListener("click", async () => {
   try {
-    if (!currentSession.uid) {
-      progressMessage.textContent = "User belum terbaca.";
-      showToast("User belum terbaca.", "error");
+    if (!currentSession?.uid) {
+      showToast("User belum login.", "error");
       return;
     }
 
-    setButtonLoading(saveProgressBtn, true, "Save", "Menyimpan...");
-    progressMessage.textContent = "Menyimpan progress...";
-
     const payload = collectProgressPayload();
+
+    if (progressMessage) {
+      progressMessage.textContent = "Menyimpan progress...";
+    }
+
+    setButtonLoading(saveProgressBtn, true, "Save", "Menyimpan...");
 
     await saveTodayProgress(currentSession.uid, payload);
     await updateGamification(currentSession.uid, payload);
 
-    progressMessage.textContent = "Progress harian berhasil disimpan.";
+    const today = getTodayInfo();
+    console.log("TODAY FROM DASHBOARD:", today);
+    const challengeMonth = today.hijriMonth;
+    const currentChallengeProgress = await getChallengeProgress(currentSession.uid, challengeMonth);
+    await updateHijriBadge(currentSession.uid, challengeMonth, currentChallengeProgress);
+
+    if (progressMessage) {
+      progressMessage.textContent = "Progress berhasil disimpan.";
+    }
+
     showToast("Progress harian berhasil disimpan.", "success");
 
-    loadLeaderboard(currentSession.groupId);
-    loadStats(currentSession.uid);
-    loadGamification(currentSession.uid);
+    // refresh yang paling penting dulu
     await loadTodayStatus(currentSession.uid);
     await loadDailyProgressVisual(currentSession.uid);
-    await loadWeeklyHistory(currentSession.uid);
-    await loadHijriMonthlyProgress(currentSession.uid);
+    await loadStats(currentSession.uid);
+    await loadTilawahAccumulation(currentSession.uid);
     await loadStreak(currentSession.uid);
-    loadMemberActivity(currentSession.groupId);
-    loadGroupTargetProgress(currentSession.uid, currentSession.groupId);
+
+    // sisanya nyusul
+    runDeferred(() => loadGamification(currentSession.uid), 120);
+    runDeferred(() => loadWeeklyHistory(currentSession.uid), 180);
+    runDeferred(() => loadHijriMonthlyProgress(currentSession.uid), 240);
+    runDeferred(() => loadLeaderboard(currentSession.groupId), 300);
+    runDeferred(() => loadMemberActivity(currentSession.groupId), 360);
+    runDeferred(() => loadGroupTargetProgress(currentSession.uid, currentSession.groupId), 420);
   } catch (error) {
     console.error("SAVE PROGRESS ERROR:", error);
-    progressMessage.textContent = "Gagal menyimpan progress harian.";
-    showToast("Gagal menyimpan progress harian.", "error");
+
+    if (progressMessage) {
+      progressMessage.textContent = "Gagal menyimpan progress.";
+    }
+
+    showToast(error.message || "Gagal menyimpan progress.", "error");
   } finally {
     setButtonLoading(saveProgressBtn, false, "Save");
   }
@@ -4019,75 +5329,51 @@ memberActivityFilter?.addEventListener("change", () => {
   applyMemberActivityFilter();
 });
 
-groupSwitcherSelect?.addEventListener("change", () => {
+groupSwitcherSelect?.addEventListener("change", async () => {
   const selectedId = groupSwitcherSelect.value;
 
-  const selectedGroup = (currentSession.allGroups || []).find(
-    (item) => item.groupId === selectedId
-  );
+  if (!selectedId) return;
 
-  if (!selectedGroup) {
-    return;
+  try {
+    await sessionService.setActiveGroup(auth.currentUser, selectedId, {
+      reason: "group-switcher"
+    });
+  } catch (error) {
+    console.error("GROUP SWITCH ERROR:", error);
+    showToast(error.message || "Gagal berpindah group.", "error");
   }
-
-  const selectedText = selectedGroup.groupName || "Group";
-  const selectedRole = selectedGroup.roleInGroup || "member";
-  const selectedOwnerId = selectedGroup.ownerId || null;
-
-  showToast(`Berpindah ke group: ${selectedText}`, "info");
-
-currentSession.groupId = selectedGroup.groupId;
-currentSession.groupName = selectedText;
-currentSession.roleInGroup = selectedRole;
-currentSession.ownerId = selectedOwnerId;
-
-  if (userInfoGroup) {
-    userInfoGroup.textContent = `Group: ${selectedText}`;
-  }
-
-  if (userInfoRole) {
-    userInfoRole.textContent = selectedRole;
-  }
-
-  if (ownerPanel) ownerPanel.classList.add("hidden");
-  if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
-  if (weeklySummaryBox) weeklySummaryBox.classList.add("hidden");
-
-  if ((selectedRole || "").toLowerCase() === "owner") {
-    if (ownerPanel) ownerPanel.classList.remove("hidden");
-    if (ownerTabBtn) ownerTabBtn.classList.remove("hidden");
-  }
-
-  const activeTab = (selectedRole || "").toLowerCase() === "owner" ? "owner" : "home";
-  setActiveDashboardTab(activeTab);
-
-  if (groupSwitcherStatus) {
-    groupSwitcherStatus.textContent = "Memuat group...";
-  }
-
-  reloadDataByGroup();
-
-  setTimeout(() => {
-    if (groupSwitcherStatus) {
-      groupSwitcherStatus.textContent = `Group aktif: ${selectedText}`;
-    }
-  }, 300);
 });
 
-memberActivitySearch?.addEventListener("input", () => {
-  applyMemberActivityFilter();
-});
+function showAuthNotice(message, type = "info") {
+  if (typeof window.setMode === "function") {
+    window.setMode("login");
+  } else {
+    if (mainActions) mainActions.classList.add("hidden");
+    if (authBox) authBox.classList.remove("hidden");
+  }
+
+  if (authMessage) {
+    authMessage.textContent = message || "";
+  }
+
+  if (message) {
+    showToast(message, type);
+  }
+}
 
 authForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  if (authMessage) authMessage.textContent = "Memproses...";
-  setButtonLoading(submitBtn, true, "Submit", "Memproses...");
-
-  const cleanEmail = email.value.trim().toLowerCase();
-  const cleanPassword = password.value;
-
   try {
+    if (authMessage) authMessage.textContent = "";
+    setButtonLoading(submitBtn, true, "Submit", "Memproses...");
+
+    const cleanEmail = email?.value?.trim()?.toLowerCase() || "";
+    const cleanPassword = password?.value || "";
+    const cleanFullName = fullName?.value?.trim() || "";
+    const cleanGroupName = groupName?.value?.trim() || "";
+    const cleanInviteCode = inviteCode?.value?.trim()?.toUpperCase() || "";
+
     if (currentMode === "login") {
       await loginUser(cleanEmail, cleanPassword);
 
@@ -4101,226 +5387,195 @@ authForm?.addEventListener("submit", async (e) => {
 
     if (currentMode === "register") {
       const result = await registerOwner(
-        fullName.value.trim(),
+        cleanFullName,
         cleanEmail,
         cleanPassword,
-        groupName.value.trim()
+        cleanGroupName
       );
-
-      console.log("REGISTER OWNER RESULT:", result);
-
-      await logoutUser();
 
       if (authMessage) {
         authMessage.textContent =
-          "Register owner berhasil. Silakan verifikasi email Anda dan tunggu persetujuan admin sebelum login.";
+          result?.message || "Registrasi berhasil. Silakan cek email verifikasi.";
       }
 
-      if (authForm) authForm.reset();
-      currentMode = "login";
+      showToast(
+        result?.message || "Registrasi berhasil. Silakan cek email verifikasi.",
+        "success"
+      );
 
-      if (authTitle) authTitle.textContent = "Masuk ke Akun";
-      if (submitBtn) submitBtn.textContent = "Login";
-      if (fullName) fullName.classList.add("hidden");
-      if (groupName) groupName.classList.add("hidden");
-      if (inviteCode) inviteCode.classList.add("hidden");
-
-      showToast("Register owner berhasil. Tunggu approval admin.", "success");
+      resetMode();
+      window.setMode?.("login");
       return;
     }
 
     if (currentMode === "join") {
-  await joinGroup(
-    fullName.value.trim(),
-    cleanEmail,
-    cleanPassword,
-    inviteCode.value.trim().toUpperCase()
-  );
+      await joinGroup(
+        cleanFullName,
+        cleanEmail,
+        cleanPassword,
+        cleanInviteCode
+      );
 
-  await logoutUser();
-
-  if (authMessage) {
-    authMessage.textContent =
-      "Akun anggota berhasil dibuat. Silakan verifikasi email Anda, lalu login untuk masuk ke dashboard.";
-  }
-
-  if (authForm) authForm.reset();
-  currentMode = "login";
-
-  if (authTitle) authTitle.textContent = "Masuk ke Akun";
-  if (submitBtn) submitBtn.textContent = "Login";
-  if (fullName) fullName.classList.add("hidden");
-  if (groupName) groupName.classList.add("hidden");
-  if (inviteCode) inviteCode.classList.add("hidden");
-
-  showToast("Akun anggota berhasil dibuat. Cek email untuk verifikasi.", "success");
-  return;
-}
-
-  } catch (error) {
-    console.error("AUTH ERROR:", error);
-
-    if (currentMode === "join" && error.code === "auth/email-already-in-use") {
       if (authMessage) {
         authMessage.textContent =
-          "Email ini sudah terdaftar. Jika Anda sudah punya akun, silakan login dulu lalu gunakan menu 'Gabung ke Group' di dashboard.";
+          "Akun berhasil dibuat. Silakan cek email verifikasi sebelum login.";
       }
 
       showToast(
-        "Email sudah terdaftar. Login dulu lalu gabung group dari dashboard.",
-        "warning"
+        "Akun berhasil dibuat. Cek email untuk verifikasi sebelum login.",
+        "success"
       );
+
+      resetMode();
+      window.setMode?.("login");
       return;
     }
 
-    if (error.code === "auth/email-already-in-use") {
-      if (authMessage) authMessage.textContent = "Email ini sudah terdaftar. Silakan login atau gunakan email lain.";
-    } else if (error.code === "auth/invalid-credential") {
-      if (authMessage) authMessage.textContent = "Email atau password salah.";
-    } else if (error.code === "auth/user-not-found") {
-      if (authMessage) authMessage.textContent = "Akun tidak ditemukan.";
-    } else if (error.code === "auth/wrong-password") {
-      if (authMessage) authMessage.textContent = "Password salah.";
-    } else if (error.code === "auth/weak-password") {
-      if (authMessage) authMessage.textContent = "Password terlalu lemah. Minimal 6 karakter.";
-    } else {
-      if (authMessage) authMessage.textContent = `Error: ${error.code || error.message}`;
+    throw new Error("Mode auth tidak dikenali.");
+} catch (error) {
+  console.error("AUTH ERROR:", error);
+
+  if (error.code === "auth/email-not-verified") {
+    if (typeof window.setMode === "function") {
+      window.setMode("login");
     }
 
-    showToast(authMessage?.textContent || "Terjadi kesalahan.", "error");
-  } finally {
+    if (authMessage) {
+      authMessage.textContent = error.message;
+    }
+
+    showToast(error.message, "warning");
+  } else {
+    if (authMessage) {
+      authMessage.textContent = error.message || "Terjadi kesalahan.";
+    }
+
+    showToast(error.message || "Terjadi kesalahan.", "error");
+  }
+} finally {
     setButtonLoading(submitBtn, false, "Submit");
   }
 });
 
-async function restoreDashboardSession(user) {
-  try {
-    if (!user) return;
+function showLandingState() {
+  resetCurrentSession();
 
-    const profile = await getUserProfile(user.uid);
-    const membership = await getPrimaryMembership(user.uid);
+  bootLoading?.classList.add("hidden");
+  dashboardBox?.classList.add("hidden");
+  authBox?.classList.add("hidden");
+  mainActions?.classList.remove("hidden");
 
-    const membershipRef = collection(db, "users", user.uid, "memberships");
-    const membershipSnap = await getDocs(membershipRef);
-
-    const allGroups = membershipSnap.docs.map((docItem) => ({
-      id: docItem.id,
-      ...docItem.data()
-    }));
-
-    const userStatus = (profile?.status || "active").toLowerCase();
-    const userRole = (profile?.role || "").toLowerCase();
-    const roleInGroup = (membership?.roleInGroup || "").toLowerCase();
-
-    if (userRole === "owner" && userStatus !== "active") {
-      await logoutUser();
-
-      if (authMessage) {
-        authMessage.textContent =
-          userStatus === "pending"
-            ? "Akun owner masih menunggu approval superadmin."
-            : "Akun owner tidak aktif.";
-      }
-
-      if (dashboardBox) dashboardBox.classList.add("hidden");
-      if (authBox) authBox.classList.add("hidden");
-      if (mainActions) mainActions.classList.remove("hidden");
-      return;
-    }
-
-    showDashboard({
-      uid: user.uid,
-      fullName: profile?.fullName || user.displayName || "User",
-      email: profile?.email || user.email || "-",
-      globalRole: userRole,
-      roleInGroup: userRole === "superadmin" ? "" : roleInGroup,
-      ownerId: membership?.ownerId || null,
-      groupName: membership?.groupName || null,
-      groupId: membership?.groupId || membership?.id || null,
-      allGroups
-    });
-
-    if (authMessage) {
-      authMessage.textContent = "Login berhasil.";
-    }
-  } catch (error) {
-    console.error("RESTORE DASHBOARD SESSION ERROR:", error);
-
-    if (authMessage) {
-      authMessage.textContent = "Gagal memulihkan dashboard.";
-    }
-
-    if (dashboardBox) dashboardBox.classList.add("hidden");
-    if (authBox) authBox.classList.add("hidden");
-    if (mainActions) mainActions.classList.remove("hidden");
-  }
+  if (groupSwitcherBox) groupSwitcherBox.classList.add("hidden");
 }
 
-let authReadyOnce = false;
+const sessionService = createSessionService({
+  getCurrentSession: () => currentSession,
+  setCurrentSession: (nextSession) => {
+    currentSession = nextSession;
+  },
+  resetCurrentSession: () => {
+    resetCurrentSession();
+  },
+  getSavedActiveGroup: (uid) => getSavedActiveGroup(uid),
+  getActiveGroupStorageKey: (uid) => getActiveGroupStorageKey(uid),
+  showDashboard: (payload) => {
+    showDashboard(payload);
+  },
+  showLandingState: () => {
+    showLandingState();
+  },
+  showToast: (message, type = "info") => {
+    showToast(message, type);
+  },
+  bootLoading,
 
-onAuthStateChanged(auth, async (user) => {
-  console.log("AUTH STATE CHANGED:", user ? user.email : "NO USER");
+  onAfterSetActiveGroup: async ({ session }) => {
+  const isSuperadmin =
+    ((session?.globalRole || "") + "").toLowerCase() === "superadmin";
 
-  if (bootLoading) {
-    bootLoading.classList.remove("hidden");
+  if (groupSwitcherBox) {
+    if (isSuperadmin) {
+      groupSwitcherBox.classList.add("hidden");
+    } else {
+      groupSwitcherBox.classList.remove("hidden");
+    }
   }
 
-  if (user) {
-    authReadyOnce = true;
+  if (!isSuperadmin) {
+    renderGroupSwitcherOptions(session?.allGroups || [], session?.groupId || "");
+  }
 
-    await restoreDashboardSession(user);
+  if (userInfoGroup) {
+    userInfoGroup.textContent = `Group: ${session?.groupName || "-"}`;
+  }
 
-    if (bootLoading) {
-      bootLoading.classList.add("hidden");
-    }
+  if (userInfoRole) {
+    userInfoRole.textContent =
+      `Global: ${((session?.globalRole || "-") + "").toLowerCase()} • Group: ${((session?.activeGroupRole || "-") + "").toLowerCase()}`;
+  }
 
-    if (mainActions) mainActions.classList.add("hidden");
-    if (authBox) authBox.classList.add("hidden");
-    if (dashboardBox) dashboardBox.classList.remove("hidden");
-  } else {
-    // abaikan null sesaat kalau sebelumnya sudah ada user
-    if (authReadyOnce) {
-      if (bootLoading) {
-        bootLoading.classList.add("hidden");
-      }
-      return;
-    }
+applyRoleBasedMenu();
 
-    if (bootLoading) {
-      bootLoading.classList.add("hidden");
-    }
+const currentVisibleTab = Array.from(dashboardTabContents).find(
+  (section) => !section.classList.contains("hidden") && section.style.display !== "none"
+);
 
-    if (mainActions) mainActions.classList.remove("hidden");
-    if (authBox) authBox.classList.add("hidden");
-    if (dashboardBox) dashboardBox.classList.add("hidden");
+if (!currentVisibleTab) {
+  ensureAllowedActiveTab();
+}
+
+  if (isSuperadmin) {
+    await reloadAdminDashboard();
+    return;
+  }
+
+  if (groupSwitcherStatus) {
+    groupSwitcherStatus.textContent = "Memuat data group...";
+  }
+
+  await reloadDataByGroup();
+
+  if (groupSwitcherStatus) {
+    groupSwitcherStatus.textContent = `Group aktif: ${session?.groupName || "-"}`;
+  }
+}
+});
+
+const membershipService = createMembershipService({
+  getCurrentSession: () => currentSession,
+  resetCurrentSession: () => {
+    resetCurrentSession();
+  },
+  getSavedActiveGroup: (uid) => getSavedActiveGroup(uid),
+  getActiveGroupStorageKey: (uid) => getActiveGroupStorageKey(uid),
+  resolveActiveMembership: sessionService.resolveActiveMembership,
+  setActiveGroup: sessionService.setActiveGroup,
+  showLandingState: () => {
+    showLandingState();
+  },
+  showToast: (message, type = "info") => {
+    showToast(message, type);
   }
 });
 
+const DEBUG = false;
+
+onAuthStateChanged(auth, async (user) => {
+  if (DEBUG) {
+    console.log("AUTH STATE CHANGED:", user ? user.email : "NO USER");
+  }
+
+  if (!user) {
+    membershipService.stopWatchingMemberships();
+    showLandingState();
+    return;
+  }
+
+  await sessionService.restoreDashboardSession(user);
+  membershipService.watchUserMemberships(user);
+});
+
 </script>
-
-<script>
-  (async function () {
-    if (!("serviceWorker" in navigator)) return;
-
-    const regs = await navigator.serviceWorker.getRegistrations();
-    for (const reg of regs) {
-      await reg.unregister();
-    }
-
-    const keys = await caches.keys();
-    for (const key of keys) {
-      await caches.delete(key);
-    }
-
-    console.log("All service workers and caches cleared");
-  })();
-</script>
-
-<div class="text-center text-xs text-zinc-500 mt-10 pb-6">
-  Built with ❤️ for istiqomah<br/>
-  © 2026 Sugiharto
-</div>
-<div id="toastContainer" class="fixed top-4 right-4 z-[9999] space-y-3 pointer-events-none"></div>
 
 </body>
 </html>
