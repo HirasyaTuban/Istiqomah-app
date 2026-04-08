@@ -2050,24 +2050,7 @@ function getSavedActiveGroup(uid) {
 function ensureAllowedActiveTab() {
   const allowedTabs = getAllowedTabs();
   const savedTab = getSavedActiveTab(currentSession.uid);
-
-  const currentVisibleTab = Array.from(dashboardTabContents).find(
-    (section) => !section.classList.contains("hidden") && section.style.display !== "none"
-  );
-
-  const currentVisibleTabName = currentVisibleTab
-    ? currentVisibleTab.id.replace("tab-", "")
-    : "";
-
-  if (currentVisibleTabName && allowedTabs.includes(currentVisibleTabName)) {
-    return;
-  }
-
-  const nextTab = allowedTabs.includes(savedTab)
-    ? savedTab
-    : (allowedTabs[0] || "home");
-
-  setActiveDashboardTab(nextTab);
+  return allowedTabs.includes(savedTab) ? savedTab : (allowedTabs[0] || "home");
 }
 
 async function hydrateMonthlyAmalUI(uid) {
@@ -5515,14 +5498,6 @@ const sessionService = createSessionService({
   }
 
 applyRoleBasedMenu();
-
-const currentVisibleTab = Array.from(dashboardTabContents).find(
-  (section) => !section.classList.contains("hidden") && section.style.display !== "none"
-);
-
-if (!currentVisibleTab) {
-  ensureAllowedActiveTab();
-}
 
   if (isSuperadmin) {
     await reloadAdminDashboard();
