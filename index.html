@@ -3276,32 +3276,29 @@ async function loadGroupTarget(groupId) {
   if (!groupId || !groupTargetBox) return;
 
   try {
-    const result = await getGroupTarget(groupId);
+    const data = await getGroupTarget(groupId);
 
     groupTargetBox.classList.remove("hidden");
 
-    if (!result || result.status !== "ok" || !result.data) {
+    if (!data) {
       if (groupTargetText) {
-        groupTargetText.textContent =
-          result?.status === "expired"
-            ? "Target mingguan sebelumnya sudah lewat 7 hari."
-            : "Belum ada target mingguan untuk group ini.";
+        groupTargetText.textContent = "Belum ada target mingguan untuk group ini.";
       }
-
       if (groupTargetProgressText) groupTargetProgressText.textContent = "0 / 0";
       if (groupTargetProgressBar) groupTargetProgressBar.style.width = "0%";
       return;
     }
 
     if (groupTargetText) {
-      groupTargetText.textContent = result.data.text || "-";
+      groupTargetText.textContent = data.text || "Belum ada target mingguan untuk group ini.";
     }
   } catch (error) {
     console.error("LOAD TARGET ERROR:", error);
-
     groupTargetBox.classList.remove("hidden");
 
-    if (groupTargetText) groupTargetText.textContent = "Gagal memuat target group.";
+    if (groupTargetText) {
+      groupTargetText.textContent = "Belum ada target mingguan untuk group ini.";
+    }
     if (groupTargetProgressText) groupTargetProgressText.textContent = "0 / 0";
     if (groupTargetProgressBar) groupTargetProgressBar.style.width = "0%";
   }
@@ -3388,33 +3385,26 @@ async function loadGroupMessage(groupId) {
   if (!groupId || !ownerMessageBox) return;
 
   try {
-    const result = await getGroupMessage(groupId);
+    const data = await getGroupMessage(groupId);
 
-    if (!result || result.status !== "ok" || !result.data) {
-      ownerMessageBox.classList.remove("hidden");
+    ownerMessageBox.classList.remove("hidden");
 
+    if (!data) {
       if (ownerMessageText) {
-        if (result?.status === "expired") {
-          ownerMessageText.textContent = "Pesan owner sebelumnya sudah lewat 24 jam.";
-        } else {
-          ownerMessageText.textContent = "Belum ada pesan owner hari ini.";
-        }
+        ownerMessageText.textContent = "Belum ada pesan owner hari ini.";
       }
-
       return;
     }
 
     if (ownerMessageText) {
-      ownerMessageText.textContent = result.data.message || "-";
+      ownerMessageText.textContent = data.message || "Belum ada pesan owner hari ini.";
     }
-
-    ownerMessageBox.classList.remove("hidden");
   } catch (error) {
     console.error("LOAD GROUP MESSAGE ERROR:", error);
     ownerMessageBox.classList.remove("hidden");
 
     if (ownerMessageText) {
-      ownerMessageText.textContent = "Gagal memuat pesan owner.";
+      ownerMessageText.textContent = "Belum ada pesan owner hari ini.";
     }
   }
 }
@@ -4610,10 +4600,25 @@ function showDashboard({
   groupId,
   allGroups = []
 }) {
-  if (mainActions) mainActions.classList.add("hidden");
-  if (authBox) authBox.classList.add("hidden");
-  if (dashboardBox) dashboardBox.classList.remove("hidden");
-  if (bootLoading) bootLoading.classList.add("hidden");
+if (mainActions) {
+  mainActions.classList.add("hidden");
+  mainActions.style.display = "none";
+}
+
+if (authBox) {
+  authBox.classList.add("hidden");
+  authBox.style.display = "none";
+}
+
+if (dashboardBox) {
+  dashboardBox.classList.remove("hidden");
+  dashboardBox.style.display = "block";
+}
+
+if (bootLoading) {
+  bootLoading.classList.add("hidden");
+  bootLoading.style.display = "none";
+}
 
   const today = getTodayInfo();
   const challenge = getHijriChallenge(today.hijriMonth);
@@ -5515,10 +5520,25 @@ authForm?.addEventListener("submit", async (e) => {
 function showLandingState() {
   resetCurrentSession();
 
-  bootLoading?.classList.add("hidden");
-  dashboardBox?.classList.add("hidden");
-  authBox?.classList.add("hidden");
-  mainActions?.classList.remove("hidden");
+  if (bootLoading) {
+    bootLoading.classList.add("hidden");
+    bootLoading.style.display = "none";
+  }
+
+  if (dashboardBox) {
+    dashboardBox.classList.add("hidden");
+    dashboardBox.style.display = "none";
+  }
+
+  if (authBox) {
+    authBox.classList.add("hidden");
+    authBox.style.display = "none";
+  }
+
+  if (mainActions) {
+    mainActions.classList.remove("hidden");
+    mainActions.style.display = "block";
+  }
 
   if (groupSwitcherBox) groupSwitcherBox.classList.add("hidden");
 }
@@ -5619,7 +5639,9 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   await sessionService.restoreDashboardSession(user);
-  membershipService.watchUserMemberships(user);
+
+  // MODE STABIL DULU
+  // membershipService.watchUserMemberships(user);
 });
 
 </script>
