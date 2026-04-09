@@ -1905,17 +1905,14 @@ function applyRoleBasedMenu() {
     groupName: currentSession?.groupName || null
   });
 
-  // Reset semua tombol utama dulu
   if (homeTabBtn) homeTabBtn.classList.remove("hidden");
   if (amalTabBtn) amalTabBtn.classList.remove("hidden");
   if (communityTabBtn) communityTabBtn.classList.remove("hidden");
   if (helpTabBtn) helpTabBtn.classList.remove("hidden");
 
-  // Tab khusus disembunyikan dulu
   if (ownerTabBtn) ownerTabBtn.classList.add("hidden");
   if (adminTabBtn) adminTabBtn.classList.add("hidden");
 
-  // Box ajukan owner
   if (applyOwnerBox) {
     applyOwnerBox.classList.add("hidden");
 
@@ -1924,9 +1921,7 @@ function applyRoleBasedMenu() {
     }
   }
 
-  // Aturan role
   if (globalRole === "superadmin") {
-    // superadmin hanya fokus approval
     if (homeTabBtn) homeTabBtn.classList.add("hidden");
     if (amalTabBtn) amalTabBtn.classList.add("hidden");
     if (communityTabBtn) communityTabBtn.classList.add("hidden");
@@ -1945,15 +1940,15 @@ function applyRoleBasedMenu() {
     currentActiveTab
   });
 
-if (!currentActiveTab || !allowedTabs.includes(currentActiveTab)) {
-  const savedTab = getSavedActiveTab(currentSession.uid);
-  const fallbackTab = allowedTabs.includes(savedTab)
-    ? savedTab
-    : (allowedTabs[0] || "home");
+  if (!currentActiveTab || !allowedTabs.includes(currentActiveTab)) {
+    const savedTab = getSavedActiveTab(currentSession.uid);
+    const fallbackTab = allowedTabs.includes(savedTab)
+      ? savedTab
+      : (allowedTabs[0] || "home");
 
-  console.log("FORCE SWITCH TAB:", fallbackTab);
-  setActiveDashboardTab(fallbackTab, { source: "role-based-menu" });
-}
+    console.log("FORCE SWITCH TAB:", fallbackTab);
+    setActiveDashboardTab(fallbackTab, { source: "role-based-menu" });
+  }
 }
 
 function updateDashboardTabLayout() {
@@ -2270,15 +2265,9 @@ console.log("HAS tab-help:", !!document.getElementById("tab-help"));
 
 dashboardTabContents.forEach((section) => {
   const isHome = section.id === "tab-home";
-
   section.hidden = !isHome;
+  section.classList.toggle("hidden", !isHome);
   section.setAttribute("aria-hidden", isHome ? "false" : "true");
-
-  if (isHome) {
-    section.classList.remove("hidden");
-  } else {
-    section.classList.add("hidden");
-  }
 });
 
 const challengeCardMonthName = document.getElementById("challengeCardMonthName");
@@ -4246,13 +4235,17 @@ function setActiveDashboardTab(tabName, options = {}) {
 
   if (!activeSection) {
     console.error("SECTION TAB TIDAK DITEMUKAN:", `tab-${tabName}`);
-    console.log("SEMUA TAB YANG TERBACA:", Array.from(document.querySelectorAll(".dashboard-tab-content")).map(el => el.id));
+    console.log(
+      "TAB TERBACA:",
+      Array.from(document.querySelectorAll(".dashboard-tab-content")).map((el) => el.id)
+    );
     return;
   }
 
   dashboardTabButtons.forEach((btn) => {
     const isActive = btn.dataset.tab === tabName;
     btn.classList.toggle("dashboard-tab-btn--active", isActive);
+    btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
 
   dashboardTabContents.forEach((section) => {
@@ -4264,9 +4257,17 @@ function setActiveDashboardTab(tabName, options = {}) {
   });
 
   saveActiveTab(tabName);
-}
 
-window.setActiveDashboardTab = setActiveDashboardTab;
+  requestAnimationFrame(() => {
+    console.log("AFTER TAB SWITCH:", {
+      tabName,
+      activeId: activeSection.id,
+      activeHiddenAttr: activeSection.hidden,
+      activeHiddenClass: activeSection.classList.contains("hidden"),
+      activeDisplay: getComputedStyle(activeSection).display
+    });
+  });
+}
 
 window.setActiveDashboardTab = setActiveDashboardTab;
 
