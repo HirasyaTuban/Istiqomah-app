@@ -2978,45 +2978,43 @@ async function loadTodayStatus(uid) {
   }
 }
 
-  function collectProgressPayload() {
-    const payload = {
-      qobliyahSubuh: false,
-      subuh: false,
-      qobliyahDzuhur: false,
-      dzuhur: false,
-      badiyahDzuhur: false,
-      ashar: false,
-      maghrib: false,
-      badiyahMaghrib: false,
-      isya: false,
-      badiyahIsya: false,
-      tilawahDone: false,
-      tilawahPages: Number(tilawahPagesInput.value || 0),
-      dzikirPagi: false,
-      dzikirPetang: false,
-      sedekah: false,
-      tahajud: false,
-      dhuha: false,
-      syukur: syukurText.value.trim()
-    };
+function collectProgressPayload() {
+  const payload = {
+    qobliyahSubuh: false,
+    subuh: false,
+    qobliyahDzuhur: false,
+    dzuhur: false,
+    badiyahDzuhur: false,
+    ashar: false,
+    maghrib: false,
+    badiyahMaghrib: false,
+    isya: false,
+    badiyahIsya: false,
+    tilawahDone: false,
+    tilawahPages: Number(tilawahPagesInput.value || 0),
+    dzikirPagi: false,
+    dzikirPetang: false,
+    sedekah: false,
+    tahajud: false,
+    dhuha: false,
+    syukur: syukurText.value.trim()
+  };
 
-    const checkboxes = progressChecklist.querySelectorAll("input[type='checkbox']");
-    checkboxes.forEach((checkbox) => {
-      const key = checkbox.dataset.key;
-      payload[key] = checkbox.checked;
-    });
+  const checkboxes = progressChecklist.querySelectorAll("input[type='checkbox']");
+  checkboxes.forEach((checkbox) => {
+    const key = checkbox.dataset.key;
+    payload[key] = checkbox.checked;
+  });
 
-    return payload;
-  }
+  return payload;
+}
 
 function renderChallengeChecklist(monthName, progress = {}) {
-
   if (!challengeChecklist) return;
 
   let items = [];
 
   if (monthName === "Syawal") {
-
     items = [
       "Puasa Syawal 1",
       "Puasa Syawal 2",
@@ -3025,21 +3023,17 @@ function renderChallengeChecklist(monthName, progress = {}) {
       "Puasa Syawal 5",
       "Puasa Syawal 6"
     ];
-
   } else {
-
     items = [
       "Dzikir harian",
       "Tilawah tambahan",
       "Sedekah",
       "Shalat malam"
     ];
-
   }
 
   challengeChecklist.innerHTML = items
     .map((item, i) => {
-
       const key = `item${i}`;
 
       return `
@@ -3068,7 +3062,6 @@ async function loadWeeklySummary(groupId, role) {
     if (weeklySummaryBox) weeklySummaryBox.classList.remove("hidden");
 
     const sorted = [...data].sort((a, b) => b.score - a.score);
-
     const top = sorted.slice(0, 3);
     const low = sorted.filter((m) => m.activeDays <= 2);
 
