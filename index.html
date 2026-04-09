@@ -4218,6 +4218,11 @@ function setActiveDashboardTab(tabName, meta = {}) {
     section.style.opacity = "0";
     section.style.height = "0";
     section.style.overflow = "hidden";
+    section.style.minHeight = "0";
+    section.style.border = "";
+    section.style.background = "";
+    section.style.position = "";
+    section.style.zIndex = "";
   });
 
   dashboardTabButtons.forEach((btn) => {
@@ -4245,13 +4250,44 @@ function setActiveDashboardTab(tabName, meta = {}) {
     activeSection.style.overflow = "visible";
     activeSection.style.minHeight = "240px";
 
-//    requestAnimationFrame(() => {
-//      activeSection.scrollIntoView({
-//        behavior: "smooth",
-//        block: "start"
-//      });
-//    });
+    // diagnosis visual sementara
+    activeSection.style.border = "2px solid red";
+    activeSection.style.background = "rgba(255, 0, 0, 0.04)";
+    activeSection.style.position = "relative";
+    activeSection.style.zIndex = "5";
+
+    const rect = activeSection.getBoundingClientRect();
+    console.log("ACTIVE SECTION RECT:", {
+      tabName,
+      top: rect.top,
+      bottom: rect.bottom,
+      height: rect.height,
+      width: rect.width,
+      scrollY: window.scrollY,
+      innerHeight: window.innerHeight
+    });
+
+    // sementara dimatikan dulu
+    // requestAnimationFrame(() => {
+    //   activeSection.scrollIntoView({
+    //     behavior: "smooth",
+    //     block: "start"
+    //   });
+    // });
   }
+
+  console.log("AFTER TAB SWITCH:", {
+    tabName,
+    activeClass: activeSection?.className || null,
+    activeDisplay: activeSection?.style?.display || null,
+    communityDisplay: document.getElementById("tab-community")?.style.display || null,
+    amalDisplay: document.getElementById("tab-amal")?.style.display || null,
+    ownerDisplay: document.getElementById("tab-owner")?.style.display || null,
+    helpDisplay: document.getElementById("tab-help")?.style.display || null
+  });
+
+  saveActiveTab(tabName);
+}
 
   console.log("AFTER TAB SWITCH:", {
     tabName,
