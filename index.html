@@ -1954,6 +1954,7 @@ if (!currentActiveTab || !allowedTabs.includes(currentActiveTab)) {
   console.log("FORCE SWITCH TAB:", fallbackTab);
   setActiveDashboardTab(fallbackTab, { source: "role-based-menu" });
 }
+}
 
 function updateDashboardTabLayout() {
   const dashboardTabs = document.getElementById("dashboardTabs");
