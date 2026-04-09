@@ -1685,16 +1685,23 @@ function applyRoleBasedMenu() {
     currentActiveTab
   });
 
-  if (!currentActiveTab || !allowedTabs.includes(currentActiveTab)) {
+  if (!currentActiveTab) {
     const savedTab = getSavedActiveTab(currentSession.uid);
-    const fallbackTab = allowedTabs.includes(savedTab)
-      ? savedTab
-      : (allowedTabs[0] || "home");
 
-    console.log("FORCE SWITCH TAB:", fallbackTab);
-    setActiveDashboardTab(fallbackTab, { source: "role-based-menu" });
+    if (savedTab && allowedTabs.includes(savedTab)) {
+      console.log("RESTORE SAVED TAB:", savedTab);
+      setActiveDashboardTab(savedTab, { source: "restore-tab" });
+    } else {
+      const fallbackTab = allowedTabs[0] || "home";
+      console.log("FORCE SWITCH TAB:", fallbackTab);
+      setActiveDashboardTab(fallbackTab, { source: "fallback" });
+    }
+  } else if (!allowedTabs.includes(currentActiveTab)) {
+    const fallbackTab = allowedTabs[0] || "home";
+    console.log("ACTIVE TAB NOT ALLOWED, SWITCH TO:", fallbackTab);
+    setActiveDashboardTab(fallbackTab, { source: "not-allowed-fallback" });
   }
-}
+}  
 
 function updateDashboardTabLayout() {
   const dashboardTabs = document.getElementById("dashboardTabs");
