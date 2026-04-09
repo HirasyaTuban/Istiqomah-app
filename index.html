@@ -1944,7 +1944,7 @@ function updateDashboardTabLayout() {
   const dashboardTabs = document.getElementById("dashboardTabs");
   if (!dashboardTabs) return;
 
-  dashboardTabs.className = "flex flex-wrap gap-2 mb-4 pb-1";
+  dashboardTabs.className = "flex gap-2 mb-4 overflow-x-auto whitespace-nowrap pb-1";
 }
 
 function createSkeletonLines(count = 3, heightClass = "h-4") {
@@ -3081,8 +3081,23 @@ async function loadWeeklySummary(groupId, role) {
       ? low.map((m) => `<div>${m.name} (${m.activeDays} hari)</div>`).join("")
       : `<div>Semua aktif 👍</div>`;
 
-  } catch (err) {
-    console.error("LOAD WEEKLY SUMMARY ERROR:", err);
+} catch (err) {
+  console.error("LOAD WEEKLY SUMMARY ERROR:", err);
+
+  if (weeklySummaryBox) {
+    weeklySummaryBox.classList.add("hidden");
+  }
+
+  if (weeklyTopMembers) {
+    weeklyTopMembers.innerHTML = "";
+  }
+
+  if (weeklyLowMembers) {
+    weeklyLowMembers.innerHTML = `
+      <div class="text-sm text-zinc-500">
+        Ringkasan pekanan belum bisa dimuat.
+      </div>
+    `;
   }
 }
 
@@ -4230,12 +4245,12 @@ function setActiveDashboardTab(tabName, meta = {}) {
     activeSection.style.overflow = "visible";
     activeSection.style.minHeight = "240px";
 
-    requestAnimationFrame(() => {
-      activeSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-    });
+//    requestAnimationFrame(() => {
+//      activeSection.scrollIntoView({
+//        behavior: "smooth",
+//        block: "start"
+//      });
+//    });
   }
 
   console.log("AFTER TAB SWITCH:", {
