@@ -646,7 +646,7 @@
 </div>
 
 <!-- TAB: AMAL -->
-<div id="tab-amal" class="dashboard-tab-content space-y-5 hidden">
+<div id="tab-community" class="dashboard-tab-content space-y-5 min-h-[200px]">
 
   <!-- USER INFO -->
   <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
@@ -1054,7 +1054,7 @@
 </div>
 
 <!-- TAB: COMMUNITY -->
-<div id="tab-community" class="dashboard-tab-content space-y-5 hidden min-h-[200px]">  
+<div id="tab-community" class="dashboard-tab-content space-y-5 min-h-[200px]">  
 
   <!-- HEADER + ACTION -->
   <div class="flex items-center justify-between">
@@ -1334,7 +1334,7 @@
 </div>
 
 <!-- TAB: ADMIN -->
-<div id="tab-admin" class="dashboard-tab-content space-y-5 hidden min-h-[200px]">
+<div id="tab-community" class="dashboard-tab-content space-y-5 min-h-[200px]">
 
   <!-- HEADER -->
   <div class="flex items-center justify-between">
@@ -1415,7 +1415,7 @@
 </div> 
 
 <!-- TAB: HELP -->
-<div id="tab-help" class="dashboard-tab-content space-y-5 hidden min-h-[200px]">
+<div id="tab-community" class="dashboard-tab-content space-y-5 min-h-[200px]">
 
   <!-- HERO -->
   <div class="rounded-2xl bg-gradient-to-br from-zinc-900 to-black border border-amber-500/20 p-6">
@@ -2260,8 +2260,16 @@ const dashboardTabContents = document.querySelectorAll(".dashboard-tab-content")
 const ownerTabBtn = document.getElementById("ownerTabBtn");
 
 dashboardTabContents.forEach((section) => {
-  section.hidden = section.id !== "tab-home";
-  section.setAttribute("aria-hidden", section.id === "tab-home" ? "false" : "true");
+  const isHome = section.id === "tab-home";
+
+  section.hidden = !isHome;
+  section.setAttribute("aria-hidden", isHome ? "false" : "true");
+
+  if (isHome) {
+    section.classList.remove("hidden");
+  } else {
+    section.classList.add("hidden");
+  }
 });
 
 const challengeCardMonthName = document.getElementById("challengeCardMonthName");
@@ -4248,8 +4256,16 @@ function setActiveDashboardTab(tabName, options = {}) {
 
   dashboardTabContents.forEach((section) => {
     const isTarget = section.id === `tab-${tabName}`;
-    section.hidden = !isTarget;
-    section.setAttribute("aria-hidden", isTarget ? "false" : "true");
+
+    if (isTarget) {
+      section.hidden = false;
+      section.classList.remove("hidden");
+      section.setAttribute("aria-hidden", "false");
+    } else {
+      section.hidden = true;
+      section.classList.add("hidden");
+      section.setAttribute("aria-hidden", "true");
+    }
   });
 
   saveActiveTab(tabName);
@@ -4263,34 +4279,22 @@ function setActiveDashboardTab(tabName, options = {}) {
       bottom: rect.bottom,
       height: rect.height,
       width: rect.width,
-      hidden: activeSection.hidden
+      hiddenAttr: activeSection.hidden,
+      hiddenClass: activeSection.classList.contains("hidden")
     });
 
     console.log("AFTER TAB SWITCH:", {
       tabName,
       activeId: activeSection.id,
-      activeHidden: activeSection.hidden,
+      activeHiddenAttr: activeSection.hidden,
+      activeHiddenClass: activeSection.classList.contains("hidden"),
       activeDisplay: getComputedStyle(activeSection).display,
-      homeHidden: document.getElementById("tab-home")?.hidden,
-      amalHidden: document.getElementById("tab-amal")?.hidden,
-      communityHidden: document.getElementById("tab-community")?.hidden,
-      ownerHidden: document.getElementById("tab-owner")?.hidden,
-      helpHidden: document.getElementById("tab-help")?.hidden
+      homeHiddenClass: document.getElementById("tab-home")?.classList.contains("hidden"),
+      amalHiddenClass: document.getElementById("tab-amal")?.classList.contains("hidden"),
+      communityHiddenClass: document.getElementById("tab-community")?.classList.contains("hidden"),
+      ownerHiddenClass: document.getElementById("tab-owner")?.classList.contains("hidden"),
+      helpHiddenClass: document.getElementById("tab-help")?.classList.contains("hidden")
     });
-
-    const dashboardTabsEl = document.getElementById("dashboardTabs");
-    const tabsBottom = dashboardTabsEl
-      ? dashboardTabsEl.getBoundingClientRect().bottom
-      : 0;
-
-    const activeTop = activeSection.getBoundingClientRect().top;
-
-    if (activeTop < tabsBottom || activeTop > window.innerHeight) {
-      window.scrollTo({
-        top: window.scrollY + activeTop - tabsBottom - 12,
-        behavior: "smooth"
-      });
-    }
   });
 }
 
