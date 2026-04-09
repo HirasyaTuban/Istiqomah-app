@@ -2074,7 +2074,6 @@ async function hydrateMonthlyAmalUI(uid) {
 
   await Promise.all([
     loadHijriMonthlyProgress(uid),
-    loadDailyProgressVisual(uid),
     loadStats(uid),
     loadWeeklyHistory(uid),
     loadGamification(uid),
@@ -3102,8 +3101,6 @@ async function loadWeeklySummary(groupId, role) {
 }
 
 function renderMemberActivityList(items) {
-
-function renderMemberActivityList(items) {
   if (!memberActivityList) return;
 
   if (!items.length) {
@@ -3795,7 +3792,7 @@ function getHijriMonthlyInsight(percent) {
   return "MasyaAllah, konsistensi bulan ini luar biasa. Pertahankan sampai penutup bulan.";
 }
 
-async function loadDailyProgressVisual(uid) {
+window.loadDailyProgressVisual = async function (uid) {
   if (!uid) return;
 
   try {
@@ -4816,7 +4813,7 @@ if (bootLoading) {
   // Muat data utama lebih dulu
   loadTodayProgressToUI(uid);
   loadTodayStatus(uid);
-  loadDailyProgressVisual(uid);
+  window.loadDailyProgressVisual?.(uid)
   loadChallenge(uid, today.hijriMonth, monthName);
   loadChallengeProgressVisual(uid, today.hijriMonth, monthName);
   loadGroupMessage(groupId);
@@ -5476,7 +5473,7 @@ saveProgressBtn?.addEventListener("click", async () => {
 
     // refresh yang paling penting dulu
     await loadTodayStatus(currentSession.uid);
-    await loadDailyProgressVisual(currentSession.uid);
+    await window.loadDailyProgressVisual?.(currentSession.uid)
     await loadStats(currentSession.uid);
     await loadTilawahAccumulation(currentSession.uid);
     await loadStreak(currentSession.uid);
