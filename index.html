@@ -3080,26 +3080,28 @@ async function loadWeeklySummary(groupId, role) {
     weeklyLowMembers.innerHTML = low.length
       ? low.map((m) => `<div>${m.name} (${m.activeDays} hari)</div>`).join("")
       : `<div>Semua aktif 👍</div>`;
+  } catch (err) {
+    console.error("LOAD WEEKLY SUMMARY ERROR:", err);
 
-} catch (err) {
-  console.error("LOAD WEEKLY SUMMARY ERROR:", err);
+    if (weeklySummaryBox) {
+      weeklySummaryBox.classList.add("hidden");
+    }
 
-  if (weeklySummaryBox) {
-    weeklySummaryBox.classList.add("hidden");
-  }
+    if (weeklyTopMembers) {
+      weeklyTopMembers.innerHTML = "";
+    }
 
-  if (weeklyTopMembers) {
-    weeklyTopMembers.innerHTML = "";
-  }
-
-  if (weeklyLowMembers) {
-    weeklyLowMembers.innerHTML = `
-      <div class="text-sm text-zinc-500">
-        Ringkasan pekanan belum bisa dimuat.
-      </div>
-    `;
+    if (weeklyLowMembers) {
+      weeklyLowMembers.innerHTML = `
+        <div class="text-sm text-zinc-500">
+          Ringkasan pekanan belum bisa dimuat.
+        </div>
+      `;
+    }
   }
 }
+
+function renderMemberActivityList(items) {
 
 function renderMemberActivityList(items) {
   if (!memberActivityList) return;
