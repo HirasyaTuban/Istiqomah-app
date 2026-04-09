@@ -646,7 +646,7 @@
 </div>
 
 <!-- TAB: AMAL -->
-<div id="tab-community" class="dashboard-tab-content space-y-5 min-h-[200px]">
+<div id="tab-amal" class="dashboard-tab-content space-y-5 hidden">
 
   <!-- USER INFO -->
   <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
@@ -1054,7 +1054,7 @@
 </div>
 
 <!-- TAB: COMMUNITY -->
-<div id="tab-community" class="dashboard-tab-content space-y-5 min-h-[200px]">  
+<div id="tab-community" class="dashboard-tab-content space-y-5 hidden min-h-[200px]">  
 
   <!-- HEADER + ACTION -->
   <div class="flex items-center justify-between">
@@ -1334,7 +1334,7 @@
 </div>
 
 <!-- TAB: ADMIN -->
-<div id="tab-community" class="dashboard-tab-content space-y-5 min-h-[200px]">
+<div id="tab-admin" class="dashboard-tab-content space-y-5 hidden min-h-[200px]">
 
   <!-- HEADER -->
   <div class="flex items-center justify-between">
@@ -1415,7 +1415,7 @@
 </div> 
 
 <!-- TAB: HELP -->
-<div id="tab-community" class="dashboard-tab-content space-y-5 min-h-[200px]">
+<div id="tab-help" class="dashboard-tab-content space-y-5 hidden min-h-[200px]">
 
   <!-- HERO -->
   <div class="rounded-2xl bg-gradient-to-br from-zinc-900 to-black border border-amber-500/20 p-6">
@@ -2259,6 +2259,14 @@ const weeklyLowMembers = document.getElementById("weeklyLowMembers");
 const dashboardTabButtons = document.querySelectorAll(".dashboard-tab-btn");
 const dashboardTabContents = document.querySelectorAll(".dashboard-tab-content");
 const ownerTabBtn = document.getElementById("ownerTabBtn");
+
+console.log("TAB CHECK IDS:", Array.from(document.querySelectorAll(".dashboard-tab-content")).map(el => el.id));
+
+console.log("HAS tab-home:", !!document.getElementById("tab-home"));
+console.log("HAS tab-amal:", !!document.getElementById("tab-amal"));
+console.log("HAS tab-community:", !!document.getElementById("tab-community"));
+console.log("HAS tab-owner:", !!document.getElementById("tab-owner"));
+console.log("HAS tab-help:", !!document.getElementById("tab-help"));
 
 dashboardTabContents.forEach((section) => {
   const isHome = section.id === "tab-home";
@@ -4228,76 +4236,37 @@ function setActiveDashboardTab(tabName, options = {}) {
 
   console.log("SET ACTIVE TAB:", tabName, "| source:", source);
 
-  if (!tabName) {
-    console.warn("setActiveDashboardTab: tabName kosong");
-    return;
-  }
+  if (!tabName) return;
 
   if (!allowedTabs.includes(tabName)) {
-    console.warn("TAB TIDAK DIIZINKAN:", {
-      tabName,
-      allowedTabs,
-      globalRole: currentSession?.globalRole,
-      activeGroupRole: currentSession?.activeGroupRole
-    });
     tabName = allowedTabs[0] || "home";
   }
 
   const activeSection = document.getElementById(`tab-${tabName}`);
+
   if (!activeSection) {
     console.error("SECTION TAB TIDAK DITEMUKAN:", `tab-${tabName}`);
+    console.log("SEMUA TAB YANG TERBACA:", Array.from(document.querySelectorAll(".dashboard-tab-content")).map(el => el.id));
     return;
   }
 
   dashboardTabButtons.forEach((btn) => {
     const isActive = btn.dataset.tab === tabName;
     btn.classList.toggle("dashboard-tab-btn--active", isActive);
-    btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
 
   dashboardTabContents.forEach((section) => {
     const isTarget = section.id === `tab-${tabName}`;
 
-    if (isTarget) {
-      section.hidden = false;
-      section.classList.remove("hidden");
-      section.setAttribute("aria-hidden", "false");
-    } else {
-      section.hidden = true;
-      section.classList.add("hidden");
-      section.setAttribute("aria-hidden", "true");
-    }
+    section.hidden = !isTarget;
+    section.classList.toggle("hidden", !isTarget);
+    section.setAttribute("aria-hidden", isTarget ? "false" : "true");
   });
 
   saveActiveTab(tabName);
-
-  requestAnimationFrame(() => {
-    const rect = activeSection.getBoundingClientRect();
-
-    console.log("ACTIVE SECTION RECT:", {
-      tabName,
-      top: rect.top,
-      bottom: rect.bottom,
-      height: rect.height,
-      width: rect.width,
-      hiddenAttr: activeSection.hidden,
-      hiddenClass: activeSection.classList.contains("hidden")
-    });
-
-    console.log("AFTER TAB SWITCH:", {
-      tabName,
-      activeId: activeSection.id,
-      activeHiddenAttr: activeSection.hidden,
-      activeHiddenClass: activeSection.classList.contains("hidden"),
-      activeDisplay: getComputedStyle(activeSection).display,
-      homeHiddenClass: document.getElementById("tab-home")?.classList.contains("hidden"),
-      amalHiddenClass: document.getElementById("tab-amal")?.classList.contains("hidden"),
-      communityHiddenClass: document.getElementById("tab-community")?.classList.contains("hidden"),
-      ownerHiddenClass: document.getElementById("tab-owner")?.classList.contains("hidden"),
-      helpHiddenClass: document.getElementById("tab-help")?.classList.contains("hidden")
-    });
-  });
 }
+
+window.setActiveDashboardTab = setActiveDashboardTab;
 
 window.setActiveDashboardTab = setActiveDashboardTab;
 
