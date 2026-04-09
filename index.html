@@ -4190,6 +4190,12 @@ function setActiveDashboardTab(tabName, meta = {}) {
   const source = meta.source || "unknown";
   console.log("SET ACTIVE TAB:", tabName, "| source:", source);
 
+  const allowedTabs = getAllowedTabs();
+  if (!allowedTabs.includes(tabName)) {
+    console.warn("TAB TIDAK DIIZINKAN:", { tabName, allowedTabs });
+    return;
+  }
+
   dashboardTabContents.forEach((section) => {
     section.classList.add("hidden");
     section.style.display = "none";
@@ -4200,8 +4206,17 @@ function setActiveDashboardTab(tabName, meta = {}) {
   });
 
   dashboardTabButtons.forEach((btn) => {
-    btn.classList.remove("dashboard-tab-btn--active", "bg-amber-500", "text-black");
-    btn.classList.add("bg-zinc-800", "text-zinc-300");
+    const isActive = btn.dataset.tab === tabName;
+
+    btn.classList.toggle("dashboard-tab-btn--active", isActive);
+
+    if (isActive) {
+      btn.classList.remove("bg-zinc-800", "text-zinc-300");
+      btn.classList.add("bg-amber-500", "text-black");
+    } else {
+      btn.classList.remove("bg-amber-500", "text-black");
+      btn.classList.add("bg-zinc-800", "text-zinc-300");
+    }
   });
 
   const activeSection = document.getElementById(`tab-${tabName}`);
@@ -4223,20 +4238,14 @@ function setActiveDashboardTab(tabName, meta = {}) {
     });
   }
 
-  const activeBtn = document.querySelector(`.dashboard-tab-btn[data-tab="${tabName}"]`);
-  if (activeBtn) {
-    activeBtn.classList.remove("bg-zinc-800", "text-zinc-300");
-    activeBtn.classList.add("dashboard-tab-btn--active", "bg-amber-500", "text-black");
-  }
-
   console.log("AFTER TAB SWITCH:", {
     tabName,
-    activeClass: activeSection?.className,
-    activeDisplay: activeSection?.style.display,
-    communityDisplay: document.getElementById("tab-community")?.style.display,
-    amalDisplay: document.getElementById("tab-amal")?.style.display,
-    ownerDisplay: document.getElementById("tab-owner")?.style.display,
-    helpDisplay: document.getElementById("tab-help")?.style.display
+    activeClass: activeSection?.className || null,
+    activeDisplay: activeSection?.style?.display || null,
+    communityDisplay: document.getElementById("tab-community")?.style.display || null,
+    amalDisplay: document.getElementById("tab-amal")?.style.display || null,
+    ownerDisplay: document.getElementById("tab-owner")?.style.display || null,
+    helpDisplay: document.getElementById("tab-help")?.style.display || null
   });
 
   saveActiveTab(tabName);
