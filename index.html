@@ -4232,20 +4232,19 @@ function setActiveDashboardTab(tabName, meta = {}) {
   });
 
   const activeSection = document.getElementById(`tab-${tabName}`);
+if (activeSection) {
+  activeSection.classList.remove("hidden");
+  activeSection.style.display = "block";
+  activeSection.style.visibility = "visible";
+  activeSection.style.opacity = "1";
+  activeSection.style.height = "auto";
+  activeSection.style.overflow = "visible";
+  activeSection.style.minHeight = "240px";
 
-  if (activeSection) {
-    activeSection.classList.remove("hidden");
-    activeSection.style.display = "block";
-    activeSection.style.visibility = "visible";
-    activeSection.style.opacity = "1";
-    activeSection.style.height = "auto";
-    activeSection.style.overflow = "visible";
-    activeSection.style.minHeight = "240px";
-
-    activeSection.style.border = "2px solid red";
-    activeSection.style.background = "rgba(255, 0, 0, 0.04)";
-    activeSection.style.position = "relative";
-    activeSection.style.zIndex = "5";
+  activeSection.style.border = "";
+  activeSection.style.background = "";
+  activeSection.style.position = "";
+  activeSection.style.zIndex = "";
 
     const rect = activeSection.getBoundingClientRect();
     console.log("ACTIVE SECTION RECT:", {
