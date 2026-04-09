@@ -1,4 +1,4 @@
-import { db } from "./firebase.js";
+import { db, auth } from "./firebase.js";
 import {
   collection,
   getDocs
@@ -36,6 +36,11 @@ function normalizeGroupId(groupId) {
 
 export async function getWeeklySummary(groupId) {
   try {
+    if (!auth.currentUser) {
+      console.warn("Belum login, skip weekly summary");
+      return [];
+    }
+
     const cleanGroupId = normalizeGroupId(groupId);
 
     if (!cleanGroupId) {
@@ -72,13 +77,27 @@ export async function getWeeklySummary(groupId) {
 
         console.log("DEBUG member weekly summary:", member, "=>", memberUid);
 
-        if (!memberUid) {
-          console.warn("SKIP member tanpa uid/userId:", member);
+        if (!memberUid || memberUid.length < 10) {
+          console.warn("UID tidak valid:", memberUid, member);
           return null;
         }
 
-        const progressRef = collection(db, "users", memberUid, "dailyProgress");
-        const snap = await getDocs(progressRef);
+        console.log("QUERY dailyProgress:", {
+          path: `users/${memberUid}/dailyProgress`,
+          uid: memberUid
+        });
+
+        let snap;
+        try {
+          const progressRef = collection(db, "users", memberUid, "dailyProgress");
+          snap = await getDocs(progressRef);
+        } catch (err) {
+          console.warn("ERROR ambil dailyProgress:", {
+            memberUid,
+            err
+          });
+          return null;
+        }
 
         const docs = {};
         snap.docs.forEach((docSnap) => {
@@ -112,9 +131,7 @@ export async function getWeeklySummary(groupId) {
       .filter(Boolean)
       .sort((a, b) => b.score - a.score);
   } catch (error) {
-    console.error("getWeeklySummary ERROR:", error, {
-      groupId
-    });
+    console.error("getWeeklySummary ERROR:", error, { groupId });
     return [];
   }
 }
