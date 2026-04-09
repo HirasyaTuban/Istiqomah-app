@@ -41,252 +41,264 @@
     rel="stylesheet"
   />
 
-  <style>
+<style>
+  .dashboard-tab-content {
+    width: 100%;
+    display: block;
+  }
+
+  .dashboard-tab-content[hidden] {
+    display: none !important;
+  }
+
+  .landing-shell {
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+  }
+
+  .landing-hero {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .landing-logo-wrap {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .landing-actions {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .landing-btn {
+    width: 100%;
+    min-height: 54px;
+    border-radius: 18px;
+  }
+
+  .landing-copy {
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .auth-shell {
+    width: 100%;
+    max-width: 420px;
+    margin: 20px auto 0;
+  }
+
+  .auth-input {
+    width: 100%;
+    min-height: 52px;
+    border-radius: 16px;
+  }
+
+  .auth-submit-btn {
+    width: 100%;
+    min-height: 54px;
+    border-radius: 18px;
+  }
+
+  body {
+    background: #000;
+    color: #e4e4e7;
+    font-family: Inter, sans-serif;
+  }
+
+  .logo-float {
+    animation: floatLogo 6s ease-in-out infinite;
+  }
+
+  @keyframes floatLogo {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .hijri-chart-bar {
+    position: relative;
+    transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  .hijri-chart-bar:hover {
+    transform: translateY(-2px);
+    opacity: 1;
+  }
+
+  .hijri-chart-bar--top {
+    box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35), 0 0 18px rgba(245, 158, 11, 0.18);
+  }
+
+  .hijri-chart-tooltip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) translateY(4px);
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 20;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  .hijri-line-path {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawHijriLine 1.2s ease forwards;
+  }
+
+  .hijri-area-path {
+    opacity: 0;
+    animation: fadeHijriArea 1.2s ease forwards;
+    animation-delay: 0.2s;
+  }
+
+  .hijri-point {
+    transition: transform 0.18s ease, opacity 0.18s ease;
+  }
+
+  .hijri-point:hover {
+    transform: scale(1.08);
+  }
+
+  .hijri-chart-tooltip {
+    position: absolute;
+    z-index: 20;
+    pointer-events: none;
+    white-space: nowrap;
+    transform: translate(-50%, -120%);
+  }
+
+  @keyframes drawHijriLine {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes fadeHijriArea {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  svg path {
+    transition: all 0.3s ease;
+  }
+
+  .hijri-chart-bar:hover .hijri-chart-tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .home-animate {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: homeFadeSlide 0.55s ease forwards;
+  }
+
+  .home-animate:nth-child(1) { animation-delay: 0.02s; }
+  .home-animate:nth-child(2) { animation-delay: 0.08s; }
+  .home-animate:nth-child(3) { animation-delay: 0.14s; }
+  .home-animate:nth-child(4) { animation-delay: 0.20s; }
+  .home-animate:nth-child(5) { animation-delay: 0.26s; }
+  .home-animate:nth-child(6) { animation-delay: 0.32s; }
+
+  @keyframes homeFadeSlide {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .help-step-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(63, 63, 70, 1);
+    transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  }
+
+  .help-step-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(245, 158, 11, 0.35);
+    background: rgba(0, 0, 0, 0.42);
+  }
+
+  .help-step-badge {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: rgba(245, 158, 11, 0.14);
+    border: 1px solid rgba(245, 158, 11, 0.28);
+    color: #f59e0b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .dashboard-tab-btn {
+    transition: all 0.2s ease;
+  }
+
+  .dashboard-tab-btn.dashboard-tab-btn--active {
+    background: linear-gradient(to bottom right, rgba(245, 158, 11, 1), rgba(251, 191, 36, 0.92));
+    color: #111827;
+    box-shadow: 0 10px 24px rgba(245, 158, 11, 0.22);
+  }
+
+  .dashboard-tab-btn.dashboard-tab-btn--active:hover {
+    color: #111827;
+  }
+
+  @media (min-width: 768px) {
     .landing-shell {
-      width: 100%;
-      max-width: 460px;
-      margin: 0 auto;
+      max-width: 520px;
     }
 
     .landing-hero {
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto;
+      max-width: 460px;
     }
 
     .landing-logo-wrap {
-      width: 100%;
-      max-width: 300px;
-      margin: 0 auto;
+      max-width: 340px;
     }
 
     .landing-actions {
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto;
-    }
-
-    .landing-btn {
-      width: 100%;
-      min-height: 54px;
-      border-radius: 18px;
+      max-width: 440px;
     }
 
     .landing-copy {
-      max-width: 360px;
-      margin: 0 auto;
+      max-width: 390px;
+    }
+
+    #dashboardTabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    #dashboardTabs {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
 
     .auth-shell {
-      width: 100%;
-      max-width: 420px;
-      margin: 20px auto 0;
+      max-width: 460px;
     }
-
-    .auth-input {
-      width: 100%;
-      min-height: 52px;
-      border-radius: 16px;
-    }
-
-    .auth-submit-btn {
-      width: 100%;
-      min-height: 54px;
-      border-radius: 18px;
-    }
-
-    body {
-      background: #000;
-      color: #e4e4e7;
-      font-family: Inter, sans-serif;
-    }
-
-    .logo-float {
-      animation: floatLogo 6s ease-in-out infinite;
-    }
-
-    @keyframes floatLogo {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-8px); }
-      100% { transform: translateY(0px); }
-    }
-
-.hijri-chart-bar {
-  position: relative;
-  transition: transform 0.18s ease, opacity 0.18s ease, box-shadow 0.18s ease;
-}
-
-.hijri-chart-bar:hover {
-  transform: translateY(-2px);
-  opacity: 1;
-}
-
-.hijri-chart-bar--top {
-  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35), 0 0 18px rgba(245, 158, 11, 0.18);
-}
-
-.hijri-chart-tooltip {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 8px);
-  transform: translateX(-50%) translateY(4px);
-  opacity: 0;
-  pointer-events: none;
-  white-space: nowrap;
-  z-index: 20;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-}
-
-.hijri-line-path {
-  stroke-dasharray: 1000;
-  stroke-dashoffset: 1000;
-  animation: drawHijriLine 1.2s ease forwards;
-}
-
-.hijri-area-path {
-  opacity: 0;
-  animation: fadeHijriArea 1.2s ease forwards;
-  animation-delay: 0.2s;
-}
-
-.hijri-point {
-  transition: transform 0.18s ease, opacity 0.18s ease;
-}
-
-.hijri-point:hover {
-  transform: scale(1.08);
-}
-
-.hijri-chart-tooltip {
-  position: absolute;
-  z-index: 20;
-  pointer-events: none;
-  white-space: nowrap;
-  transform: translate(-50%, -120%);
-}
-
-@keyframes drawHijriLine {
-  to {
-    stroke-dashoffset: 0;
   }
-}
-
-@keyframes fadeHijriArea {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-svg path {
-  transition: all 0.3s ease;
-}
-
-.hijri-chart-bar:hover .hijri-chart-tooltip {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
-
-    .home-animate {
-      opacity: 0;
-      transform: translateY(14px);
-      animation: homeFadeSlide 0.55s ease forwards;
-    }
-
-    .home-animate:nth-child(1) { animation-delay: 0.02s; }
-    .home-animate:nth-child(2) { animation-delay: 0.08s; }
-    .home-animate:nth-child(3) { animation-delay: 0.14s; }
-    .home-animate:nth-child(4) { animation-delay: 0.20s; }
-    .home-animate:nth-child(5) { animation-delay: 0.26s; }
-    .home-animate:nth-child(6) { animation-delay: 0.32s; }
-
-    @keyframes homeFadeSlide {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (min-width: 768px) {
-      .landing-shell {
-        max-width: 520px;
-      }
-
-      .landing-hero {
-        max-width: 460px;
-      }
-
-      .landing-logo-wrap {
-        max-width: 340px;
-      }
-
-      .landing-actions {
-        max-width: 440px;
-      }
-
-      .landing-copy {
-        max-width: 390px;
-      }
-#dashboardTabs::-webkit-scrollbar {
-  display: none;
-}
-#dashboardTabs {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-      .auth-shell {
-        max-width: 460px;
-      }
-    }
-    .help-step-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 16px;
-  border-radius: 18px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(63, 63, 70, 1);
-  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
-}
-
-.help-step-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(245, 158, 11, 0.35);
-  background: rgba(0, 0, 0, 0.42);
-}
-
-.help-step-badge {
-  width: 34px;
-  height: 34px;
-  flex-shrink: 0;
-  border-radius: 9999px;
-  background: rgba(245, 158, 11, 0.14);
-  border: 1px solid rgba(245, 158, 11, 0.28);
-  color: #f59e0b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.dashboard-tab-btn {
-  transition: all 0.2s ease;
-}
-
-.dashboard-tab-btn.dashboard-tab-btn--active {
-  background: linear-gradient(to bottom right, rgba(245, 158, 11, 1), rgba(251, 191, 36, 0.92));
-  color: #111827;
-  box-shadow: 0 10px 24px rgba(245, 158, 11, 0.22);
-}
-
-.dashboard-tab-btn.dashboard-tab-btn--active:hover {
-  color: #111827;
-}
-
-  </style>
+</style>
 </head>
 <body>
   <main class="min-h-screen bg-black text-zinc-100 flex items-start justify-center px-4 sm:px-6 py-8 overflow-y-auto">
@@ -1933,11 +1945,14 @@ function applyRoleBasedMenu() {
     currentActiveTab
   });
 
-  if (!currentActiveTab || !allowedTabs.includes(currentActiveTab)) {
-    const fallbackTab = allowedTabs[0] || "home";
-    console.log("FORCE SWITCH TAB:", fallbackTab);
-    setActiveDashboardTab(fallbackTab, { source: "role-based-menu" });
-  }
+if (!currentActiveTab || !allowedTabs.includes(currentActiveTab)) {
+  const savedTab = getSavedActiveTab(currentSession.uid);
+  const fallbackTab = allowedTabs.includes(savedTab)
+    ? savedTab
+    : (allowedTabs[0] || "home");
+
+  console.log("FORCE SWITCH TAB:", fallbackTab);
+  setActiveDashboardTab(fallbackTab, { source: "role-based-menu" });
 }
 
 function updateDashboardTabLayout() {
@@ -2243,6 +2258,11 @@ const weeklyLowMembers = document.getElementById("weeklyLowMembers");
 const dashboardTabButtons = document.querySelectorAll(".dashboard-tab-btn");
 const dashboardTabContents = document.querySelectorAll(".dashboard-tab-content");
 const ownerTabBtn = document.getElementById("ownerTabBtn");
+
+dashboardTabContents.forEach((section) => {
+  section.hidden = section.id !== "tab-home";
+  section.setAttribute("aria-hidden", section.id === "tab-home" ? "false" : "true");
+});
 
 const challengeCardMonthName = document.getElementById("challengeCardMonthName");
 const challengeCardTitle = document.getElementById("challengeCardTitle");
@@ -4193,83 +4213,88 @@ async function loadStats(uid) {
   }
 }
 
-function setActiveDashboardTab(tabName, meta = {}) {
-  const source = meta.source || "unknown";
+function setActiveDashboardTab(tabName, options = {}) {
+  const source = options?.source || "unknown";
+  const allowedTabs = getAllowedTabs();
+
   console.log("SET ACTIVE TAB:", tabName, "| source:", source);
 
-  const allowedTabs = getAllowedTabs();
-  if (!allowedTabs.includes(tabName)) {
-    console.warn("TAB TIDAK DIIZINKAN:", { tabName, allowedTabs });
+  if (!tabName) {
+    console.warn("setActiveDashboardTab: tabName kosong");
     return;
   }
 
-  dashboardTabContents.forEach((section) => {
-    section.classList.add("hidden");
-    section.style.display = "none";
-    section.style.visibility = "hidden";
-    section.style.opacity = "0";
-    section.style.height = "0";
-    section.style.overflow = "hidden";
-    section.style.minHeight = "0";
-    section.style.border = "";
-    section.style.background = "";
-    section.style.position = "";
-    section.style.zIndex = "";
-  });
+  if (!allowedTabs.includes(tabName)) {
+    console.warn("TAB TIDAK DIIZINKAN:", {
+      tabName,
+      allowedTabs,
+      globalRole: currentSession?.globalRole,
+      activeGroupRole: currentSession?.activeGroupRole
+    });
+    tabName = allowedTabs[0] || "home";
+  }
+
+  const activeSection = document.getElementById(`tab-${tabName}`);
+  if (!activeSection) {
+    console.error("SECTION TAB TIDAK DITEMUKAN:", `tab-${tabName}`);
+    return;
+  }
 
   dashboardTabButtons.forEach((btn) => {
     const isActive = btn.dataset.tab === tabName;
-
     btn.classList.toggle("dashboard-tab-btn--active", isActive);
-
-    if (isActive) {
-      btn.classList.remove("bg-zinc-800", "text-zinc-300");
-      btn.classList.add("bg-amber-500", "text-black");
-    } else {
-      btn.classList.remove("bg-amber-500", "text-black");
-      btn.classList.add("bg-zinc-800", "text-zinc-300");
-    }
+    btn.setAttribute("aria-selected", isActive ? "true" : "false");
   });
 
-  const activeSection = document.getElementById(`tab-${tabName}`);
-if (activeSection) {
-  activeSection.classList.remove("hidden");
-  activeSection.style.display = "block";
-  activeSection.style.visibility = "visible";
-  activeSection.style.opacity = "1";
-  activeSection.style.height = "auto";
-  activeSection.style.overflow = "visible";
-  activeSection.style.minHeight = "240px";
+  dashboardTabContents.forEach((section) => {
+    const isTarget = section.id === `tab-${tabName}`;
+    section.hidden = !isTarget;
+    section.setAttribute("aria-hidden", isTarget ? "false" : "true");
+  });
 
-  activeSection.style.border = "";
-  activeSection.style.background = "";
-  activeSection.style.position = "";
-  activeSection.style.zIndex = "";
+  saveActiveTab(tabName);
 
+  requestAnimationFrame(() => {
     const rect = activeSection.getBoundingClientRect();
+
     console.log("ACTIVE SECTION RECT:", {
       tabName,
       top: rect.top,
       bottom: rect.bottom,
       height: rect.height,
       width: rect.width,
-      scrollY: window.scrollY,
-      innerHeight: window.innerHeight
+      hidden: activeSection.hidden
     });
-  }
 
-  console.log("AFTER TAB SWITCH:", {
-    tabName,
-    activeClass: activeSection?.className || null,
-    activeDisplay: activeSection?.style?.display || null,
-    communityDisplay: document.getElementById("tab-community")?.style.display || null,
-    amalDisplay: document.getElementById("tab-amal")?.style.display || null,
-    ownerDisplay: document.getElementById("tab-owner")?.style.display || null,
-    helpDisplay: document.getElementById("tab-help")?.style.display || null
+    console.log("AFTER TAB SWITCH:", {
+      tabName,
+      activeId: activeSection.id,
+      activeHidden: activeSection.hidden,
+      activeDisplay: getComputedStyle(activeSection).display,
+      homeHidden: document.getElementById("tab-home")?.hidden,
+      amalHidden: document.getElementById("tab-amal")?.hidden,
+      communityHidden: document.getElementById("tab-community")?.hidden,
+      ownerHidden: document.getElementById("tab-owner")?.hidden,
+      helpHidden: document.getElementById("tab-help")?.hidden
+    });
+
+    const dashboardTabsEl = document.getElementById("dashboardTabs");
+    const tabsBottom = dashboardTabsEl
+      ? dashboardTabsEl.getBoundingClientRect().bottom
+      : 0;
+
+    const activeTop = activeSection.getBoundingClientRect().top;
+
+    if (activeTop < tabsBottom || activeTop > window.innerHeight) {
+      window.scrollTo({
+        top: window.scrollY + activeTop - tabsBottom - 12,
+        behavior: "smooth"
+      });
+    }
   });
-
-  saveActiveTab(tabName);
 }
+
+window.setActiveDashboardTab = setActiveDashboardTab;
 
 async function handleApproveOwner(userId) {
   try {
