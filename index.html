@@ -718,6 +718,60 @@
     </div>
   </div>
 
+<!-- HIJRI MONTHLY CHART -->
+<div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+  <div class="flex items-center justify-between mb-2">
+    <div>
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em]">
+        Progress Bulanan
+      </p>
+      <h3 id="hijriMonthlyTitle" class="text-white font-bold text-lg mt-1">
+        -
+      </h3>
+    </div>
+
+    <p id="hijriMonthlyPercent" class="text-amber-400 font-bold text-lg">
+      0%
+    </p>
+  </div>
+
+  <p id="hijriMonthlySubtitle" class="text-zinc-400 text-sm mb-4">
+    -
+  </p>
+
+  <!-- Progress Bar -->
+  <div class="w-full h-2.5 bg-black/50 rounded-full overflow-hidden mb-4">
+    <div
+      id="hijriMonthlyBar"
+      class="h-full bg-amber-500 rounded-full transition-all duration-500"
+      style="width: 0%"
+    ></div>
+  </div>
+
+  <!-- Chart -->
+  <div
+    id="hijriMonthlyChart"
+    class="w-full h-[160px] flex items-end gap-1"
+  >
+    <!-- fallback -->
+    <div class="w-full flex items-center justify-center h-full">
+      <p class="text-sm text-zinc-500">Memuat grafik...</p>
+    </div>
+  </div>
+
+  <p
+    id="hijriMonthlyChartHint"
+    class="text-[11px] text-zinc-500 mt-2"
+  >
+    Hover untuk detail
+  </p>
+
+  <!-- Insight -->
+  <div id="hijriMonthlyInsight" class="mt-4 text-sm text-zinc-400 leading-relaxed">
+    -
+  </div>
+</div>
+
   <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
     <div class="flex items-center justify-between mb-4 gap-3">
       <div>
@@ -2383,10 +2437,18 @@ function renderHijriMonthlyChart(dayItems = []) {
     height: hijriMonthlyChart?.clientHeight
   });
 
-  if (!hijriMonthlyChart) {
-    console.warn("RENDER CHART STOP: elemen hijriMonthlyChart tidak ditemukan");
-    return;
-  }
+if (!hijriMonthlyChart) {
+  console.warn("Chart belum ready, retry...");
+
+  setTimeout(() => {
+    const retryEl = document.getElementById("hijriMonthlyChart");
+    if (retryEl) {
+      renderHijriMonthlyChart(dayItems);
+    }
+  }, 200);
+
+  return;
+}
 
   if (!dayItems.length) {
     hijriMonthlyChart.innerHTML = `
