@@ -897,50 +897,97 @@
 
   </div>
 
-  <!-- MEMBER ACTIVITY -->
-  <div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
-    <div class="mb-4">
+<!-- MEMBER ACTIVITY -->
+<div class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+  <div class="mb-4">
+    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2">
+      Member Activity Hari Ini
+    </p>
+    <p class="text-sm text-zinc-400 mb-4">
+      Pantau aktivitas anggota berdasarkan nama dan status isian hari ini.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <input
+        id="memberActivitySearch"
+        type="text"
+        placeholder="Cari nama member..."
+        class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-zinc-300 text-sm"
+      />
+
+      <select
+        id="memberActivityFilter"
+        class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-zinc-300 text-sm"
+      >
+        <option value="all">Semua</option>
+        <option value="filled">Sudah isi</option>
+        <option value="empty">Belum isi</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="memberActivityList" class="space-y-3 text-sm text-zinc-300 max-h-80 overflow-y-auto">
+    Memuat aktivitas member...
+  </div>
+</div>
+
+<div id="weeklyCommunityChartBox" class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
       <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2">
-        Member Activity Hari Ini
+        Grafik Mingguan
       </p>
-      <p class="text-sm text-zinc-400 mb-4">
-        Pantau aktivitas anggota berdasarkan nama dan status isian hari ini.
+      <p class="text-white font-bold text-lg">Aktivitas Group 7 Hari</p>
+      <p class="text-sm text-zinc-400 mt-1">
+        Ringkasan total amal harian komunitas selama 7 hari terakhir.
       </p>
+    </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <input
-          id="memberActivitySearch"
-          type="text"
-          placeholder="Cari nama member..."
-          class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-zinc-300 text-sm"
-        />
+    <div class="shrink-0 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] font-bold uppercase tracking-[0.18em]">
+      Trend
+    </div>
+  </div>
 
-        <select
-          id="memberActivityFilter"
-          class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-zinc-300 text-sm"
-        >
-          <option value="all">Semua</option>
-          <option value="filled">Sudah isi</option>
-          <option value="empty">Belum isi</option>
-        </select>
+  <div class="rounded-2xl bg-black/30 border border-zinc-800 px-3 pt-4 pb-3">
+    <div id="weeklyCommunityChart" class="relative w-full h-40 md:h-52">
+      <div class="w-full h-full flex items-center justify-center text-sm text-zinc-500">
+        Memuat grafik mingguan...
       </div>
     </div>
+  </div>
 
-    <div id="memberActivityList" class="space-y-3 text-sm text-zinc-300 max-h-80 overflow-y-auto">
-      Memuat aktivitas member...
+  <p id="weeklyCommunityChartInsight" class="text-sm text-zinc-400 mt-4">
+    Menyiapkan insight mingguan...
+  </p>
+</div>
+
+<!-- WEEKLY SUMMARY -->
+<div id="weeklySummaryBox" class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 hidden">
+  <div class="flex items-start justify-between gap-3 mb-4">
+    <div>
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2">
+        Leaderboard 7 Hari
+      </p>
+      <p class="text-white font-bold text-lg">Peringkat Konsistensi Pekanan</p>
+      <p class="text-sm text-zinc-400 mt-1">
+        Ranking berdasarkan hari aktif dan total tilawah 7 hari terakhir.
+      </p>
+    </div>
+
+    <div class="shrink-0 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[11px] font-bold uppercase tracking-[0.18em]">
+      Weekly
     </div>
   </div>
 
-  <!-- WEEKLY SUMMARY -->
-  <div id="weeklySummaryBox" class="rounded-2xl bg-zinc-900 border border-zinc-800 p-5 hidden">
-    <p class="text-[11px] text-zinc-500 uppercase tracking-[0.22em] mb-2">Ringkasan Pekanan</p>
-    <div id="weeklyTopMembers" class="text-sm text-white space-y-2"></div>
+  <div id="weeklyTopMembers" class="space-y-3"></div>
 
-    <div class="mt-4 border-t border-zinc-800 pt-4">
-      <p class="text-xs text-zinc-500 mb-2">Perlu Perhatian</p>
-      <div id="weeklyLowMembers" class="text-sm text-zinc-400 space-y-2"></div>
-    </div>
+  <div class="mt-5 border-t border-zinc-800 pt-4">
+    <p class="text-xs text-zinc-500 mb-2 uppercase tracking-[0.18em]">
+      Perlu Perhatian
+    </p>
+    <div id="weeklyLowMembers" class="space-y-2"></div>
   </div>
+</div>
 
 </div>
 
@@ -1973,6 +2020,9 @@ const syukurText = document.getElementById("syukurText");
 const saveProgressBtn = document.getElementById("saveProgressBtn");
 const progressMessage = document.getElementById("progressMessage");
 
+const weeklyCommunityChart = document.getElementById("weeklyCommunityChart");
+const weeklyCommunityChartInsight = document.getElementById("weeklyCommunityChartInsight");
+
 const weeklyHistoryList = document.getElementById("weeklyHistoryList");
 const hijriEventBox = document.getElementById("hijriEventBox");
 const hijriEventTitle = document.getElementById("hijriEventTitle");
@@ -2265,8 +2315,6 @@ function bindProgressChecklistListeners() {
   syukurText?.addEventListener("input", runLiveRefresh);
 }
 
-
-
 async function loadTodayProgressToUI(uid) {
   if (!uid) return;
 
@@ -2481,6 +2529,201 @@ function renderHijriMonthlyChart(dayItems = []) {
       tooltip.classList.remove("hidden");
 
       const rect = hijriMonthlyChart.getBoundingClientRect();
+      tooltip.style.left = `${event.clientX - rect.left}px`;
+      tooltip.style.top = `${event.clientY - rect.top}px`;
+    });
+
+    point.addEventListener("mouseleave", () => {
+      tooltip.classList.add("hidden");
+    });
+  });
+}
+
+function getLast7DayLabels() {
+  const today = new Date();
+  const labels = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+
+    labels.push(
+      d.toLocaleDateString("id-ID", {
+        weekday: "short",
+        day: "2-digit",
+        month: "2-digit"
+      })
+    );
+  }
+
+  return labels;
+}
+
+function getLast7DayKeys() {
+  const today = new Date();
+  const keys = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+
+    keys.push(`${y}-${m}-${day}`);
+  }
+
+  return keys;
+}
+
+function renderWeeklyCommunityLineChart(dayItems = []) {
+  if (!weeklyCommunityChart) return;
+
+  if (!dayItems.length) {
+    weeklyCommunityChart.innerHTML = `
+      <div class="w-full h-full flex items-center justify-center text-sm text-zinc-500">
+        Belum ada data mingguan.
+      </div>
+    `;
+    return;
+  }
+
+  const width = weeklyCommunityChart.clientWidth || 360;
+  const height = weeklyCommunityChart.clientHeight || 180;
+
+  const paddingTop = 14;
+  const paddingRight = 12;
+  const paddingBottom = 28;
+  const paddingLeft = 28;
+
+  const chartWidth = width - paddingLeft - paddingRight;
+  const chartHeight = height - paddingTop - paddingBottom;
+
+  const maxValue = Math.max(...dayItems.map((d) => d.totalAmal || 0), 1);
+  const midValue = Math.round(maxValue / 2);
+
+  const stepX =
+    dayItems.length > 1 ? chartWidth / (dayItems.length - 1) : chartWidth;
+
+  const points = dayItems.map((item, index) => {
+    const value = item.totalAmal || 0;
+    const x = paddingLeft + index * stepX;
+    const y = paddingTop + (chartHeight - (value / maxValue) * chartHeight);
+
+    return {
+      x,
+      y,
+      value,
+      label: item.label,
+      shortLabel: item.shortLabel
+    };
+  });
+
+  const linePath = points
+    .map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`)
+    .join(" ");
+
+  const areaPath = `
+    ${linePath}
+    L ${points[points.length - 1].x} ${paddingTop + chartHeight}
+    L ${points[0].x} ${paddingTop + chartHeight}
+    Z
+  `;
+
+  const topValue = Math.max(...points.map((p) => p.value), 0);
+
+  const labels = points
+    .map((p) => {
+      return `
+        <text
+          x="${p.x}"
+          y="${height - 8}"
+          text-anchor="middle"
+          font-size="9"
+          fill="#71717a"
+        >
+          ${p.shortLabel}
+        </text>
+      `;
+    })
+    .join("");
+
+  const circles = points
+    .map((p) => {
+      const isTop = p.value > 0 && p.value === topValue;
+
+      return `
+        <circle
+          class="hijri-point weekly-point"
+          cx="${p.x}"
+          cy="${p.y}"
+          r="${isTop ? 4.5 : 3.2}"
+          fill="${isTop ? "#fde68a" : "#f59e0b"}"
+          stroke="${isTop ? "#f59e0b" : "none"}"
+          stroke-width="${isTop ? "1.2" : "0"}"
+          data-label="${p.label}"
+          data-value="${p.value}"
+        />
+      `;
+    })
+    .join("");
+
+  weeklyCommunityChart.innerHTML = `
+    <svg width="100%" height="100%" viewBox="0 0 ${width} ${height}" class="overflow-visible">
+      <defs>
+        <linearGradient id="weeklyAreaGradient" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.28" />
+          <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.02" />
+        </linearGradient>
+      </defs>
+
+      <line x1="${paddingLeft}" y1="${paddingTop}" x2="${width}" y2="${paddingTop}" stroke="#18181b" />
+      <line x1="${paddingLeft}" y1="${paddingTop + chartHeight / 2}" x2="${width}" y2="${paddingTop + chartHeight / 2}" stroke="#18181b" />
+      <line x1="${paddingLeft}" y1="${paddingTop + chartHeight}" x2="${width}" y2="${paddingTop + chartHeight}" stroke="#27272a" />
+
+      <text x="4" y="${paddingTop + 4}" font-size="9" fill="#71717a">${maxValue}</text>
+      <text x="4" y="${paddingTop + chartHeight / 2 + 3}" font-size="9" fill="#71717a">${midValue}</text>
+      <text x="4" y="${paddingTop + chartHeight + 3}" font-size="9" fill="#71717a">0</text>
+
+      <path
+        d="${areaPath}"
+        fill="url(#weeklyAreaGradient)"
+        class="hijri-area-path"
+      />
+
+      <path
+        d="${linePath}"
+        fill="none"
+        stroke="#f59e0b"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="hijri-line-path"
+      />
+
+      ${circles}
+      ${labels}
+    </svg>
+
+    <div
+      id="weeklyChartTooltip"
+      class="hijri-chart-tooltip hidden px-2 py-1 rounded-lg bg-zinc-900 border border-zinc-700 text-[10px] text-zinc-200 shadow-lg"
+    ></div>
+  `;
+
+  const tooltip = weeklyCommunityChart.querySelector("#weeklyChartTooltip");
+  const pointEls = weeklyCommunityChart.querySelectorAll(".weekly-point");
+
+  pointEls.forEach((point) => {
+    point.addEventListener("mousemove", (event) => {
+      const label = point.getAttribute("data-label");
+      const value = point.getAttribute("data-value");
+
+      tooltip.textContent = `${label}: ${value} amal`;
+      tooltip.classList.remove("hidden");
+
+      const rect = weeklyCommunityChart.getBoundingClientRect();
       tooltip.style.left = `${event.clientX - rect.left}px`;
       tooltip.style.top = `${event.clientY - rect.top}px`;
     });
@@ -2825,48 +3068,204 @@ function renderChallengeChecklist(monthName, progress = {}) {
 }
 
 async function loadWeeklySummary(groupId, role) {
-  if (!groupId) return;
+  if (!groupId || !weeklySummaryBox || !weeklyTopMembers || !weeklyLowMembers) return;
 
-  if (!role || role.toLowerCase() !== "owner") {
-    if (weeklySummaryBox) weeklySummaryBox.classList.add("hidden");
-    return;
-  }
+  const normalizedRole = (role || "").toLowerCase();
 
   try {
     const data = await getWeeklySummary(groupId);
 
-    if (!data.length) return;
+    weeklySummaryBox.classList.remove("hidden");
 
-    if (weeklySummaryBox) weeklySummaryBox.classList.remove("hidden");
+    if (!data.length) {
+      weeklyTopMembers.innerHTML = `
+        <div class="rounded-2xl border border-dashed border-zinc-700 bg-black/20 px-4 py-5 text-sm text-zinc-500">
+          Belum ada data leaderboard 7 hari.
+        </div>
+      `;
+
+      weeklyLowMembers.innerHTML = "";
+      return;
+    }
 
     const sorted = [...data].sort((a, b) => b.score - a.score);
-    const top = sorted.slice(0, 3);
-    const low = sorted.filter((m) => m.activeDays <= 2);
 
-    weeklyTopMembers.innerHTML = top
-      .map((m, i) => `<div>${i + 1}. ${m.name} (${m.score} poin)</div>`)
+    weeklyTopMembers.innerHTML = sorted
+      .map((member, index) => {
+        const rank = index + 1;
+
+        const medal =
+          rank === 1 ? "🥇" :
+          rank === 2 ? "🥈" :
+          rank === 3 ? "🥉" : `#${rank}`;
+
+        const accentClass =
+          rank === 1
+            ? "border-amber-500/30 bg-amber-500/10"
+            : rank === 2
+            ? "border-zinc-500/30 bg-zinc-800/40"
+            : rank === 3
+            ? "border-orange-500/30 bg-orange-500/10"
+            : "border-zinc-800 bg-black/30";
+
+        const scoreClass =
+          rank === 1
+            ? "text-amber-400"
+            : rank === 2
+            ? "text-zinc-200"
+            : rank === 3
+            ? "text-orange-300"
+            : "text-white";
+
+        return `
+          <div class="rounded-2xl border p-4 ${accentClass}">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3 min-w-0">
+                <div class="w-11 h-11 shrink-0 rounded-2xl bg-black/30 border border-zinc-800 flex items-center justify-center text-sm font-black ${scoreClass}">
+                  ${medal}
+                </div>
+
+                <div class="min-w-0">
+                  <p class="text-white font-semibold text-sm md:text-base break-words">
+                    ${member.name}
+                  </p>
+
+                  <div class="flex flex-wrap items-center gap-2 mt-2 text-xs">
+                    <span class="px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-300">
+                      ${member.activeDays} hari aktif
+                    </span>
+                    <span class="px-2.5 py-1 rounded-full bg-zinc-800 text-zinc-300">
+                      ${member.totalTilawah} halaman
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-right shrink-0">
+                <p class="font-black text-2xl leading-none ${scoreClass}">
+                  ${member.score}
+                </p>
+                <p class="text-zinc-500 text-[10px] uppercase tracking-[0.18em] mt-1">
+                  poin
+                </p>
+              </div>
+            </div>
+          </div>
+        `;
+      })
       .join("");
 
-    weeklyLowMembers.innerHTML = low.length
-      ? low.map((m) => `<div>${m.name} (${m.activeDays} hari)</div>`).join("")
-      : `<div>Semua aktif 👍</div>`;
+    if (normalizedRole === "owner") {
+      const low = sorted.filter((m) => m.activeDays <= 2);
+
+      weeklyLowMembers.innerHTML = low.length
+        ? low
+            .map(
+              (member) => `
+                <div class="rounded-xl bg-black/20 border border-zinc-800 px-4 py-3">
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                      <p class="text-sm text-zinc-200 break-words">${member.name}</p>
+                      <p class="text-xs text-zinc-500 mt-1">
+                        ${member.totalTilawah} halaman • ${member.score} poin
+                      </p>
+                    </div>
+
+                    <span class="text-xs text-amber-400 shrink-0">
+                      ${member.activeDays} hari
+                    </span>
+                  </div>
+                </div>
+              `
+            )
+            .join("")
+        : `
+          <div class="rounded-xl bg-black/20 border border-zinc-800 px-4 py-3 text-sm text-emerald-400">
+            Semua anggota cukup aktif pekan ini 👍
+          </div>
+        `;
+    } else {
+      weeklyLowMembers.innerHTML = `
+        <div class="rounded-xl bg-black/20 border border-zinc-800 px-4 py-3 text-sm text-zinc-500">
+          Detail perhatian pekanan hanya tampil untuk owner.
+        </div>
+      `;
+    }
   } catch (err) {
     console.error("LOAD WEEKLY SUMMARY ERROR:", err);
 
-    if (weeklySummaryBox) {
-      weeklySummaryBox.classList.add("hidden");
-    }
+    weeklySummaryBox.classList.remove("hidden");
+    weeklyTopMembers.innerHTML = `
+      <div class="rounded-2xl border border-dashed border-zinc-700 bg-black/20 px-4 py-5 text-sm text-zinc-500">
+        Leaderboard 7 hari belum bisa dimuat.
+      </div>
+    `;
+    weeklyLowMembers.innerHTML = "";
+  }
+}
 
-    if (weeklyTopMembers) {
-      weeklyTopMembers.innerHTML = "";
-    }
+async function loadWeeklyCommunityChart(groupId) {
+  if (!groupId || !weeklyCommunityChart) return;
 
-    if (weeklyLowMembers) {
-      weeklyLowMembers.innerHTML = `
-        <div class="text-sm text-zinc-500">
-          Ringkasan pekanan belum bisa dimuat.
-        </div>
-      `;
+  try {
+    const members = await getMemberDailyActivity(groupId);
+    const keys = getLast7DayKeys();
+    const labels = getLast7DayLabels();
+
+    const dayMap = keys.map((key, index) => ({
+      key,
+      label: labels[index],
+      shortLabel: labels[index].split(",")[0] || labels[index],
+      totalAmal: 0
+    }));
+
+    members.forEach((member) => {
+      const history = member?.weeklyHistory || member?.dailyHistory || {};
+
+      dayMap.forEach((day) => {
+        const daily = history[day.key];
+        if (!daily) return;
+
+        day.totalAmal += Number(daily.totalAmal || 0);
+      });
+    });
+
+    console.log("WEEKLY CHART DAY MAP:", dayMap);
+
+    renderWeeklyCommunityLineChart(dayMap);
+
+    const totals = dayMap.map((d) => d.totalAmal);
+    const max = Math.max(...totals, 0);
+    const min = Math.min(...totals, 0);
+
+    const bestDay = dayMap.find((d) => d.totalAmal === max);
+    const lowDay = dayMap.find((d) => d.totalAmal === min);
+
+    if (weeklyCommunityChartInsight) {
+      if (max === 0) {
+        weeklyCommunityChartInsight.textContent =
+          "Belum ada aktivitas komunitas yang tercatat dalam 7 hari terakhir.";
+      } else if (max === min) {
+        weeklyCommunityChartInsight.textContent =
+          `Aktivitas komunitas cenderung stabil selama 7 hari terakhir, dengan rata-rata ${max} amal per hari.`;
+      } else {
+        weeklyCommunityChartInsight.textContent =
+          `Aktivitas terbaik ada di ${bestDay?.label || "-"} dengan ${max} amal. ` +
+          `Aktivitas terendah ada di ${lowDay?.label || "-"} dengan ${min} amal.`;
+      }
+    }
+  } catch (error) {
+    console.error("LOAD WEEKLY COMMUNITY CHART ERROR:", error);
+
+    weeklyCommunityChart.innerHTML = `
+      <div class="w-full h-full flex items-center justify-center text-sm text-zinc-500">
+        Grafik mingguan belum bisa dimuat.
+      </div>
+    `;
+
+    if (weeklyCommunityChartInsight) {
+      weeklyCommunityChartInsight.textContent =
+        "Insight mingguan belum tersedia.";
     }
   }
 }
