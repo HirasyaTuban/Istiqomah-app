@@ -3818,7 +3818,12 @@ function calculateBestStreak(dayItems = []) {
 }
 
 async function loadHijriMonthlyProgress(uid) {
-  if (!uid) return;
+  console.log("LOAD HIJRI MONTHLY PROGRESS CALLED:", { uid });
+
+  if (!uid) {
+    console.warn("LOAD HIJRI MONTHLY PROGRESS STOP: uid kosong");
+    return;
+  }
 
   try {
     const today = getTodayInfo();
@@ -4777,6 +4782,7 @@ async function reloadDataByGroup() {
   runDeferred(() => loadChallengeLeaderboard(groupId, today.hijriMonth), 240);
   runDeferred(() => loadMemberActivity(groupId), 300);
   runDeferred(() => loadWeeklySummary(groupId, role), 360);
+  runDeferred(() => loadWeeklyCommunityChart(groupId), 420);
 
   if (groupSwitcherStatus) {
     groupSwitcherStatus.textContent = `Group aktif: ${currentSession.groupName}`;
