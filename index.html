@@ -2376,7 +2376,17 @@ function getHijriMonthLabel(monthValue) {
 }
 
 function renderHijriMonthlyChart(dayItems = []) {
-  if (!hijriMonthlyChart) return;
+  console.log("RENDER HIJRI MONTHLY CHART:", {
+    hasElement: !!hijriMonthlyChart,
+    dayItemsLength: dayItems.length,
+    width: hijriMonthlyChart?.clientWidth,
+    height: hijriMonthlyChart?.clientHeight
+  });
+
+  if (!hijriMonthlyChart) {
+    console.warn("RENDER CHART STOP: elemen hijriMonthlyChart tidak ditemukan");
+    return;
+  }
 
   if (!dayItems.length) {
     hijriMonthlyChart.innerHTML = `
@@ -3831,17 +3841,29 @@ async function loadHijriMonthlyProgress(uid) {
     const currentHijriMonthLabel = getHijriMonthLabel(currentHijriMonth);
     const totalDaysInMonth = getHijriMonthTotalDays(currentHijriMonthLabel);
 
-    const progressRef = collection(db, "users", uid, "dailyProgress");
-    const progressQuery = query(progressRef, orderBy("date", "asc"));
-    const snapshot = await getDocs(progressQuery);
+const progressRef = collection(db, "users", uid, "dailyProgress");
+console.log("HIJRI MONTHLY progressRef READY:", { uid, path: `users/${uid}/dailyProgress` });
 
-    const monthDocs = snapshot.docs
-      .map((docItem) => ({
-        id: docItem.id,
-        ...docItem.data()
-      }))
-      .filter((item) => item.hijriMonth === currentHijriMonth);
+const progressQuery = query(progressRef, orderBy("date", "asc"));
+console.log("HIJRI MONTHLY progressQuery READY");
 
+const snapshot = await getDocs(progressQuery);
+console.log("HIJRI MONTHLY SNAPSHOT COUNT:", snapshot.size);
+
+const monthDocs = snapshot.docs
+  .map((docItem) => ({
+    id: docItem.id,
+    ...docItem.data()
+  }))
+  .filter((item) => String(item.hijriMonth) === String(currentHijriMonth));
+
+console.log("HIJRI MONTHLY FILTER RESULT:", {
+  currentHijriMonth,
+  currentHijriMonthLabel,
+  totalDaysInMonth,
+  monthDocsCount: monthDocs.length,
+  monthDocs
+});
     const dayItems = Array.from({ length: totalDaysInMonth }, (_, i) => ({
       day: i + 1,
       totalAmal: 0
@@ -3908,6 +3930,9 @@ async function loadHijriMonthlyProgress(uid) {
 
       hijriMonthlyInsight.textContent = `${baseInsight}${topDayText}`;
     }
+
+console.log("HIJRI DAY ITEMS READY:", dayItems);
+console.log("HIJRI CHART ELEMENT:", hijriMonthlyChart);
 
     renderHijriMonthlyChart(dayItems);
   } catch (error) {
@@ -4776,6 +4801,20 @@ async function reloadDataByGroup() {
     loadChallenge(uid, today.hijriMonth, monthName),
     loadChallengeProgressVisual(uid, today.hijriMonth, monthName)
   ]);
+
+  if (uid) {
+    try {
+      await loadHijriMonthlyProgress(uid);
+    } catch (err) {
+      console.error("LOAD HIJRI MONTHLY FROM reloadDataByGroup ERROR:", err);
+    }
+  }
+
+  try {
+    await loadHijriMonthlyProgress(uid);
+  } catch (err) {
+    console.error("LOAD HIJRI MONTHLY FROM reloadDataByGroup ERROR:", err);
+  }
 
   runDeferred(() => loadMembers(groupId), 120);
   runDeferred(() => loadLeaderboard(groupId), 180);
