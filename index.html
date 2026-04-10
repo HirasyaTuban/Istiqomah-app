@@ -802,52 +802,59 @@
       </p>
     </div>
 
-    <div class="mt-5">
-      <label for="tilawahPages" class="block text-sm text-zinc-300 mb-2">Tilawah (berapa halaman)</label>
-      <input
-        id="tilawahPages"
-        type="number"
-        min="0"
-        value="0"
-        class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white"
-        placeholder="Contoh: 3"
-      />
-      <p id="tilawahAccumulationText" class="text-xs text-zinc-500 mt-2">
-        0 halaman • 0x Khatam
+<div class="mt-5">
+  <label for="tilawahPages" class="block text-sm text-zinc-300 mb-2">Tilawah (berapa halaman)</label>
+  <input
+    id="tilawahPages"
+    type="number"
+    min="0"
+    value="0"
+    class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white"
+    placeholder="Contoh: 3"
+  />
+
+  <div class="mt-2 space-y-1">
+    <p id="tilawahTodayText" class="text-sm text-white font-medium">
+      Hari ini: 0 halaman
+    </p>
+    <p id="tilawahAccumulationText" class="text-xs text-zinc-400">
+      Akumulasi khatam: 0 halaman • 0x Khatam
+    </p>
+  </div>
+
+  <div class="mt-2">
+    <div class="flex items-center justify-between gap-3 mb-1">
+      <p class="text-[11px] text-zinc-500 uppercase tracking-[0.18em]">
+        Progress Khatam
       </p>
+      <p id="tilawahKhatamPercentText" class="text-[11px] text-amber-400 font-medium">
+        0%
+      </p>
+    </div>
 
-      <div class="mt-2">
-        <div class="flex items-center justify-between gap-3 mb-1">
-          <p class="text-[11px] text-zinc-500 uppercase tracking-[0.18em]">
-            Progress Khatam
-          </p>
-          <p id="tilawahKhatamPercentText" class="text-[11px] text-amber-400 font-medium">
-            0%
-          </p>
-        </div>
+    <div class="w-full h-2.5 bg-black/50 rounded-full overflow-hidden border border-zinc-800">
+      <div
+        id="tilawahKhatamProgressBar"
+        class="h-full bg-amber-500 rounded-full transition-all duration-500"
+        style="width: 0%"
+      ></div>
+    </div>
 
-        <div class="w-full h-2.5 bg-black/50 rounded-full overflow-hidden border border-zinc-800">
-          <div
-            id="tilawahKhatamProgressBar"
-            class="h-full bg-amber-500 rounded-full transition-all duration-500"
-            style="width: 0%"
-          ></div>
-        </div>
+    <p id="tilawahKhatamProgressLabel" class="text-[11px] text-zinc-500 mt-2">
+      0 / 604 halaman menuju khatam berikutnya
+    </p>
+  </div>
 
-        <p id="tilawahKhatamProgressLabel" class="text-[11px] text-zinc-500 mt-2">
-          0 / 604 halaman menuju khatam berikutnya
-        </p>
-      </div>
-
-      <div class="mt-5">
-        <label for="syukurText" class="block text-sm text-zinc-300 mb-2">Catatan Syukur Hari Ini</label>
-        <textarea
-          id="syukurText"
-          rows="5"
-          class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white"
-          placeholder="Tulis catatan syukur hari ini..."
-        ></textarea>
-      </div>
+  <div class="mt-5">
+    <label for="syukurText" class="block text-sm text-zinc-300 mb-2">Catatan Syukur Hari Ini</label>
+    <textarea
+      id="syukurText"
+      rows="5"
+      class="w-full px-4 py-3 rounded-xl bg-black border border-zinc-700 text-white"
+      placeholder="Tulis catatan syukur hari ini..."
+    ></textarea>
+  </div>
+</div>
     </div>
   </div>
 </div>
@@ -2073,6 +2080,7 @@ const tilawahPagesInput = document.getElementById("tilawahPages");
 const syukurText = document.getElementById("syukurText");
 const saveProgressBtn = document.getElementById("saveProgressBtn");
 const progressMessage = document.getElementById("progressMessage");
+const tilawahTodayText = document.getElementById("tilawahTodayText");
 
 const weeklyCommunityChart = document.getElementById("weeklyCommunityChart");
 const weeklyCommunityChartInsight = document.getElementById("weeklyCommunityChartInsight");
@@ -2335,6 +2343,14 @@ function refreshTodayStatusFromForm() {
   }
 }
 
+function refreshTilawahTodayText() {
+  const pages = Math.max(0, Number(tilawahPagesInput?.value || 0));
+
+  if (tilawahTodayText) {
+    tilawahTodayText.textContent = `Hari ini: ${pages} halaman`;
+  }
+}
+
 function refreshProgressVisualFromForm() {
   const payload = collectProgressPayload();
   const totalChecked = countDailyChecked(payload);
@@ -2358,6 +2374,7 @@ function bindProgressChecklistListeners() {
   const runLiveRefresh = () => {
     refreshTodayStatusFromForm();
     refreshProgressVisualFromForm();
+    refreshTilawahTodayText();
   };
 
   const checkboxes = progressChecklist.querySelectorAll("input[type='checkbox']");
@@ -2385,21 +2402,16 @@ async function loadTodayProgressToUI(uid) {
     bindProgressChecklistListeners();
     refreshTodayStatusFromForm();
     refreshProgressVisualFromForm();
+    refreshTilawahTodayText();
 
     if (progressMessage) {
-      progressMessage.textContent = "Progress hari ini siap diisi.";
+      progressMessage.textContent = "Isi progres amal hari ini lalu simpan.";
     }
   } catch (error) {
-    console.error("LOAD PROGRESS ERROR:", error);
-
-    renderEmptyState(progressChecklist, {
-      icon: "!",
-      title: "Form amal gagal dimuat",
-      description: "Silakan refresh halaman atau coba lagi sebentar."
-    });
+    console.error("LOAD TODAY PROGRESS UI ERROR:", error);
 
     if (progressMessage) {
-      progressMessage.textContent = "Gagal memuat progress hari ini.";
+      progressMessage.textContent = "Gagal memuat form amal hari ini.";
     }
   }
 }
@@ -3877,17 +3889,19 @@ function calculateBestStreak(dayItems = []) {
   let best = 0;
   let current = 0;
 
-  for (const item of dayItems) {
-    if ((item.totalAmal || 0) > 0) {
-      current += 1;
+  dayItems.forEach((d) => {
+    if (d.totalAmal > 0) {
+      current++;
       if (current > best) best = current;
     } else {
       current = 0;
     }
-  }
+  });
 
   return best;
 }
+
+let isHijriMonthlyLoading = false;
 
 async function loadHijriMonthlyProgress(uid) {
   console.log("LOAD HIJRI MONTHLY PROGRESS CALLED:", { uid });
@@ -3983,15 +3997,9 @@ console.log("HIJRI MONTHLY FILTER RESULT:", {
       hijriBestStreak.textContent = String(bestStreak);
     }
 
-    if (hijriMonthlyInsight) {
-      const baseInsight = getHijriMonthlyInsight(percent);
-      const topDayText =
-        topDayItem && topDayItem.totalAmal > 0
-          ? ` Hari terbaikmu ada di hari ${topDayItem.day} dengan ${topDayItem.totalAmal} amal.`
-          : "";
-
-      hijriMonthlyInsight.textContent = `${baseInsight}${topDayText}`;
-    }
+if (hijriMonthlyInsight) {
+  hijriMonthlyInsight.textContent = generateHijriInsight(dayItems);
+}
 
 console.log("HIJRI DAY ITEMS READY:", dayItems);
 console.log("HIJRI CHART ELEMENT:", hijriMonthlyChart);
@@ -4036,6 +4044,41 @@ console.log("HIJRI CHART ELEMENT:", hijriMonthlyChart);
       hijriMonthlyInsight.textContent = "Belum ada insight bulan ini.";
     }
   }
+}
+
+function generateHijriInsight(dayItems = []) {
+  if (!dayItems.length) return "Belum ada aktivitas bulan ini.";
+
+  const activeDays = dayItems.filter(d => d.totalAmal > 0).length;
+  const totalDays = dayItems.length;
+
+  const percent = Math.round((activeDays / totalDays) * 100);
+
+  const bestDay = [...dayItems].sort((a, b) => b.totalAmal - a.totalAmal)[0];
+
+  let insight = "";
+
+  // 🔥 Konsistensi
+  if (percent >= 80) {
+    insight += "MasyaAllah, konsistensimu luar biasa bulan ini. 🔥 ";
+  } else if (percent >= 50) {
+    insight += "Alhamdulillah, sudah cukup konsisten. Tingkatkan sedikit lagi ya. 💪 ";
+  } else {
+    insight += "Yuk mulai bangun konsistensi, sedikit tapi rutin. 🌱 ";
+  }
+
+  // ⭐ Hari terbaik
+  if (bestDay && bestDay.totalAmal > 0) {
+    insight += `Hari terbaikmu ada di hari ${bestDay.day} dengan ${bestDay.totalAmal} amal. `;
+  }
+
+  // 🔥 STREAK (INI YANG KAMU TANYA)
+  const streak = calculateBestStreak(dayItems);
+  if (streak >= 5) {
+    insight += `Kamu punya streak ${streak} hari! 🔥`;
+  }
+
+  return insight;
 }
 
 function getHijriMonthlyInsight(percent) {
@@ -4317,17 +4360,11 @@ async function loadTilawahAccumulation(uid) {
   try {
     const data = await getTilawahAccumulation(uid);
 
-    // =============================
-    // TEXT
-    // =============================
     if (tilawahAccumulationText) {
       tilawahAccumulationText.textContent =
-        `${data.remainingPages} halaman • ${data.khatamCount}x Khatam`;
+        `Akumulasi khatam: ${data.remainingPages} halaman • ${data.khatamCount}x Khatam`;
     }
 
-    // =============================
-    // PROGRESS %
-    // =============================
     if (tilawahKhatamPercentText) {
       tilawahKhatamPercentText.textContent = `${data.progressPercent}%`;
     }
@@ -4335,9 +4372,6 @@ async function loadTilawahAccumulation(uid) {
     if (tilawahKhatamProgressBar) {
       tilawahKhatamProgressBar.style.width = `${data.progressPercent}%`;
 
-      // =============================
-      // COLOR LOGIC
-      // =============================
       tilawahKhatamProgressBar.classList.remove("bg-amber-500", "bg-emerald-500");
 
       if (data.progressPercent >= 90) {
@@ -4352,28 +4386,20 @@ async function loadTilawahAccumulation(uid) {
         `${data.remainingPages} / ${KHATAM_PAGES} halaman menuju khatam berikutnya`;
     }
 
-    // =============================
-    // KHATAM DETECTION
-    // =============================
     const storageKey = getTilawahKhatamStorageKey(uid);
     const lastKhatam = Number(localStorage.getItem(storageKey) || 0);
 
     if (data.khatamCount > lastKhatam) {
-      // 🎉 trigger toast
       showToast(`MasyaAllah, ${data.khatamCount}x khatam tercapai!`, "success");
-
-      // simpan state baru
       localStorage.setItem(storageKey, String(data.khatamCount));
     } else {
-      // sync kalau belum ada
       localStorage.setItem(storageKey, String(data.khatamCount));
     }
-
   } catch (error) {
     console.error("LOAD TILAWAH ACCUMULATION ERROR:", error);
 
     if (tilawahAccumulationText) {
-      tilawahAccumulationText.textContent = "0 halaman • 0x Khatam";
+      tilawahAccumulationText.textContent = "Akumulasi khatam: 0 halaman • 0x Khatam";
     }
 
     if (tilawahKhatamPercentText) {

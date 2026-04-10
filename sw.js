@@ -1,5 +1,5 @@
-const STATIC_CACHE = 'istiqomah-static-g3i';
-const DYNAMIC_CACHE = 'istiqomah-dynamic-g3i';
+const STATIC_CACHE = 'istiqomah-static-g4i';
+const DYNAMIC_CACHE = 'istiqomah-dynamic-g4i';
 
 // Assets to cache on install
 const STATIC_ASSETS = [
